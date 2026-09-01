@@ -439,7 +439,7 @@ const SUBTYPES = {
       "For matching relationships, you need one statement linking the people/items and another giving the known property.",
       "Select exactly the number of statements requested."
     ], traps:["Using outside knowledge","Selecting one sufficient-looking statement when two are required","Choosing two statements that mention the right words but do not logically connect"]},
-  abstractOdd:{cat:"Abstract",name:"Figure Odd-One-Out",fidelity:"High",basis:"Official dot-circle and block-style odd-one-out examples",
+  abstractOdd:{cat:"Abstract",name:"Figure Odd-One-Out",fidelity:"High",basis:"Official odd-one-out format; harder rotation/reflection rules are training extensions",
     help:[
       "Inventory attributes quickly: count, fill/shading, position, orientation, border, symmetry and number of components.",
       "Name the common rule in one short phrase, e.g. 'three filled dots'. Then find the figure(s) that break it.",
@@ -517,6 +517,15 @@ const WORKED = {
   ]
 };
 
+const QUESTION_BANK_VERSION="2026-09-01-QA2";
+const PRACTICE_BANK_SIZE_PER_DIFFICULTY=40;
+const PRACTICE_BANK_BANDS=["easy","medium","hard"];
+const PRACTICE_BANK_SUBTYPES=["numSeries","numMatrix","wordProblems","oddWords","analogy","wordRelation","deduction","abstractOdd","abstractSequence","rotation","multiAttribute"];
+function practiceBankSeed(subtype,band,index){
+  const si=PRACTICE_BANK_SUBTYPES.indexOf(subtype),bi=PRACTICE_BANK_BANDS.indexOf(band);
+  return 71000001 + si*1000003 + bi*100003 + index*7919;
+}
+
 const state = {
   page:"home", cat:"Numerical", subtype:"numSeries", practice:null, test:null, review:null,
   settings:{difficulty:"mixed",count:15,timed:false}
@@ -578,7 +587,7 @@ function genNumSeries(seed,difficulty="medium"){
     }
   }else{
     if(type===0){
-      const a=ri(r,2,10),b=ri(r,18,35),d1=ri(r,2,6),d2=ri(r,3,8); seq=[a,b,a+d1,b+d2,a+2*d1]; ans=b+2*d2;
+      const a=ri(r,2,10),b=ri(r,18,35),d1=ri(r,2,6),d2=ri(r,3,8); seq=[a,b,a+d1,b+d2,a+2*d1,b+2*d2]; ans=a+3*d1;
       rule=`two interleaved sequences: odd positions +${d1}, even positions +${d2}`;
       reason="Requires splitting the terms into two interleaved sequences and solving the correct strand.";
     }else if(type===1){
@@ -597,9 +606,27 @@ function genNumSeries(seed,difficulty="medium"){
   return setDifficulty(q,band,reason);
 }
 
+function matrixPlausiblePredictions(grid){
+ const rows=grid.map(row=>row.map(v=>v===null?null:v));
+ const a3=rows[2][0],b3=rows[2][1],preds=[];
+ const funcs=[];
+ const add=(name,fn)=>funcs.push([name,fn]);
+ add("a+b",(a,b)=>a+b);add("a-b",(a,b)=>a-b);add("b-a",(a,b)=>b-a);add("a*b",(a,b)=>a*b);
+ add("2a+b",(a,b)=>2*a+b);add("a+2b",(a,b)=>a+2*b);add("2a-b",(a,b)=>2*a-b);add("2b-a",(a,b)=>2*b-a);
+ for(const m of [2,3,4]){add(`(a+b)*${m}`,(a,b)=> (a+b)*m);add(`a*${m}+b`,(a,b)=>a*m+b);add(`a+b*${m}`,(a,b)=>a+b*m);}
+ for(let k=-6;k<=6;k++){add(`a+b+${k}`,(a,b)=>a+b+k);add(`a*b+${k}`,(a,b)=>a*b+k);}
+ for(const [name,fn] of funcs){if(fn(rows[0][0],rows[0][1])===rows[0][2]&&fn(rows[1][0],rows[1][1])===rows[1][2])preds.push({name,value:fn(a3,b3)});}
+ return preds;
+}
+function matrixIsClear(grid,intendedAnswer){
+ if(grid[0][0]===grid[1][0]&&grid[0][1]===grid[1][1])return false;
+ const preds=matrixPlausiblePredictions(grid),values=[...new Set(preds.map(x=>x.value))];
+ return values.length===1&&values[0]===intendedAnswer;
+}
+
 function genNumMatrix(seed,difficulty="medium"){
   const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"numMatrix",band); let grid,ans,rule,reason;
-  const type=ri(r,0,2);
+  const type=band==="easy"?ri(r,0,3):ri(r,0,2);
   if(band==="easy"){
     if(type===0){
       const rows=Array.from({length:3},()=>{const a=ri(r,2,12),b=ri(r,2,12);return [a,b,a+b]}); ans=rows[2][2]; rows[2][2]=null; grid=rows;
@@ -607,14 +634,17 @@ function genNumMatrix(seed,difficulty="medium"){
     }else if(type===1){
       const rows=Array.from({length:3},()=>{const b=ri(r,2,8),c=ri(r,2,9),a=b+c;return [a,b,c]}); ans=rows[2][2]; rows[2][2]=null; grid=rows;
       rule="in each row, third = first − second"; reason="A single direct subtraction relationship repeated across rows.";
-    }else{
+    }else if(type===2){
       const a=ri(r,2,10),h=ri(r,2,5),v=ri(r,2,5); grid=[[a,a+h,a+2*h],[a+v,a+v+h,a+v+2*h],[a+2*v,a+2*v+h,null]]; ans=a+2*v+2*h;
-      rule=`move right +${h}; move down +${v}`; reason="Two visible constant steps that cross-check to the same missing cell.";
+      rule=`move right +${h}; move down +${v}`; reason="A simple constant-step grid; either the row or column pattern leads directly to the same answer.";
+    }else{
+      const rows=Array.from({length:3},()=>{const a=ri(r,2,9),b=ri(r,2,7);return [a,b,a*b]}); ans=rows[2][2];rows[2][2]=null;grid=rows;
+      rule="in each row, third = first × second"; reason="One direct multiplication relationship repeated across rows.";
     }
   }else if(band==="medium"){
     if(type===0){
-      const rows=Array.from({length:3},()=>{const a=ri(r,2,9),b=ri(r,2,7);return [a,b,a*b]}); ans=rows[2][2];rows[2][2]=null;grid=rows;
-      rule="in each row, third = first × second"; reason="Requires testing multiplication rather than only addition/subtraction.";
+      const rows=Array.from({length:3},()=>{const a=ri(r,2,9),b=ri(r,2,9);return [a,b,a+2*b]}); ans=rows[2][2];rows[2][2]=null;grid=rows;
+      rule="in each row, third = first + (2 × second)"; reason="A consistent two-step arithmetic rule must be inferred from complete rows.";
     }else if(type===1){
       const rows=Array.from({length:3},()=>{const a=ri(r,2,9),b=ri(r,2,9);return [a,b,2*a+b]}); ans=rows[2][2];rows[2][2]=null;grid=rows;
       rule="in each row, third = (2 × first) + second"; reason="A consistent two-step arithmetic rule must be inferred from complete rows.";
@@ -634,6 +664,7 @@ function genNumMatrix(seed,difficulty="medium"){
       rule=`in each row, third = (first + second) × ${m}`; reason="Requires recognising operation order across two linked arithmetic steps.";
     }
   }
+  if(!matrixIsClear(grid,ans))return genNumMatrix(seed+104729,band);
   q.prompt="What number should replace the question mark in the matrix?";q.display={type:"matrix",grid:grid.map(row=>row.map(v=>v===null?"?":v))};q.kind="numeric";q.answer=ans;
   q.explanation=`Use the same rule on the complete rows: ${rule}. The missing value is ${ans}.`;
   return setDifficulty(q,band,reason);
@@ -827,11 +858,25 @@ function genAbstractOdd(seed,difficulty="medium"){
    const dots=pick(r,[3,4]),wrongCount=dots===3?2:3;let specs=[{type:"dots",dots,dotFill:"solid"},{type:"dots",dots,dotFill:"solid"},{type:"dots",dots,dotFill:"solid"},{type:"dots",dots,dotFill:"solid"},{type:"dots",dots:wrongCount,dotFill:"solid"},{type:"dots",dots,dotFill:"outline"}];specs=shuffle(r,specs);
    q.prompt="Which TWO figures do not belong with the others?";q.kind="visualMulti";q.visualOptions=specs;q.answer=specs.map((x,i)=>({x,i})).filter(z=>z.x.dots!==dots||z.x.dotFill!=="solid").map(z=>z.i);q.maxSelect=2;q.explanation=`Four figures have ${dots} filled dots. One changes the count and one changes the fill.`;reason="The invariant is visible from basic count/fill inspection; no relational transformation is required.";
  }else if(band==="medium"){
-   let specs=[0,90,180,270,0,90].map(rot=>({type:"shape",shape:"L",rot,fill:"solid",marker:"accent",mirror:false}));const bad=ri(r,0,specs.length-1);specs[bad]={...specs[bad],mirror:true};specs=shuffle(r,specs);const ans=specs.findIndex(x=>x.mirror);
-   q.prompt="Which figure is a mirror image rather than merely a rotation of the others?";q.kind="visualSingle";q.visualOptions=specs;q.answer=ans;q.explanation="Five figures preserve the same handedness and differ only by rotation. The outsider reverses handedness, so it is a reflection.";reason="Requires distinguishing rotation from reflection using an asymmetric figure.";
+   const base={type:"shape",shape:"L",fill:"solid",marker:"accent"};
+   let specs=[0,90,180,270].map(rot=>({...base,rot,mirror:false}));
+   const mirrorRot=pick(r,[0,90,180,270]);
+   specs.push({...base,rot:mirrorRot,mirror:true});
+   specs=shuffle(r,specs);
+   q.prompt="Which ONE figure does not belong with the others?";
+   q.kind="visualSingle";q.visualOptions=specs;q.answer=specs.findIndex(x=>x.mirror);
+   q.explanation="Four figures are rotations of the same asymmetric marked shape. One reverses the shape's handedness, so it is a mirror image rather than a rotation.";
+   reason="Uses the official-style odd-one-out format, but requires recognising rotational equivalence and handedness rather than a simple count/fill difference.";
  }else{
-   let specs=[0,90,180,270,0,90,180,270].map(rot=>({type:"shape",shape:"L",rot,fill:"solid",marker:"accent",mirror:false}));let bad1=ri(r,0,3),bad2=ri(r,4,7);specs[bad1]={...specs[bad1],mirror:true};specs[bad2]={...specs[bad2],mirror:true};specs=shuffle(r,specs);const ans=specs.map((x,i)=>({x,i})).filter(z=>z.x.mirror).map(z=>z.i);
-   q.prompt="Which TWO figures cannot be produced by rotating the same original figure?";q.kind="visualMulti";q.visualOptions=specs;q.answer=ans;q.maxSelect=2;q.explanation="Six options are rotations of the same asymmetric L. Two reverse its handedness and are reflections, not rotations.";reason="Requires checking handedness across eight orientations and identifying two reflection traps rather than one.";
+   const base={type:"shape",shape:"L",fill:"solid",marker:"accent"};
+   const angles=shuffle(r,[0,45,90,135,180,225,270,315]).slice(0,6);
+   let specs=angles.slice(0,4).map(rot=>({...base,rot,mirror:false}));
+   specs.push({...base,rot:angles[4],mirror:true},{...base,rot:angles[5],mirror:true});
+   specs=shuffle(r,specs);
+   q.prompt="Which TWO figures do not belong with the others?";
+   q.kind="visualMulti";q.visualOptions=specs;q.answer=specs.map((x,i)=>({x,i})).filter(z=>z.x.mirror).map(z=>z.i);q.maxSelect=2;
+   q.explanation="Four figures can be produced by rotating the same asymmetric marked shape. Two reverse its handedness and are mirror images, so they are the two outsiders.";
+   reason="Uses the official-style two-outsider format with close rotation/reflection distractors; identifying the pair requires tracking handedness across several orientations.";
  }
  return setDifficulty(q,band,reason);
 }
@@ -858,17 +903,18 @@ function genRotation(seed,difficulty="medium"){
  }else{
    rot=pick(r,[90,270]);const start=pick(r,[0,90,180,270]);target={type:"shape",shape:"L",rot:start,fill:"solid",marker:"accent",mirror:false};correct={...target,rot:(start+rot)%360};opts=[correct,{...target,rot:(correct.rot+90)%360},{...target,rot:correct.rot,mirror:true},{...target,rot:(correct.rot+180)%360,mirror:true},{...target,rot:(correct.rot+180)%360},{...target,rot:(correct.rot+270)%360}];reason="Asymmetric figure with close rotation and mirror-image distractors; handedness must be preserved while rotating.";
  }
- q.prompt=`The figure on the left is rotated ${rot}° clockwise. Which option shows the result?`;q.display={type:"singleFig",spec:target};q.kind="visualSingle";q.visualOptions=shuffle(r,opts);q.answer=q.visualOptions.findIndex(o=>o.rot===correct.rot&&!!o.mirror===!!correct.mirror&&o.shape===correct.shape);q.explanation=`Rotate every feature ${rot}° clockwise. A true rotation preserves handedness; a mirror image does not.`;return setDifficulty(q,band,reason);
+ q.prompt=`The starting figure is rotated ${rot}° clockwise. Which option shows the result?`;q.display={type:"singleFig",spec:target,label:"Starting figure"};q.kind="visualSingle";q.visualOptions=shuffle(r,opts);q.answer=q.visualOptions.findIndex(o=>o.rot===correct.rot&&!!o.mirror===!!correct.mirror&&o.shape===correct.shape);q.explanation=`Rotate every feature ${rot}° clockwise. A true rotation preserves handedness; a mirror image does not.`;return setDifficulty(q,band,reason);
 }
 
 function genMultiAttribute(seed,difficulty="medium"){
  const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"multiAttribute",band);let reason;
  if(band==="easy"){
-   const shapes=["triangle","square","diamond"],shape=pick(r,shapes),other=pick(r,shapes.filter(x=>x!==shape));let specs=[{type:"shape",shape,rot:0,fill:"solid"},{type:"shape",shape,rot:90,fill:"outline"},{type:"shape",shape,rot:180,fill:"solid"},{type:"shape",shape,rot:270,fill:"outline"},{type:"shape",shape:other,rot:0,fill:"solid"}];specs=shuffle(r,specs);q.prompt="Which figure does NOT follow the same underlying shape rule as the others?";q.kind="visualSingle";q.visualOptions=specs;q.answer=specs.findIndex(x=>x.shape===other);q.explanation="Rotation and fill vary, but four options keep the same base shape. The outsider changes the base shape.";reason="Only one invariant ultimately matters: base shape.";
+   const base=pick(r,["arrow","triangle","L"]),other=pick(r,["square","diamond"]);let specs=[{type:"shape",shape:base,rot:0,fill:"solid"},{type:"shape",shape:base,rot:90,fill:"outline"},{type:"shape",shape:base,rot:180,fill:"solid"},{type:"shape",shape:base,rot:270,fill:"outline"},{type:"shape",shape:other,rot:0,fill:"solid"}];specs=shuffle(r,specs);q.prompt="Which figure does NOT follow the same underlying base-shape rule as the others?";q.kind="visualSingle";q.visualOptions=specs;q.answer=specs.findIndex(x=>x.shape===other);q.explanation="Rotation and fill vary, but four options keep the same base shape. The outsider changes the base shape.";reason="Only one invariant ultimately matters: base shape; the four valid options are visually distinct.";
  }else if(band==="medium"){
-   let specs=[0,90,180,270,0,90].map(rot=>({type:"shape",shape:"arrow",rot,fill:(rot===0||rot===180)?"solid":"outline"}));let bad=ri(r,0,specs.length-1);specs[bad]={...specs[bad],fill:specs[bad].fill==="solid"?"outline":"solid"};specs=shuffle(r,specs);q.prompt="Which figure breaks the relationship between orientation and fill?";q.kind="visualSingle";q.visualOptions=specs;q.answer=specs.findIndex(x=>((x.rot===0||x.rot===180)?"solid":"outline")!==x.fill);q.explanation="For the valid figures, vertical orientations (0°/180°) are solid and horizontal orientations (90°/270°) are outline. One option violates that relationship.";reason="Requires discovering a relationship between two attributes rather than spotting a single invariant.";
+   let specs=[0,90,180,270].map(rot=>({type:"shape",shape:"arrow",rot,fill:(rot===0||rot===180)?"solid":"outline"}));
+   const badRot=pick(r,[0,90,180,270]);specs.push({type:"shape",shape:"arrow",rot:badRot,fill:(badRot===0||badRot===180)?"outline":"solid"});specs=shuffle(r,specs);q.prompt="Which figure breaks the relationship between orientation and fill?";q.kind="visualSingle";q.visualOptions=specs;q.answer=specs.findIndex(x=>((x.rot===0||x.rot===180)?"solid":"outline")!==x.fill);q.explanation="For the valid figures, vertical orientations (0°/180°) are solid and horizontal orientations (90°/270°) are outline. One option violates that relationship.";reason="Requires discovering a relationship between two attributes, with five visually distinct options.";
  }else{
-   const start=pick(r,[0,90,180,270]);const frames=[{type:"shape",shape:"triangle",rot:start,fill:"solid"},{type:"shape",shape:"square",rot:(start+90)%360,fill:"outline"},{type:"shape",shape:"triangle",rot:(start+180)%360,fill:"solid"},{type:"shape",shape:"square",rot:(start+270)%360,fill:"outline"}];const correct={type:"shape",shape:"triangle",rot:start,fill:"solid"};const opts=[correct,{type:"shape",shape:"square",rot:start,fill:"solid"},{type:"shape",shape:"triangle",rot:(start+90)%360,fill:"outline"},{type:"shape",shape:"triangle",rot:(start+180)%360,fill:"solid"},{type:"shape",shape:"square",rot:(start+90)%360,fill:"outline"}];q.prompt="Which figure should come next when ALL attributes are continued?";q.display={type:"figSequence",frames};q.kind="visualSingle";q.visualOptions=shuffle(r,opts);q.answer=q.visualOptions.findIndex(o=>o.shape===correct.shape&&o.rot===correct.rot&&o.fill===correct.fill);q.explanation="Three attributes must all continue: shape alternates triangle/square, rotation advances 90° each frame, and fill alternates solid/outline.";reason="Requires simultaneously tracking three independent visual attributes and rejecting options that satisfy only one or two.";
+   const start=pick(r,[0,90,180,270]);const frames=[{type:"shape",shape:"arrow",rot:start,fill:"solid"},{type:"shape",shape:"triangle",rot:(start+90)%360,fill:"outline"},{type:"shape",shape:"arrow",rot:(start+180)%360,fill:"solid"},{type:"shape",shape:"triangle",rot:(start+270)%360,fill:"outline"}];const correct={type:"shape",shape:"arrow",rot:start,fill:"solid"};const opts=[correct,{type:"shape",shape:"triangle",rot:start,fill:"solid"},{type:"shape",shape:"arrow",rot:(start+90)%360,fill:"outline"},{type:"shape",shape:"arrow",rot:(start+180)%360,fill:"solid"},{type:"shape",shape:"triangle",rot:(start+90)%360,fill:"outline"}];q.prompt="Which figure should come next when ALL attributes are continued?";q.display={type:"figSequence",frames};q.kind="visualSingle";q.visualOptions=shuffle(r,opts);q.answer=q.visualOptions.findIndex(o=>o.shape===correct.shape&&o.rot===correct.rot&&o.fill===correct.fill);q.explanation="Three attributes must all continue: shape alternates arrow/triangle, rotation advances 90° each frame, and fill alternates solid/outline.";reason="Requires simultaneously tracking three visible attributes and rejecting options that satisfy only one or two.";
  }
  return setDifficulty(q,band,reason);
 }
@@ -908,7 +954,7 @@ const byCat={
  Verbal:["oddWords","analogy","wordRelation","deduction"],
  Abstract:["abstractOdd","abstractSequence","rotation","multiAttribute"]
 };
-const practiceCounts={Numerical:150,Verbal:150,Abstract:140}; // seeded, original practice items available
+const practiceCounts={Numerical:360,Verbal:480,Abstract:480}; // finite audited bank: 40 items × 3 difficulty bands × subtype count
 const MOCK_TIER_INFO={
  easier:{label:"Easier than JOA",short:"Easier",desc:"Confidence-building. Mostly Easy questions, some Medium, and only a small number of Hard items."},
  joa:{label:"Same difficulty as JOA",short:"JOA-level",desc:"Best-match calibration using the public ADF examples plus current Australian JOA-focused prep descriptions. This is an estimate because ADF does not publish item difficulty labels."},
@@ -948,7 +994,7 @@ function home(){
     <div class="stat"><b>51</b><span>official scored questions</span></div>
     <div class="stat"><b>20:00</b><span>official scored time</span></div>
     <div class="stat"><b>23.5s</b><span>average pace per item</span></div>
-    <div class="stat"><b>440+</b><span>baseline generated practice variants</span></div>
+    <div class="stat"><b>1,320</b><span>finite category-practice questions</span></div>
    </div>
    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px">
     <button class="btn" onclick="go('practice')">Start targeted practice</button>
@@ -1012,7 +1058,7 @@ function practicePage(){
      <span class="badge ${sub.fidelity.toLowerCase()}">${sub.fidelity} fidelity</span>
      <span class="badge basis-badge">${sub.basis}</span>
     </div>
-    <div class="practice-banknote">${practiceCounts[sub.cat]}+ baseline generated variants in the ${sub.cat.toLowerCase()} practice bank</div>
+    <div class="practice-banknote">${practiceCounts[sub.cat]} verified questions in the finite ${sub.cat.toLowerCase()} practice bank</div>
    </div>
    <div class="controls">
     <div class="field"><label>Difficulty</label><select id="difficulty" onchange="state.settings.difficulty=this.value"><option value="mixed" ${state.settings.difficulty==="mixed"?"selected":""}>Mixed</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></div>
@@ -1036,8 +1082,13 @@ function diffFor(i){
  return i%5===0?"hard":i%3===0?"easy":"medium";
 }
 function startPractice(){
- const seedBase=Date.now()%100000000;
- const qs=Array.from({length:state.settings.count},(_,i)=>generate(state.subtype,seedBase+i*7919,diffFor(i)));
+ const random=rng((Date.now()>>>0) ^ Math.floor(Math.random()*0xffffffff));
+ const pools={};
+ for(const band of PRACTICE_BANK_BANDS){
+   pools[band]=shuffle(random,Array.from({length:PRACTICE_BANK_SIZE_PER_DIFFICULTY},(_,i)=>generate(state.subtype,practiceBankSeed(state.subtype,band,i),band)));
+ }
+ const used={easy:0,medium:0,hard:0};
+ const qs=Array.from({length:state.settings.count},(_,i)=>{const band=diffFor(i);return pools[band][used[band]++];});
  state.practice={qs,index:0,answers:Array(qs.length).fill(null),checked:Array(qs.length).fill(false),start:Date.now(),qStart:Date.now(),times:Array(qs.length).fill(0)};
  render();
 }
@@ -1089,7 +1140,7 @@ function renderDisplay(d){
  if(d.type==="sequence") return `<div class="sequence">${d.values.join(" &nbsp; ")}</div>`;
  if(d.type==="matrix") return `<table class="matrix">${d.grid.map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join("")}</tr>`).join("")}</table>`;
  if(d.type==="figSequence") return `<div class="svg-seq">${d.frames.map(f=>`<div class="svg-frame">${figSvg(f,94,76)}</div>`).join("")}<div style="font-size:28px;font-weight:900">?</div></div>`;
- if(d.type==="singleFig") return `<div class="svg-seq"><div class="svg-frame">${figSvg(d.spec,94,76)}</div></div>`;
+ if(d.type==="singleFig") return `<div class="svg-seq" style="flex-direction:column;gap:6px"><div class="smallnote" style="font-weight:900">${d.label||"Reference figure"}</div><div class="svg-frame">${figSvg(d.spec,94,76)}</div></div>`;
  return "";
 }
 function isOptionCorrect(q,o,i){
@@ -1216,7 +1267,7 @@ function submitTest(auto){
  state.review={id:t.id,tier:t.tier,questions:t.questions,answers:t.answers,flags:t.flags,correct,attempted,by,auto,warmup:t.warmup,elapsed,date:new Date().toISOString()};
  if(!t.warmup){
    const attemptId=`${Date.now()}-${Math.floor(Math.random()*1000000)}`;
-   progress.attempts.unshift({attemptId,testId:t.id,tier:t.tier,date:state.review.date,elapsed,correct,attempted,answers:t.answers,flags:t.flags,auto:!!auto});saveProgress();state.review.savedAttemptId=attemptId;
+   progress.attempts.unshift({attemptId,testId:t.id,tier:t.tier,date:state.review.date,elapsed,correct,attempted,answers:t.answers,flags:t.flags,auto:!!auto,questionBankVersion:QUESTION_BANK_VERSION,questions:t.questions});saveProgress();state.review.savedAttemptId=attemptId;
  }
  state.test=null;state.page="results";render();window.scrollTo(0,0);
 }
@@ -1224,7 +1275,9 @@ function formatAttemptDate(iso){
  try{return new Date(iso).toLocaleString("en-AU",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch(e){return iso||"";}
 }
 function openSavedAttempt(attemptId){
- const a=(progress.attempts||[]).find(x=>x.attemptId===attemptId);if(!a)return;const qs=buildMock(a.testId),by=calculateBreakdown(qs,a.answers);
+ const a=(progress.attempts||[]).find(x=>x.attemptId===attemptId);if(!a)return;
+ if(!Array.isArray(a.questions)||a.questions.length!==51){alert("This result was saved before the fully audited question bank was introduced. Its score and timing are preserved, but an exact per-question review cannot be reconstructed safely because the question bank has since changed. Please retake the test for a fully preserved answer review.");return;}
+ const qs=a.questions,by=calculateBreakdown(qs,a.answers);
  state.review={id:a.testId,tier:a.tier,questions:qs,answers:a.answers,flags:a.flags||Array(qs.length).fill(false),correct:a.correct,attempted:a.attempted,by,auto:a.auto,warmup:false,elapsed:a.elapsed,date:a.date,savedAttemptId:a.attemptId,fromHistory:true};state.page="results";render();window.scrollTo(0,0);setTimeout(showReview,0);
 }
 function deleteAttempt(attemptId){
@@ -1242,7 +1295,7 @@ function progressPage(){
 }
 function historyItem(a){
  const info=MOCK_TIER_INFO[a.tier]||{label:"Practice test"},acc=a.attempted?Math.round(a.correct/a.attempted*100):0;
- return `<div class="card history-item"><div class="history-top"><div><div class="history-title">Practice Test ${a.testId} <span class="tier-pill ${a.tier}">${info.label}</span></div><div class="history-meta">${formatAttemptDate(a.date)}${a.auto?" · time expired":" · submitted manually"}</div></div><div class="history-score">${a.correct}/51</div></div><div class="history-stats"><span>Attempted ${a.attempted}/51</span><span>Accuracy on attempted ${acc}%</span><span>Time ${Math.floor(a.elapsed/60)}:${String(a.elapsed%60).padStart(2,"0")}</span></div><div class="history-actions"><button class="btn small" onclick="openSavedAttempt('${a.attemptId}')">Open answer review</button><button class="btn small danger-btn" onclick="deleteAttempt('${a.attemptId}')">Delete this result</button></div></div>`;
+ return `<div class="card history-item"><div class="history-top"><div><div class="history-title">Practice Test ${a.testId} <span class="tier-pill ${a.tier}">${info.label}</span></div><div class="history-meta">${formatAttemptDate(a.date)}${a.auto?" · time expired":" · submitted manually"}</div></div><div class="history-score">${a.correct}/51</div></div><div class="history-stats"><span>Attempted ${a.attempted}/51</span><span>Accuracy on attempted ${acc}%</span><span>Time ${Math.floor(a.elapsed/60)}:${String(a.elapsed%60).padStart(2,"0")}</span></div><div class="history-actions"><button class="btn small" onclick="openSavedAttempt('${a.attemptId}')">${Array.isArray(a.questions)?"Open answer review":"Legacy result info"}</button><button class="btn small danger-btn" onclick="deleteAttempt('${a.attemptId}')">Delete this result</button></div></div>`;
 }
 
 function resultsPage(){
@@ -1283,7 +1336,7 @@ function sourcesPage(){
  <section class="section"><h2>Question-family fidelity map</h2><table class="fidelity-table"><thead><tr><th>Training module</th><th>Fidelity</th><th>Why</th></tr></thead><tbody>
  ${Object.entries(SUBTYPES).map(([k,v])=>`<tr><td>${v.cat} — ${v.name}</td><td><span class="badge ${v.fidelity.toLowerCase()}">${v.fidelity}</span></td><td>${v.basis}</td></tr>`).join("")}
  </tbody></table></section>
- <section class="card section" style="padding:20px"><h3>Difficulty calibration</h3><p>Easy / Medium / Hard badges are now assigned by the <b>actual construction of each generated item</b>. Easy is reserved for one-rule or immediately classifiable items; Medium requires an additional inference, second attribute or two-step process; Hard is reserved for interleaved rules, dependent multi-step calculations, close logic traps, reflection-vs-rotation discrimination or similarly layered reasoning. A regression guard explicitly classifies simple A-B-A-B number alternation as Easy.</p></section><section class="card section" style="padding:20px"><h3>What this tool does not claim</h3><p>It does not claim to reproduce proprietary JOA questions, exact scoring, role cut-scores, adaptive behaviour, official item difficulty labels or an unpublished official section split. “Same difficulty as JOA” is therefore a best-match simulation tier based on the official public examples and current Australian JOA-focused descriptions, not an ADF-issued difficulty rating.</p></section>
+ <section class="card section" style="padding:20px"><h3>Question-bank QA</h3><p>This build uses a finite category-practice bank of <b>1,320 questions</b> (40 per difficulty band for each question subtype) plus 18 fixed 51-question mocks. The full bank is exhaustively machine-checked before release for answer presence, selection counts, arithmetic consistency, matrix-rule ambiguity, correct-vs-incorrect visual distinguishability, clipping, reference/starting figures only where the prompt genuinely requires one, and deterministic regeneration. Semantic verbal templates are also manually reviewed. New completed full-test attempts save an exact snapshot of their 51 questions so later bank updates cannot change an old answer review.</p></section><section class="card section" style="padding:20px"><h3>Difficulty calibration</h3><p>Easy / Medium / Hard badges are now assigned by the <b>actual construction of each generated item</b>. Easy is reserved for one-rule or immediately classifiable items; Medium requires an additional inference, second attribute or two-step process; Hard is reserved for interleaved rules, dependent multi-step calculations, close logic traps, reflection-vs-rotation discrimination or similarly layered reasoning. A regression guard explicitly classifies simple A-B-A-B number alternation as Easy.</p></section><section class="card section" style="padding:20px"><h3>What this tool does not claim</h3><p>It does not claim to reproduce proprietary JOA questions, exact scoring, role cut-scores, adaptive behaviour, official item difficulty labels or an unpublished official section split. “Same difficulty as JOA” is therefore a best-match simulation tier based on the official public examples and current Australian JOA-focused descriptions, not an ADF-issued difficulty rating.</p></section>
  </main>`;
 }
 function render(){
