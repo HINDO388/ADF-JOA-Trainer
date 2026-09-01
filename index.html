@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.0">
+<meta name="app-version" content="1.1">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -387,11 +387,73 @@ body.drill-open{overflow:hidden}
  .topnav button:hover{background:transparent;color:#dbe3e8}
  .topnav button.active:hover{background:var(--nav2);color:#fff}
 }
+
+/* ========================== v1.1 ========================== */
+.option.selected,.option.selected:hover{
+  border-color:#1f6f9f !important;background:#d9edf8 !important;
+  box-shadow:inset 4px 0 0 #1f6f9f,0 0 0 1px rgba(31,111,159,.12);
+}
+.option.selected .letter{background:#1f6f9f;color:#fff}
+.visual-option.selected,.visual-option.selected:hover{
+  border-color:#1f6f9f !important;background:#d9edf8 !important;
+  box-shadow:inset 0 0 0 2px rgba(31,111,159,.28);
+}
+.question-time{margin-top:10px;display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:#edf5f9;color:#315a71;font-size:12px;font-weight:850}
+.practice-summary{padding:22px}
+.practice-summary-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.practice-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 22px}
+.practice-summary-stat{padding:14px;background:#f3f7f9;border:1px solid #d9e5eb;border-radius:10px}
+.practice-summary-stat b{display:block;font-size:24px}.practice-summary-stat span{font-size:12px;color:var(--muted)}
+.practice-review-grid{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 20px}
+.practice-review-cell{width:62px;text-align:center}
+.practice-review-btn{width:52px;height:52px;border-radius:12px;border:1px solid transparent;color:#fff;font-weight:950;font-size:15px}
+.practice-review-btn.good{background:#287b5d;border-color:#176a4b}.practice-review-btn.bad{background:#b83a46;border-color:#942632}
+.practice-review-btn.active{outline:3px solid #244b64;outline-offset:2px}
+.practice-review-time{font-size:10px;color:var(--muted);margin-top:5px;white-space:nowrap}
+.practice-review-detail{margin-top:18px;padding:18px;border:1px solid var(--line);border-radius:12px;background:#fbfdfe}
+.practice-review-detail h3{margin-bottom:4px}
+.mock-tier-head{display:grid;grid-template-columns:minmax(0,760px) auto;justify-content:space-between;column-gap:28px;align-items:start}
+.mock-tier-copy{min-width:0;max-width:760px}.mock-tier-copy p{margin:4px 0 0;color:var(--muted);max-width:720px}
+.mock-tier-copy .tier-sentence{display:block}.tier-pill{justify-self:end}
+body.ui-modal-open{overflow:hidden}
+.ui-modal-root:empty{display:none}
+.ui-modal-root{position:fixed;inset:0;z-index:250;background:rgba(4,24,39,.66);display:flex;align-items:center;justify-content:center;padding:calc(18px + env(safe-area-inset-top)) calc(18px + env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) calc(18px + env(safe-area-inset-left))}
+.ui-modal-card{width:min(430px,100%);background:#fff;border:1px solid #b9cdd9;border-radius:16px;box-shadow:0 22px 70px rgba(2,26,44,.34);overflow:hidden}
+.ui-modal-head{padding:16px 18px 11px;background:#f4f8fa;border-bottom:1px solid #d9e4ea}.ui-modal-head h3{margin:0;font-size:18px}
+.ui-modal-body{padding:18px;color:#405461;line-height:1.55}.ui-modal-actions{display:flex;justify-content:flex-end;gap:9px;padding:0 18px 18px}
+.ui-modal-actions .btn{min-width:92px}.ui-modal-actions .danger{background:var(--bad)}.ui-modal-actions .danger:hover{background:#932530}
+.mental-layout{display:grid;grid-template-columns:1fr;gap:18px}.mental-card{padding:22px}.mental-card h3{margin-bottom:6px}
+.mental-card .section-copy{margin:0 0 14px;color:var(--muted);font-size:13px}
+.mental-op-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.mental-op{border:1px solid #cbd9e1;background:#fff;color:#29495d;border-radius:10px;min-height:48px;padding:9px;font-weight:850}
+.mental-op.active{background:#dceef8;border-color:#4c91b8;color:#124d70;box-shadow:inset 0 0 0 1px rgba(50,123,168,.18)}
+.mental-setting-row{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.mental-choice-row{display:flex;gap:8px;flex-wrap:wrap}
+.mental-choice{border:1px solid #cbd9e1;background:#fff;color:#36566a;border-radius:9px;min-height:44px;padding:9px 13px;font-weight:800}
+.mental-choice.active{background:#e4f2f9;border-color:#5d9cbe;color:#155579}
+.mental-table-summary{margin-top:9px;font-size:12px;color:var(--muted)}.mental-start{display:flex;justify-content:flex-end;margin-top:18px}
+.mental-session-card{padding:22px}.mental-session-top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:14px}
+.mental-session-progress{font-size:12px;color:var(--muted);font-weight:800}.mental-countdown{font-variant-numeric:tabular-nums;font-size:16px;font-weight:950;color:#174c6d}
+.mental-problem{min-height:150px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:46px;font-weight:950;letter-spacing:.02em;background:#f7fafc;border:1px solid #d6e3ea;border-radius:14px;margin:12px 0 18px}
+.mental-answer-row{display:flex;justify-content:center;gap:10px;align-items:center;flex-wrap:wrap}
+.mental-answer{width:210px;min-height:54px;border:2px solid #aebfc9;border-radius:10px;padding:10px 13px;font-size:24px;font-weight:850;text-align:center}
+.mental-answer:focus{outline:3px solid rgba(50,123,168,.18);border-color:var(--sky-deep)}
+.mental-summary{padding:22px}.mental-review-list{display:grid;gap:9px;margin-top:14px}
+.mental-review-item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;border:1px solid #e0c2c5;background:#fff7f8;border-radius:10px;padding:11px 13px}
+.mental-review-problem{font-weight:900}.mental-review-user{font-size:12px;color:#8d3841}.mental-review-answer{font-size:13px;font-weight:900;color:#176343;white-space:nowrap}
+.table-picker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.table-pick{border:1px solid #cbd9e1;background:#fff;border-radius:9px;min-height:46px;font-weight:900;color:#38576b}
+.table-pick.active{background:#dceef8;border-color:#4c91b8;color:#124d70}.table-picker-actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+@media(max-width:900px){.mock-tier-head{grid-template-columns:minmax(0,1fr) auto;column-gap:18px}.mock-tier-copy p{max-width:650px}.mental-op-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.mental-op.quick{grid-column:span 2}}
+@media(min-width:701px){.mock-tier-copy .tier-sentence{white-space:nowrap}}
+@media(max-width:700px){.mock-tier-head{display:flex;flex-direction:column;gap:7px}.mock-tier-copy p{max-width:none}.mock-tier-copy .tier-sentence{white-space:normal}.tier-pill{align-self:flex-start}.practice-summary{padding:16px}.practice-summary-grid{grid-template-columns:1fr 1fr}.practice-summary-stat:last-child{grid-column:1/-1}.mental-card,.mental-session-card,.mental-summary{padding:16px}.mental-op-grid{grid-template-columns:1fr 1fr}.mental-op.quick{grid-column:1/-1}.mental-problem{font-size:39px;min-height:130px}.mental-answer{width:100%}.mental-answer-row{align-items:stretch;flex-direction:column}.mental-review-item{grid-template-columns:1fr;gap:4px}}
+@media(max-width:430px){.practice-review-cell{width:55px}.practice-review-btn{width:48px;height:48px}.table-picker-grid{grid-template-columns:repeat(3,1fr)}.mental-problem{font-size:34px}}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version">v1.0</div>
+<div id="uiModalRoot" class="ui-modal-root"></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version">v1.1</div>
 
 <script>
 /* ===========================================================
@@ -405,7 +467,7 @@ body.drill-open{overflow:hidden}
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.0";
+const APP_VERSION = "1.1";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -547,7 +609,9 @@ function practiceBankSeed(subtype,band,index){
 
 const state = {
   page:"home", cat:"Numerical", subtype:"numSeries", practice:null, test:null, review:null,
-  settings:{difficulty:"mixed",count:15,timed:false}
+  settings:{difficulty:"mixed",count:15,timed:false},
+  mentalSetup:{ops:["mul"],tableMode:"all",singleTable:2,selectedTables:[1,2,3,4,5,6,7,8,9,10,11,12],lengthMode:"questions",questionCount:20,durationSeconds:120},
+  mental:null,mentalPickerOpen:false,mentalPickerDraft:[]
 };
 // Only full 51-question practice tests are persisted. Category drills are deliberately not tracked.
 const storeKey="adfJoaTrainerFullTestProgressV3";
@@ -557,6 +621,22 @@ try{
   if(saved && Array.isArray(saved.attempts)) progress=saved;
 }catch(e){ progress={attempts:[]}; }
 function saveProgress(){ localStorage.setItem(storeKey,JSON.stringify(progress)); }
+
+let uiModalResolver=null;
+function modalEscape(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[ch]));}
+function closeUiModal(result){const root=document.getElementById("uiModalRoot");if(root)root.innerHTML="";document.body.classList.remove("ui-modal-open");const resolve=uiModalResolver;uiModalResolver=null;if(resolve)resolve(result);}
+function openUiModal({title="Notice",message="",confirmText="OK",cancelText=null,danger=false}={}){
+ if(uiModalResolver)closeUiModal(false);
+ const root=document.getElementById("uiModalRoot");if(!root)return Promise.resolve(false);
+ root.innerHTML=`<div class="ui-modal-card" role="dialog" aria-modal="true" aria-labelledby="uiModalTitle"><div class="ui-modal-head"><h3 id="uiModalTitle">${modalEscape(title)}</h3></div><div class="ui-modal-body">${modalEscape(message).replace(/\n/g,"<br>")}</div><div class="ui-modal-actions">${cancelText?`<button class="btn ghost" onclick="closeUiModal(false)">${modalEscape(cancelText)}</button>`:""}<button class="btn ${danger?"danger":""}" onclick="closeUiModal(true)">${modalEscape(confirmText)}</button></div></div>`;
+ document.body.classList.add("ui-modal-open");
+ return new Promise(resolve=>{uiModalResolver=resolve;setTimeout(()=>root.querySelector(".ui-modal-actions .btn:last-child")?.focus(),0);});
+}
+function uiConfirm(message,title="Confirm",confirmText="Confirm",danger=false){return openUiModal({title,message,confirmText,cancelText:"Cancel",danger});}
+function uiAlert(message,title="Notice",confirmText="OK"){return openUiModal({title,message,confirmText});}
+function hasUnfinishedSession(){return !!state.test || (!!state.practice&&state.practice.phase!=="summary") || (!!state.mental&&state.mental.phase==="questions");}
+window.addEventListener("beforeunload",event=>{if(!hasUnfinishedSession())return;event.preventDefault();event.returnValue="";});
+
 
 function rng(seed){ let a=seed>>>0; return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; } }
 function ri(r,min,max){ return Math.floor(r()*(max-min+1))+min; }
@@ -975,9 +1055,9 @@ const byCat={
 };
 const practiceCounts={Numerical:360,Verbal:480,Abstract:480}; // finite audited bank: 40 items × 3 difficulty bands × subtype count
 const MOCK_TIER_INFO={
- easier:{label:"Easier than JOA",short:"Easier",desc:"Confidence-building. Mostly Easy questions, some Medium, and only a small number of Hard items."},
- joa:{label:"Same difficulty as JOA",short:"JOA-level",desc:"Best-match calibration using the public ADF examples plus current Australian JOA-focused prep descriptions. This is an estimate because ADF does not publish item difficulty labels."},
- harder:{label:"Harder than JOA",short:"Harder",desc:"Stretch set. A much larger share of multi-step, interleaved, close-distractor and reflection/logic-trap items."}
+ easier:{label:"Easier than JOA",short:"Easier",desc:["Confidence-building: mostly Easy, some Medium, and very few Hard questions."]},
+ joa:{label:"Same difficulty as JOA",short:"JOA-level",desc:["Best public-evidence match to JOA difficulty.","ADF does not publish official item difficulty ratings."]},
+ harder:{label:"Harder than JOA",short:"Harder",desc:["Stretch set: more multi-step, interleaved, close-distractor and logic-trap items."]}
 };
 const mocks=[];
 let mockId=1;
@@ -989,6 +1069,7 @@ function currentPageNav(){
  return `<div class="topbar"><div class="brand"><span class="brand-word">ADF</span><span class="brand-word">JOA</span><span class="brand-word">Trainer</span></div><div class="topnav">
   <button onclick="go('home')" class="${state.page==='home'?'active':''}">Home</button>
   <button onclick="go('practice')" class="${state.page==='practice'?'active':''}">Category Practice</button>
+  <button onclick="go('mental')" class="${state.page==='mental'?'active':''}">Mental Math</button>
   <button onclick="go('mocks')" class="${state.page==='mocks'?'active':''}">Full Practice Tests</button>
   <button onclick="go('progress')" class="${state.page==='progress'?'active':''}">Progress</button>
   <button onclick="go('strategy')" class="${state.page==='strategy'?'active':''}">Strategy Guide</button>
@@ -1050,7 +1131,7 @@ function openHelp(st){state.cat=SUBTYPES[st].cat;state.subtype=st;state.page="pr
 function workedExamplesBox(st){
  const examples=WORKED[st]||[];
  if(!examples.length) return "";
- return `<details class="workedbox"><summary>Worked examples — see the method applied (${examples.length})</summary>
+ return `<details class="workedbox"><summary>Worked Examples (${examples.length})</summary>
    <p class="worked-intro">These are deliberately slower than test pace. The aim is to make the decision process explicit; once the method becomes automatic, you compress the same steps mentally.</p>
    <div class="worked-examples">${examples.map((e,i)=>`<div class="worked-example">
      <span class="tip-chip">Worked example ${i+1}</span>
@@ -1108,33 +1189,38 @@ function startPractice(){
  }
  const used={easy:0,medium:0,hard:0};
  const qs=Array.from({length:state.settings.count},(_,i)=>{const band=diffFor(i);return pools[band][used[band]++];});
- state.practice={qs,index:0,answers:Array(qs.length).fill(null),checked:Array(qs.length).fill(false),start:Date.now(),qStart:Date.now(),times:Array(qs.length).fill(0)};
+ state.practice={qs,index:0,answers:Array(qs.length).fill(null),checked:Array(qs.length).fill(false),start:Date.now(),qStart:Date.now(),times:Array(qs.length).fill(0),phase:"questions",reviewIndex:null};
  render();
 }
 function renderPracticeModal(){
- const p=state.practice,q=p.qs[p.index];
- return `<div class="drill-modal" role="dialog" aria-modal="true" aria-label="Category practice drill"><div class="drill-dialog">
-  <div class="drill-modal-head"><div><strong>${SUBTYPES[q.subtype].name} drill</strong><div class="smallnote">Question ${p.index+1} of ${p.qs.length}</div></div><button class="drill-close" onclick="closePractice()">Exit</button></div>
-  ${renderPractice()}
- </div></div>`;
+ const p=state.practice,q=p.qs[Math.min(p.index,p.qs.length-1)];
+ return `<div class="drill-modal" role="dialog" aria-modal="true" aria-label="Category practice drill"><div class="drill-dialog"><div class="drill-modal-head"><div><strong>${SUBTYPES[q.subtype].name} drill</strong><div class="smallnote">${p.phase==="summary"?"Drill complete":`Question ${p.index+1} of ${p.qs.length}`}</div></div><button class="drill-close" onclick="closePractice()">Exit</button></div>${p.phase==="summary"?renderPracticeSummary():renderPractice()}</div></div>`;
 }
-function closePractice(){
+async function closePractice(){
  const p=state.practice;if(!p)return;
- const answered=p.checked.filter(Boolean).length;
- if(answered>0 && answered<p.qs.length && !confirm("Exit this drill? Category-practice progress is not saved."))return;
+ if(p.phase!=="summary"){const ok=await uiConfirm("Category-practice progress is not saved. If you exit now, this unfinished drill will be lost.","Exit drill?","Exit",true);if(!ok)return;}
  state.practice=null;render();
 }
-
+function practiceHasAnswer(p,i){const a=p.answers[i];return a!==null&&a!==undefined&&(!Array.isArray(a)||a.length>0)&&String(a)!=="";}
+function formatPracticeSeconds(value){const n=Number(value)||0;return n<10?`${n.toFixed(1)}s`:`${n.toFixed(0)}s`;}
 function renderPractice(){
- const p=state.practice,q=p.qs[p.index],checked=p.checked[p.index];
- return `<div class="drill-card"><div class="qmeta"><div class="left"><span class="badge">Question ${p.index+1}/${p.qs.length}</span><span class="badge diff-${q.difficulty}" title="${q.difficultyReason||''}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span></div><span class="smallnote">${state.settings.timed?'Target pace: 23.5 seconds':'Learn mode'}</span></div>
- ${renderQuestion(q,p.answers[p.index],checked,"practice")}
- ${checked?`<div class="feedback ${isCorrect(q,p.answers[p.index])?'good':'bad'}"><b>${isCorrect(q,p.answers[p.index])?'Correct':'Not quite'}</b>${q.explanation}<div class="difficulty-audit"><b>Difficulty rationale:</b> ${q.difficultyReason}</div></div>`:""}
- <div class="answer-row">
-  ${!checked?`<button class="btn" onclick="checkPractice()">Check answer</button>`:`<button class="btn" onclick="nextPractice()">${p.index===p.qs.length-1?'Finish drill':'Next question'}</button>`}
-  <span class="smallnote">${checked?"Review the method, not just the answer.":q.kind.includes("Multi")||q.kind==="multi"?"Select exactly two answers.":""}</span>
- </div></div>`;
+ const p=state.practice,q=p.qs[p.index],checked=p.checked[p.index],paced=state.settings.timed,answered=practiceHasAnswer(p,p.index);
+ return `<div class="drill-card"><div class="qmeta"><div class="left"><span class="badge">Question ${p.index+1}/${p.qs.length}</span><span class="badge diff-${q.difficulty}" title="${q.difficultyReason||''}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span></div><span class="smallnote">${paced?'Paced mode · no feedback until the end':'Learn (feedback) mode'}</span></div>
+ ${renderQuestion(q,p.answers[p.index],checked&&!paced,"practice")}
+ ${checked&&!paced?`<div class="feedback ${isCorrect(q,p.answers[p.index])?'good':'bad'}"><b>${isCorrect(q,p.answers[p.index])?'Correct':'Not quite'}</b>${q.explanation}<div class="question-time">Completed in ${formatPracticeSeconds(p.times[p.index])}</div><div class="difficulty-audit"><b>Difficulty rationale:</b> ${q.difficultyReason}</div></div>`:""}
+ <div class="answer-row">${paced?`<button class="btn" onclick="nextPacedPractice()">${p.index===p.qs.length-1?'Finish':'Next'}</button>`:(!checked?`<button class="btn" onclick="checkPractice()">Check answer</button>`:`<button class="btn" onclick="nextPractice()">${p.index===p.qs.length-1?'Finish drill':'Next question'}</button>`)}<span class="smallnote">${paced?"Answers stay hidden until the drill ends.":checked?"Review the method, then continue.":q.kind.includes("Multi")||q.kind==="multi"?"Select exactly two answers.":""}</span></div></div>`;
 }
+function renderPracticeSummary(){
+ const p=state.practice,correct=p.qs.filter((q,i)=>isCorrect(q,p.answers[i])).length,avg=p.times.length?p.times.reduce((a,b)=>a+b,0)/p.times.length:0,selected=p.reviewIndex;
+ return `<div class="practice-summary"><div class="practice-summary-head"><div><div class="kicker">Category drill complete</div><h2>${correct}/${p.qs.length} correct</h2></div><button class="btn secondary" onclick="closeCompletedPractice()">Close drill</button></div><div class="practice-summary-grid"><div class="practice-summary-stat"><b>${correct}/${p.qs.length}</b><span>Score</span></div><div class="practice-summary-stat"><b>${Math.round(correct/p.qs.length*100)}%</b><span>Accuracy</span></div><div class="practice-summary-stat"><b>${formatPracticeSeconds(avg)}</b><span>Average time per question</span></div></div><h3>Question review</h3><p class="smallnote">Select any question to see the exact question, your answer, the correct answer and full feedback.</p><div class="practice-review-grid">${p.qs.map((q,i)=>{const good=isCorrect(q,p.answers[i]);return `<div class="practice-review-cell"><button class="practice-review-btn ${good?"good":"bad"} ${selected===i?"active":""}" onclick="reviewPracticeQuestion(${i})">${i+1}</button><div class="practice-review-time">${formatPracticeSeconds(p.times[i])}</div></div>`;}).join("")}</div>${selected===null||selected===undefined?"":renderPracticeReviewDetail(selected)}</div>`;
+}
+function renderPracticeReviewDetail(i){
+ const p=state.practice,q=p.qs[i],good=isCorrect(q,p.answers[i]);
+ return `<div class="practice-review-detail"><div class="qmeta"><div class="left"><span class="badge">Question ${i+1}</span><span class="badge diff-${q.difficulty}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span><span class="question-time">${formatPracticeSeconds(p.times[i])}</span></div><b style="color:${good?'var(--good)':'var(--bad)'}">${good?'Correct':'Incorrect'}</b></div>${renderQuestion(q,p.answers[i],true,"review")}<div class="feedback ${good?'good':'bad'}"><b>${good?'Correct':'Incorrect'}</b>${q.explanation}<div class="difficulty-audit"><b>Difficulty rationale:</b> ${q.difficultyReason}</div></div></div>`;
+}
+function reviewPracticeQuestion(i){state.practice.reviewIndex=i;render();}
+function closeCompletedPractice(){state.practice=null;render();}
+
 function renderQuestion(q,ans,checked,mode){
  let d=q.display?renderDisplay(q.display):"";
  let body="";
@@ -1182,18 +1268,10 @@ function selectPractice(i){
  else p.answers[p.index]=(q.kind==="single"?q.options[i]:i);
  render();
 }
-function checkPractice(){
- const p=state.practice,i=p.index,q=p.qs[i]; if(p.answers[i]===null||p.answers[i]===undefined||(Array.isArray(p.answers[i])&&p.answers[i].length===0)) return;
- p.times[i]=(Date.now()-p.qStart)/1000;p.checked[i]=true;render();
-}
-function nextPractice(){
- const p=state.practice;if(p.index===p.qs.length-1){finishPractice();return;}p.index++;p.qStart=Date.now();render();
-}
-function finishPractice(){
- const p=state.practice; const correct=p.qs.filter((q,i)=>isCorrect(q,p.answers[i])).length;
- alert(`Drill complete: ${correct}/${p.qs.length} correct (${Math.round(correct/p.qs.length*100)}%).`);
- state.practice=null;render();
-}
+function checkPractice(){const p=state.practice,i=p.index;if(!practiceHasAnswer(p,i))return;p.times[i]=(Date.now()-p.qStart)/1000;p.checked[i]=true;render();}
+function nextPractice(){const p=state.practice;if(p.index===p.qs.length-1){finishPractice();return;}p.index++;p.qStart=Date.now();render();}
+function nextPacedPractice(){const p=state.practice,i=p.index;if(!practiceHasAnswer(p,i))return;p.times[i]=(Date.now()-p.qStart)/1000;p.checked[i]=true;if(i===p.qs.length-1){finishPractice();return;}p.index++;p.qStart=Date.now();render();}
+function finishPractice(){const p=state.practice;if(!p)return;p.phase="summary";p.reviewIndex=null;p.finishedAt=Date.now();render();}
 
 function mocksPage(){
  return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Full Practice Tests</h2><p>18 fixed simulations • 51 questions • 20 minutes • full review history saved locally.</p></div><button class="btn secondary" onclick="go('progress')">View Progress</button></div>
@@ -1203,7 +1281,7 @@ function mocksPage(){
 }
 function mockTierSection(tier){
  const info=MOCK_TIER_INFO[tier],items=mocks.filter(m=>m.tier===tier);
- return `<section class="mock-tier"><div class="mock-tier-head"><div><h3>${info.label}</h3><p>${info.desc}</p></div><span class="tier-pill ${tier}">${items.length} tests</span></div><div class="mock-grid">${items.map(m=>mockCard(m)).join("")}</div></section>`;
+ return `<section class="mock-tier"><div class="mock-tier-head"><div class="mock-tier-copy"><h3>${info.label}</h3><p>${info.desc.map(s=>`<span class="tier-sentence">${s}</span>`).join("")}</p></div><span class="tier-pill ${tier}">${items.length} tests</span></div><div class="mock-grid">${items.map(m=>mockCard(m)).join("")}</div></section>`;
 }
 function mockCard(m){
  const hist=(progress.attempts||[]).filter(x=>x.testId===m.id),last=hist[0],info=MOCK_TIER_INFO[m.tier];
@@ -1261,21 +1339,15 @@ function jumpQ(i){state.test.index=i;render();startTimer()}
 function prevQ(){if(state.test.index>0){state.test.index--;render();startTimer()}}
 function nextQ(){if(state.test.index<state.test.questions.length-1){state.test.index++;render();startTimer()}else confirmSubmit()}
 function toggleFlag(){state.test.flags[state.test.index]=!state.test.flags[state.test.index];render();startTimer()}
-function exitTest(){
- const t=state.test;
- if(!t)return;
- const label=t.warmup?"familiarisation":"practice test";
- if(confirm(`Exit this ${label}?\n\nYour answers and progress in this unfinished attempt will be lost.`)){
-   clearInterval(t.interval);
-   state.test=null;
-   state.page="mocks";
-   render();
-   window.scrollTo(0,0);
- }
+async function exitTest(){
+ const t=state.test;if(!t)return;const label=t.warmup?"familiarisation":"practice test";
+ const ok=await uiConfirm(`Your answers and progress in this unfinished ${label} will be lost.`,"Exit test?","Exit",true);if(!ok)return;
+ clearInterval(t.interval);state.test=null;state.page="mocks";render();window.scrollTo(0,0);
 }
-function confirmSubmit(){
+async function confirmSubmit(){
  const t=state.test,un=t.answers.filter(x=>x===null||x===undefined||(Array.isArray(x)&&x.length===0)).length;
- if(confirm(`${un} question${un===1?" is":"s are"} unanswered. Submit now?`)) submitTest(false);
+ const message=un?`${un} question${un===1?" is":"s are"} unanswered. Submit the test now?`:"Submit this test now?";
+ const ok=await uiConfirm(message,"Submit test?","Submit");if(ok)submitTest(false);
 }
 function calculateBreakdown(questions,answers){
  const by={};questions.forEach((q,i)=>{by[q.category]??={total:0,correct:0,attempted:0};const a=answers[i],attempted=a!==null&&a!==undefined&&(!Array.isArray(a)||a.length>0);by[q.category].total++;by[q.category].correct+=isCorrect(q,a)?1:0;by[q.category].attempted+=attempted?1:0;});return by;
@@ -1293,18 +1365,14 @@ function submitTest(auto){
 function formatAttemptDate(iso){
  try{return new Date(iso).toLocaleString("en-AU",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch(e){return iso||"";}
 }
-function openSavedAttempt(attemptId){
+async function openSavedAttempt(attemptId){
  const a=(progress.attempts||[]).find(x=>x.attemptId===attemptId);if(!a)return;
- if(!Array.isArray(a.questions)||a.questions.length!==51){alert("This result was saved before the fully audited question bank was introduced. Its score and timing are preserved, but an exact per-question review cannot be reconstructed safely because the question bank has since changed. Please retake the test for a fully preserved answer review.");return;}
+ if(!Array.isArray(a.questions)||a.questions.length!==51){await uiAlert("This result was saved before the fully audited question bank was introduced. Its score and timing are preserved, but an exact per-question review cannot be reconstructed safely because the question bank has since changed. Please retake the test for a fully preserved answer review.","Legacy result");return;}
  const qs=a.questions,by=calculateBreakdown(qs,a.answers);
  state.review={id:a.testId,tier:a.tier,questions:qs,answers:a.answers,flags:a.flags||Array(qs.length).fill(false),correct:a.correct,attempted:a.attempted,by,auto:a.auto,warmup:false,elapsed:a.elapsed,date:a.date,savedAttemptId:a.attemptId,fromHistory:true};state.page="results";render();window.scrollTo(0,0);setTimeout(showReview,0);
 }
-function deleteAttempt(attemptId){
- if(!confirm("Delete this saved full-test attempt? This cannot be undone."))return;progress.attempts=progress.attempts.filter(x=>x.attemptId!==attemptId);saveProgress();render();
-}
-function deleteAllAttempts(){
- if(!(progress.attempts||[]).length)return;if(!confirm("Delete EVERY saved full practice-test result and answer review? This cannot be undone."))return;progress.attempts=[];saveProgress();render();
-}
+async function deleteAttempt(attemptId){const ok=await uiConfirm("This saved full-test attempt and its answer review will be permanently deleted.","Delete result?","Delete",true);if(!ok)return;progress.attempts=progress.attempts.filter(x=>x.attemptId!==attemptId);saveProgress();render();}
+async function deleteAllAttempts(){if(!(progress.attempts||[]).length)return;const ok=await uiConfirm("Every saved full practice-test result and answer review will be permanently deleted.","Delete all history?","Delete all",true);if(!ok)return;progress.attempts=[];saveProgress();render();}
 function progressPage(){
  const a=progress.attempts||[],avg=a.length?Math.round(a.reduce((n,x)=>n+x.correct,0)/(a.length*51)*100):0,best=a.length?Math.max(...a.map(x=>x.correct)):0;
  return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Full-Test Progress</h2><p>Only completed 51-question practice tests are stored. Category drills and the 5-question familiarisation are not tracked.</p></div>${a.length?`<button class="btn danger-btn" onclick="deleteAllAttempts()">Delete all history</button>`:""}</div>
@@ -1330,6 +1398,44 @@ function showReview(){
  z.innerHTML=`<h2 style="margin-top:24px">Answer Review</h2>${r.questions.map((q,i)=>`<div class="review-item"><div class="qmeta"><div class="left"><span class="badge">${i+1}</span><span class="badge">${q.category}</span><span class="badge diff-${q.difficulty}" title="${q.difficultyReason||''}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span></div><b style="color:${isCorrect(q,r.answers[i])?'var(--good)':'var(--bad)'}">${isCorrect(q,r.answers[i])?'Correct':'Incorrect / unanswered'}</b></div>${renderQuestion(q,r.answers[i],true,"review")}<div class="feedback ${isCorrect(q,r.answers[i])?'good':'bad'}">${q.explanation}<div class="difficulty-audit"><b>Difficulty rationale:</b> ${q.difficultyReason}</div></div></div>`).join("")}`;
  z.scrollIntoView({behavior:"smooth"});
 }
+
+
+const MENTAL_OPS={add:{label:"Addition",symbol:"+"},sub:{label:"Subtraction",symbol:"−"},mul:{label:"Multiplication",symbol:"×"},div:{label:"Division",symbol:"÷"}};
+function mentalPage(){
+ const s=state.mentalSetup,usesTables=s.ops.includes("mul")||s.ops.includes("div");
+ const tableText=s.tableMode==="all"?"All tables 1–12":s.tableMode==="single"?`${s.singleTable} times table`:`Custom: ${s.selectedTables.join(", ")}`;
+ return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Mental Math</h2><p>Build fast arithmetic recall for numerical reasoning and general test pace.</p></div></div><div class="mental-layout">
+ <section class="card mental-card"><h3>1. Operations</h3><p class="section-copy">Choose one operation, any combination, or Quick Hit for all four.</p><div class="mental-op-grid">${Object.entries(MENTAL_OPS).map(([key,v])=>`<button class="mental-op ${s.ops.includes(key)?"active":""}" onclick="toggleMentalOp('${key}')">${v.label}</button>`).join("")}<button class="mental-op quick ${s.ops.length===4?"active":""}" onclick="setMentalAllOps()">Quick Hit · All 4</button></div></section>
+ <section class="card mental-card"><h3>2. Times tables</h3><p class="section-copy">${usesTables?"Multiplication and division use the selected tables. Addition and subtraction always use number facts based on 1–12.":"Times-table targeting becomes active when Multiplication or Division is selected."}</p><div class="mental-choice-row" style="${usesTables?"":"opacity:.48;pointer-events:none"}"><button class="mental-choice ${s.tableMode==="all"?"active":""}" onclick="setMentalTableMode('all')">All 1–12</button><button class="mental-choice ${s.tableMode==="single"?"active":""}" onclick="setMentalTableMode('single')">Specific table</button><button class="mental-choice ${s.tableMode==="custom"?"active":""}" onclick="openMentalTablePicker()">Choose tables…</button></div>${usesTables&&s.tableMode==="single"?`<div class="mental-setting-row" style="margin-top:12px"><div class="field"><label>Times table</label><select onchange="state.mentalSetup.singleTable=+this.value">${Array.from({length:12},(_,i)=>i+1).map(n=>`<option value="${n}" ${s.singleTable===n?"selected":""}>${n} times table</option>`).join("")}</select></div></div>`:""}<div class="mental-table-summary">${usesTables?tableText:"Not currently used"}</div></section>
+ <section class="card mental-card"><h3>3. Session length</h3><p class="section-copy">Choose a fixed number of questions or work continuously against the clock.</p><div class="mental-choice-row"><button class="mental-choice ${s.lengthMode==="questions"?"active":""}" onclick="setMentalLengthMode('questions')">Number of questions</button><button class="mental-choice ${s.lengthMode==="time"?"active":""}" onclick="setMentalLengthMode('time')">Timed session</button></div><div class="mental-setting-row" style="margin-top:12px">${s.lengthMode==="questions"?`<div class="field"><label>Questions</label><select onchange="state.mentalSetup.questionCount=+this.value">${[10,20,30,50,100].map(n=>`<option value="${n}" ${s.questionCount===n?"selected":""}>${n}</option>`).join("")}</select></div>`:`<div class="field"><label>Duration</label><select onchange="state.mentalSetup.durationSeconds=+this.value">${[[60,"1 minute"],[120,"2 minutes"],[180,"3 minutes"],[300,"5 minutes"],[600,"10 minutes"]].map(([n,l])=>`<option value="${n}" ${s.durationSeconds===n?"selected":""}>${l}</option>`).join("")}</select></div>`}</div><div class="mental-start"><button class="btn" onclick="startMentalMath()">Start Mental Math</button></div></section>
+ </div>${state.mentalPickerOpen?renderMentalTablePicker():""}${state.mental?renderMentalSessionModal():""}</main>`;
+}
+function toggleMentalOp(op){const ops=state.mentalSetup.ops;state.mentalSetup.ops=ops.includes(op)?ops.filter(x=>x!==op):[...ops,op];if(!state.mentalSetup.ops.length)state.mentalSetup.ops=[op];render();}
+function setMentalAllOps(){state.mentalSetup.ops=["add","sub","mul","div"];render();}
+function setMentalTableMode(mode){state.mentalSetup.tableMode=mode;render();}
+function setMentalLengthMode(mode){state.mentalSetup.lengthMode=mode;render();}
+function openMentalTablePicker(){state.mentalPickerDraft=[...(state.mentalSetup.selectedTables||[])];if(!state.mentalPickerDraft.length)state.mentalPickerDraft=Array.from({length:12},(_,i)=>i+1);state.mentalPickerOpen=true;render();}
+function toggleMentalTablePick(n){const a=state.mentalPickerDraft;state.mentalPickerDraft=a.includes(n)?a.filter(x=>x!==n):[...a,n].sort((x,y)=>x-y);render();}
+function setMentalPickerAll(on){state.mentalPickerDraft=on?Array.from({length:12},(_,i)=>i+1):[];render();}
+async function applyMentalTablePicker(){if(!state.mentalPickerDraft.length){await uiAlert("Choose at least one times table.","Choose tables");return;}state.mentalSetup.selectedTables=[...state.mentalPickerDraft];state.mentalSetup.tableMode="custom";state.mentalPickerOpen=false;render();}
+function cancelMentalTablePicker(){state.mentalPickerOpen=false;render();}
+function renderMentalTablePicker(){return `<div class="ui-modal-root" style="z-index:210"><div class="ui-modal-card" role="dialog" aria-modal="true" aria-label="Choose times tables"><div class="ui-modal-head"><h3>Choose times tables</h3></div><div class="ui-modal-body"><div class="smallnote">Select any combination from 1 to 12.</div><div class="table-picker-grid">${Array.from({length:12},(_,i)=>i+1).map(n=>`<button class="table-pick ${state.mentalPickerDraft.includes(n)?"active":""}" onclick="toggleMentalTablePick(${n})">${n}×</button>`).join("")}</div><div class="table-picker-actions"><div><button class="btn ghost small" onclick="setMentalPickerAll(true)">Select all</button> <button class="btn ghost small" onclick="setMentalPickerAll(false)">Clear</button></div><div><button class="btn ghost small" onclick="cancelMentalTablePicker()">Cancel</button> <button class="btn small" onclick="applyMentalTablePicker()">Apply</button></div></div></div></div></div>`;}
+function activeMentalTables(){const s=state.mentalSetup;if(s.tableMode==="single")return [s.singleTable];if(s.tableMode==="custom")return s.selectedTables.length?[...s.selectedTables]:Array.from({length:12},(_,i)=>i+1);return Array.from({length:12},(_,i)=>i+1);}
+function generateMentalQuestion(r,ops,tables){const op=pick(r,ops);if(op==="add"){const a=ri(r,1,12),b=ri(r,1,12);return {op,prompt:`${a} + ${b}`,answer:a+b};}if(op==="sub"){const a=ri(r,1,12),b=ri(r,1,12),total=a+b;return {op,prompt:`${total} − ${a}`,answer:b};}if(op==="mul"){const a=pick(r,tables),b=ri(r,1,12);return {op,prompt:`${a} × ${b}`,answer:a*b};}const divisor=pick(r,tables),quotient=ri(r,1,12);return {op,prompt:`${divisor*quotient} ÷ ${divisor}`,answer:quotient};}
+function startMentalMath(){const s=state.mentalSetup,seed=(Date.now()>>>0)^Math.floor(Math.random()*0xffffffff),r=rng(seed),config={ops:[...s.ops],tables:activeMentalTables(),lengthMode:s.lengthMode,questionCount:s.questionCount,durationSeconds:s.durationSeconds};const qs=config.lengthMode==="questions"?Array.from({length:config.questionCount},()=>generateMentalQuestion(r,config.ops,config.tables)):[generateMentalQuestion(r,config.ops,config.tables)];state.mental={phase:"questions",config,r,questions:qs,answers:[],times:[],index:0,currentValue:"",started:Date.now(),qStart:Date.now(),endAt:config.lengthMode==="time"?Date.now()+config.durationSeconds*1000:null,interval:null,showIncorrect:false};render();if(config.lengthMode==="time")startMentalTimer();focusMentalInput();}
+function renderMentalSessionModal(){const m=state.mental;return `<div class="drill-modal" role="dialog" aria-modal="true" aria-label="Mental Math session"><div class="drill-dialog"><div class="drill-modal-head"><div><strong>Mental Math</strong><div class="smallnote">${m.phase==="summary"?"Session complete":MENTAL_OPS[m.questions[m.index]?.op]?.label||"Practice"}</div></div><button class="drill-close" onclick="${m.phase==="summary"?"closeMentalSummary()":"exitMentalMath()"}">${m.phase==="summary"?"Close":"Exit"}</button></div>${m.phase==="summary"?renderMentalSummary():renderMentalQuestion()}</div></div>`;}
+function mentalTimeLeft(){if(!state.mental?.endAt)return 0;return Math.max(0,Math.ceil((state.mental.endAt-Date.now())/1000));}
+function formatClockSeconds(seconds){const s=Math.max(0,Math.ceil(seconds));return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;}
+function renderMentalQuestion(){const m=state.mental,q=m.questions[m.index],timed=m.config.lengthMode==="time",progressText=timed?`Answered ${m.answers.length}`:`Question ${m.index+1} of ${m.questions.length}`;return `<div class="mental-session-card"><div class="mental-session-top"><div class="mental-session-progress">${progressText}</div>${timed?`<div id="mentalCountdown" class="mental-countdown">${formatClockSeconds(mentalTimeLeft())}</div>`:""}</div><div class="mental-problem">${q.prompt}</div><div class="mental-answer-row"><input id="mentalAnswer" class="mental-answer" inputmode="numeric" type="number" step="1" autocomplete="off" value="${m.currentValue||""}" oninput="state.mental.currentValue=this.value" onkeydown="if(event.key==='Enter'){event.preventDefault();submitMentalAnswer()}"><button class="btn" onclick="submitMentalAnswer()">Next</button></div><div class="smallnote" style="text-align:center;margin-top:10px">Answer mentally, type the result, then press Enter or Next.</div></div>`;}
+function focusMentalInput(){setTimeout(()=>document.getElementById("mentalAnswer")?.focus(),30);}
+function startMentalTimer(){clearInterval(state.mental?.interval);if(!state.mental)return;state.mental.interval=setInterval(()=>{if(!state.mental||state.mental.phase!=="questions")return;const left=mentalTimeLeft(),el=document.getElementById("mentalCountdown");if(el)el.textContent=formatClockSeconds(left);if(left<=0)finishMentalMath();},200);}
+function submitMentalAnswer(){const m=state.mental;if(!m||m.phase!=="questions")return;if(m.config.lengthMode==="time"&&mentalTimeLeft()<=0){finishMentalMath();return;}const raw=m.currentValue;if(raw===null||raw===undefined||String(raw).trim()==="")return;const value=Number(raw),elapsed=(Date.now()-m.qStart)/1000;m.answers.push(value);m.times.push(elapsed);m.currentValue="";if(m.config.lengthMode==="questions"){if(m.index>=m.questions.length-1){finishMentalMath();return;}m.index++;m.qStart=Date.now();render();focusMentalInput();return;}m.questions.push(generateMentalQuestion(m.r,m.config.ops,m.config.tables));m.index++;m.qStart=Date.now();render();startMentalTimer();focusMentalInput();}
+function finishMentalMath(){const m=state.mental;if(!m||m.phase==="summary")return;clearInterval(m.interval);m.phase="summary";m.finishedAt=Date.now();m.elapsed=(m.finishedAt-m.started)/1000;render();}
+function renderMentalSummary(){const m=state.mental,answered=m.answers.length,usedQuestions=m.questions.slice(0,answered),correct=usedQuestions.filter((q,i)=>Number(m.answers[i])===Number(q.answer)).length,avg=answered?m.times.reduce((a,b)=>a+b,0)/answered:0,incorrect=usedQuestions.map((q,i)=>({q,i,user:m.answers[i]})).filter(x=>Number(x.user)!==Number(x.q.answer));return `<div class="mental-summary"><div class="kicker">Mental Math complete</div><h2>${correct}/${answered} correct</h2><div class="practice-summary-grid"><div class="practice-summary-stat"><b>${answered?Math.round(correct/answered*100):0}%</b><span>Accuracy</span></div><div class="practice-summary-stat"><b>${formatPracticeSeconds(avg)}</b><span>Average time</span></div><div class="practice-summary-stat"><b>${answered}</b><span>Questions answered</span></div></div>${incorrect.length?`<button class="btn secondary" onclick="toggleMentalIncorrect()">${m.showIncorrect?"Hide":"Review"} incorrect (${incorrect.length})</button>${m.showIncorrect?`<div class="mental-review-list">${incorrect.map(x=>`<div class="mental-review-item"><div><div class="mental-review-problem">${x.q.prompt}</div><div class="mental-review-user">Your answer: ${x.user}</div></div><div class="smallnote">${formatPracticeSeconds(m.times[x.i])}</div><div class="mental-review-answer">Correct: ${x.q.answer}</div></div>`).join("")}</div>`:""}`:`<div class="notice blue">Perfect score — there are no incorrect questions to review.</div>`}<div style="margin-top:18px"><button class="btn" onclick="restartMentalMath()">Run another session</button></div></div>`;}
+function toggleMentalIncorrect(){state.mental.showIncorrect=!state.mental.showIncorrect;render();}
+function restartMentalMath(){state.mental=null;render();}
+function closeMentalSummary(){state.mental=null;render();}
+async function exitMentalMath(){const ok=await uiConfirm("Your answers and timing from this unfinished Mental Math session will be lost.","Exit Mental Math?","Exit",true);if(!ok)return;clearInterval(state.mental?.interval);state.mental=null;render();}
 
 function strategyPage(){
  return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>JOA Strategy Guide</h2><p>Official advice first; training techniques second.</p></div></div>
@@ -1362,13 +1468,14 @@ function render(){
  const app=document.getElementById("app");
  if(state.page==="home")app.innerHTML=home();
  else if(state.page==="practice")app.innerHTML=practicePage();
+ else if(state.page==="mental")app.innerHTML=mentalPage();
  else if(state.page==="mocks")app.innerHTML=mocksPage();
  else if(state.page==="test")app.innerHTML=testPage();
  else if(state.page==="results")app.innerHTML=resultsPage();
  else if(state.page==="progress")app.innerHTML=progressPage();
  else if(state.page==="strategy")app.innerHTML=strategyPage();
  else if(state.page==="sources")app.innerHTML=sourcesPage();
- document.body.classList.toggle("drill-open",state.page==="practice"&&!!state.practice);
+ document.body.classList.toggle("drill-open",(state.page==="practice"&&!!state.practice)||(state.page==="mental"&&!!state.mental));
 }
 render();
 </script>
