@@ -50,7 +50,7 @@ a{color:#1a5d82}
 .hidden{display:none!important}
 .shell{min-height:100vh;min-height:100dvh}
 .topbar{background:linear-gradient(90deg,var(--nav),#0b3c61);color:#fff;padding:calc(14px + env(safe-area-inset-top)) calc(24px + env(safe-area-inset-right)) 14px calc(24px + env(safe-area-inset-left));display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:30;box-shadow:0 2px 10px rgba(0,0,0,.18);border-bottom:3px solid var(--sky)}
-.brand{font-weight:850;letter-spacing:.02em;font-size:19px;white-space:nowrap;display:inline-flex;align-items:center;line-height:1}
+.brand{font-weight:850;letter-spacing:.02em;font-size:19px;white-space:nowrap;display:inline-flex;align-items:center;gap:.28em;line-height:1}
 .brand span{color:#f2f7fa}.brand:before{content:"";display:block;flex:0 0 10px;width:10px;height:10px;border-radius:50%;background:var(--accent);margin-right:8px;box-shadow:0 0 0 3px rgba(255,255,255,.18)}
 .topnav{display:flex;gap:6px;flex-wrap:wrap;min-width:0}
 .topnav button{border:0;background:transparent;color:#dbe3e8;padding:9px 12px;border-radius:8px;font-weight:700;min-height:44px}
@@ -986,7 +986,7 @@ let mockId=1;
 });
 
 function currentPageNav(){
- return `<div class="topbar"><div class="brand">ADF <span>JOA</span> Trainer</div><div class="topnav">
+ return `<div class="topbar"><div class="brand"><span class="brand-word">ADF</span><span class="brand-word">JOA</span><span class="brand-word">Trainer</span></div><div class="topnav">
   <button onclick="go('home')" class="${state.page==='home'?'active':''}">Home</button>
   <button onclick="go('practice')" class="${state.page==='practice'?'active':''}">Category Practice</button>
   <button onclick="go('mocks')" class="${state.page==='mocks'?'active':''}">Full Practice Tests</button>
