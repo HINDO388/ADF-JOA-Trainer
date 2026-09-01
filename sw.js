@@ -1,4 +1,4 @@
-const CACHE_NAME = "adf-joa-trainer-pwa-v7";
+const CACHE_NAME = "adf-joa-trainer-pwa-v8";
 const APP_SHELL = [
   "./",
   "./index.html",

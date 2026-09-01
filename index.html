@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.1">
+<meta name="app-version" content="1.2">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -448,12 +448,36 @@ body.ui-modal-open{overflow:hidden}
 @media(max-width:700px){.mock-tier-head{display:flex;flex-direction:column;gap:7px}.mock-tier-copy p{max-width:none}.mock-tier-copy .tier-sentence{white-space:normal}.tier-pill{align-self:flex-start}.practice-summary{padding:16px}.practice-summary-grid{grid-template-columns:1fr 1fr}.practice-summary-stat:last-child{grid-column:1/-1}.mental-card,.mental-session-card,.mental-summary{padding:16px}.mental-op-grid{grid-template-columns:1fr 1fr}.mental-op.quick{grid-column:1/-1}.mental-problem{font-size:39px;min-height:130px}.mental-answer{width:100%}.mental-answer-row{align-items:stretch;flex-direction:column}.mental-review-item{grid-template-columns:1fr;gap:4px}}
 @media(max-width:430px){.practice-review-cell{width:55px}.practice-review-btn{width:48px;height:48px}.table-picker-grid{grid-template-columns:repeat(3,1fr)}.mental-problem{font-size:34px}}
 
+
+/* v1.2 touch-first Mental Math keypad */
+.mental-touch-entry{display:none}
+.mental-keypad{display:grid;grid-template-columns:repeat(3,minmax(64px,1fr));gap:10px;max-width:360px;margin:0 auto}
+.mental-key{min-height:58px;border:1px solid #b9cad4;background:#fff;border-radius:12px;font-size:22px;font-weight:900;color:#183f58;box-shadow:0 1px 2px rgba(8,47,79,.05)}
+.mental-key:active{background:#dceef8;border-color:#4c91b8}
+.mental-key.enter{grid-column:1/-1;background:#1f6f9f;color:#fff;border-color:#1f6f9f}
+.mental-key.utility{font-size:15px;background:#eef4f7}
+.mental-touch-display{min-height:60px;display:flex;align-items:center;justify-content:center;width:min(360px,100%);margin:0 auto 12px;border:2px solid #aebfc9;border-radius:12px;background:#fff;font-size:28px;font-weight:900;color:#173e58;letter-spacing:.03em}
+@media (hover:none), (pointer:coarse){
+  .mental-desktop-entry{display:none!important}
+  .mental-touch-entry{display:block}
+}
+
+
+/* v1.2 Practice Test tier accordions */
+.mock-tier{padding-top:2px}
+.mock-tier+.mock-tier{margin-top:24px;padding-top:24px;border-top:1px solid var(--line)}
+.mock-tier-head{margin-bottom:12px}
+.mock-tier-copy p{white-space:normal;max-width:700px}
+.tier-actions{display:flex;gap:9px;align-items:center;justify-self:end;white-space:nowrap}
+@media(min-width:701px){.mock-tier-copy .tier-sentence{white-space:normal}}
+@media(max-width:700px){.tier-actions{align-self:flex-start;justify-self:auto}}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version">v1.1</div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version">v1.2</div>
 
 <script>
 /* ===========================================================
@@ -467,7 +491,7 @@ body.ui-modal-open{overflow:hidden}
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.1";
+const APP_VERSION = "1.2";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -610,8 +634,9 @@ function practiceBankSeed(subtype,band,index){
 const state = {
   page:"home", cat:"Numerical", subtype:"numSeries", practice:null, test:null, review:null,
   settings:{difficulty:"mixed",count:15,timed:false},
-  mentalSetup:{ops:["mul"],tableMode:"all",singleTable:2,selectedTables:[1,2,3,4,5,6,7,8,9,10,11,12],lengthMode:"questions",questionCount:20,durationSeconds:120},
-  mental:null,mentalPickerOpen:false,mentalPickerDraft:[]
+  mentalSetup:{ops:["mul"],tableMode:"all",singleTable:2,selectedTables:[],lengthMode:"questions",questionCount:20,durationSeconds:120},
+  mental:null,mentalPickerOpen:false,mentalPickerDraft:[],
+  practiceTestTiers:{easier:false,joa:false,harder:false}
 };
 // Only full 51-question practice tests are persisted. Category drills are deliberately not tracked.
 const storeKey="adfJoaTrainerFullTestProgressV3";
@@ -1055,9 +1080,9 @@ const byCat={
 };
 const practiceCounts={Numerical:360,Verbal:480,Abstract:480}; // finite audited bank: 40 items × 3 difficulty bands × subtype count
 const MOCK_TIER_INFO={
- easier:{label:"Easier than JOA",short:"Easier",desc:["Confidence-building: mostly Easy, some Medium, and very few Hard questions."]},
- joa:{label:"Same difficulty as JOA",short:"JOA-level",desc:["Best public-evidence match to JOA difficulty.","ADF does not publish official item difficulty ratings."]},
- harder:{label:"Harder than JOA",short:"Harder",desc:["Stretch set: more multi-step, interleaved, close-distractor and logic-trap items."]}
+ easier:{label:"Easier than JOA",short:"Easier",desc:"Confidence-building: mostly Easy, some Medium, and very few Hard questions."},
+ joa:{label:"Same difficulty as JOA",short:"JOA-level",desc:"Best public-evidence match to JOA difficulty. ADF does not publish official item difficulty ratings."},
+ harder:{label:"Harder than JOA",short:"Harder",desc:"Stretch set: more multi-step, interleaved, close-distractor and logic-trap items."}
 };
 const mocks=[];
 let mockId=1;
@@ -1089,7 +1114,7 @@ function home(){
   <div class="card hero-main">
    <div class="kicker">Australian Defence Force • Job Opportunities Assessment</div>
    <h1>Train the reasoning.<br>Train the pace.</h1>
-   <p class="lead">An independent, offline-capable training tool built around the current official ADF JOA format and question styles, with original practice material rather than recalled live-test questions. The interface uses an Air Force-inspired blue, white and red palette.</p>
+   <p class="lead">An independent, offline-capable training tool built around the current official ADF JOA format and question styles, with original practice material rather than recalled live-test questions.</p>
    <div class="stats">
     <div class="stat"><b>51</b><span>official scored questions</span></div>
     <div class="stat"><b>20:00</b><span>official scored time</span></div>
@@ -1098,7 +1123,7 @@ function home(){
    </div>
    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px">
     <button class="btn" onclick="go('practice')">Start targeted practice</button>
-    <button class="btn secondary" onclick="go('mocks')">Take a 20-minute mock</button>
+    <button class="btn secondary" onclick="go('mocks')">Take a 20-minute practice test</button>
    </div>
   </div>
   <aside class="card hero-side">
@@ -1110,14 +1135,8 @@ function home(){
    <p class="smallnote"><b>Important:</b> ADF Careers says the JOA measures natural ability and does not endorse commercial preparation. Use this trainer for format familiarity, reasoning technique and pace — never during the live assessment.</p>
   </aside>
  </section>
- <div class="section-head"><div><h2>Practice by reasoning family</h2><p>Each family contains separate drills and an embedded help guide.</p></div></div>
- <section class="grid3">
-  ${catCard("Numerical","01",["Number series","3×3 matrices","Rates, ratios, percentages & averages"],"High fidelity on the core styles shown in the official guide.")}
-  ${catCard("Verbal","02",["Two-statement proofs","Analogies & word relationships","Odd-word classification"],"The proof format is official; other verbal subtypes are informed by current Australian JOA-specific prep sources.")}
-  ${catCard("Abstract","03",["Figure odd-one-out","Rotation & orientation","Sequences & multi-attribute rules"],"Odd-one-out is directly shown in the official guide; sequence/rotation drills are secondary-source informed.")}
- </section>
  <section class="section card" style="padding:22px">
-  <div class="section-head"><div><h2>Full simulations</h2><p>Eighteen fixed 51-question mocks across Easier-than-JOA, JOA-level and Harder-than-JOA tiers, with flagging, navigation and a continuous 20:00 timer.</p></div><button class="btn" onclick="go('mocks')">Open mocks</button></div>
+  <div class="section-head"><div><h2>Full practice tests</h2><p>Eighteen fixed 51-question practice tests across Easier-than-JOA, JOA-level and Harder-than-JOA tiers, with flagging, navigation and a continuous 20:00 timer.</p></div><button class="btn" onclick="go('mocks')">Open practice tests</button></div>
   <div class="notice blue"><b>Simulation assumption:</b> the trainer uses a 17 numerical / 17 verbal / 17 abstract mix because multiple current Australian-focused prep sources describe that split. The official ADF guide confirms the three families and 51 total questions but does <i>not</i> publish the exact section split.</div>
  </section>
  <div class="footer">Independent practice resource. Not affiliated with or endorsed by the Australian Defence Force, ADF Careers, or any test provider. All practice questions in this tool are independently generated.</div>
@@ -1170,7 +1189,14 @@ function practicePage(){
    ${workedExamplesBox(state.subtype)}
    <div id="practiceZone"><div class="notice blue">Choose settings and start a drill. Category drills are intentionally not saved; only completed full 51-question practice tests appear in Progress.</div></div>
   </section>
- </div>${state.practice?renderPracticeModal():""}</main>`;
+ </div>
+ <div class="section-head section"><div><h2>Practice by reasoning family</h2><p>Each family contains separate drills and an embedded help guide.</p></div></div>
+ <section class="grid3">
+  ${catCard("Numerical","01",["Number series","3×3 matrices","Rates, ratios, percentages & averages"],"High fidelity on the core styles shown in the official guide.")}
+  ${catCard("Verbal","02",["Two-statement proofs","Analogies & word relationships","Odd-word classification"],"The proof format is official; other verbal subtypes are informed by current Australian JOA-specific prep sources.")}
+  ${catCard("Abstract","03",["Figure odd-one-out","Rotation & orientation","Sequences & multi-attribute rules"],"Odd-one-out is directly shown in the official guide; sequence/rotation drills are secondary-source informed.")}
+ </section>
+ ${state.practice?renderPracticeModal():""}</main>`;
 }
 function chooseSubtype(st){state.subtype=st;state.cat=SUBTYPES[st].cat;state.practice=null;render()}
 function helpBox(st){
@@ -1277,15 +1303,22 @@ function mocksPage(){
  return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Full Practice Tests</h2><p>18 fixed simulations • 51 questions • 20 minutes • full review history saved locally.</p></div><button class="btn secondary" onclick="go('progress')">View Progress</button></div>
  <div class="notice" style="margin-bottom:18px"><b>Difficulty calibration:</b> “Same difficulty as JOA” is a best-match estimate, not an official ADF rating. The ADF publishes the format and sample item styles, but does not publish Easy/Medium/Hard labels or item difficulty statistics.</div>
  ${["easier","joa","harder"].map(tier=>mockTierSection(tier)).join("")}
- <section class="card section" style="padding:20px"><h3>Before each mock</h3><p>The official guide gives candidates 10 minutes of practice including five example questions before the scored JOA. Use the optional familiarisation below if you want to reproduce that transition.</p><button class="btn secondary" onclick="startWarmup()">Start 5-question / 10-minute familiarisation</button></section></main>`;
+ <section class="card section" style="padding:20px"><h3>Before each practice test</h3><p>The official guide gives candidates 10 minutes of practice including five example questions before the scored JOA. Use the optional familiarisation below if you want to reproduce that transition.</p><button class="btn secondary" onclick="startWarmup()">Start 5-question / 10-minute familiarisation</button></section></main>`;
 }
 function mockTierSection(tier){
- const info=MOCK_TIER_INFO[tier],items=mocks.filter(m=>m.tier===tier);
- return `<section class="mock-tier"><div class="mock-tier-head"><div class="mock-tier-copy"><h3>${info.label}</h3><p>${info.desc.map(s=>`<span class="tier-sentence">${s}</span>`).join("")}</p></div><span class="tier-pill ${tier}">${items.length} tests</span></div><div class="mock-grid">${items.map(m=>mockCard(m)).join("")}</div></section>`;
+ const info=MOCK_TIER_INFO[tier],items=mocks.filter(m=>m.tier===tier),open=!!state.practiceTestTiers[tier];
+ return `<section class="mock-tier">
+  <div class="mock-tier-head">
+   <div class="mock-tier-copy"><h3>${info.label}</h3><p>${info.desc}</p></div>
+   <div class="tier-actions"><span class="tier-pill ${tier}">${items.length} tests</span><button class="btn ghost small" onclick="togglePracticeTestTier('${tier}')">${open?"Collapse":"Show"}</button></div>
+  </div>
+  ${open?`<div class="mock-grid">${items.map(m=>mockCard(m)).join("")}</div>`:""}
+ </section>`;
 }
+function togglePracticeTestTier(tier){state.practiceTestTiers[tier]=!state.practiceTestTiers[tier];render();}
 function mockCard(m){
  const hist=(progress.attempts||[]).filter(x=>x.testId===m.id),last=hist[0],info=MOCK_TIER_INFO[m.tier];
- return `<div class="card mock-card"><div class="mockno">${info.short} · Set ${m.set}</div><strong>Practice Test ${m.id}</strong><p>51 questions · continuous 20:00 timer</p>${last?`<div class="smallnote">Attempts: <b>${hist.length}</b> · Last: <b>${last.correct}/51</b></div>`:'<div class="smallnote">Not attempted yet</div>'}<div class="progress-strip"><span style="width:${last?last.correct/51*100:0}%"></span></div><button class="btn small" onclick="startMock(${m.id})">Start Test</button></div>`;
+ return `<div class="card mock-card"><div class="mockno">${info.short} · Set ${m.set}</div><strong>Practice Test ${m.id}</strong>${last?`<div class="smallnote">Attempts: <b>${hist.length}</b> · Last: <b>${last.correct}/51</b></div>`:'<div class="smallnote">Not attempted yet</div>'}<div class="progress-strip"><span style="width:${last?last.correct/51*100:0}%"></span></div><button class="btn small" onclick="startMock(${m.id})">Start Test</button></div>`;
 }
 function startWarmup(){
  const st=["numMatrix","abstractOdd","deduction","numSeries","wordProblems"],qs=st.map((x,i)=>generate(x,987123+i*443,"easy"));
@@ -1389,9 +1422,9 @@ function resultsPage(){
  const r=state.review; const accuracy=r.attempted?Math.round(r.correct/r.attempted*100):0;
  return `${currentPageNav()}<main class="container"><div class="card result-card"><div class="kicker">${r.warmup?"Familiarisation complete":`Practice Test ${r.id} · ${MOCK_TIER_INFO[r.tier]?.label||"Full test"}`}</div><h2>${r.correct}/${r.questions.length} correct</h2>${!r.warmup&&r.date?`<div class="smallnote">${r.fromHistory?"Saved attempt":"Saved to Progress"} · ${formatAttemptDate(r.date)}</div>`:""}
  <div class="result-grid"><div class="result-stat"><b>${r.correct}</b><span>Correct</span></div><div class="result-stat"><b>${r.attempted}</b><span>Attempted</span></div><div class="result-stat"><b>${accuracy}%</b><span>Accuracy on attempted</span></div><div class="result-stat"><b>${Math.floor(r.elapsed/60)}:${String(r.elapsed%60).padStart(2,"0")}</b><span>Elapsed</span></div></div>
- ${r.warmup?'<div class="notice blue">The real scored JOA follows the official familiarisation period. You can now start a full 20-minute mock.</div>':`<div class="notice"><b>Interpret cautiously:</b> this trainer does not know ADF occupational cut-scores and does not issue a pass/fail prediction. Use the result to diagnose speed, accuracy and weak question families.</div>
+ ${r.warmup?'<div class="notice blue">The real scored JOA follows the official familiarisation period. You can now start a full 20-minute practice test.</div>':`<div class="notice"><b>Interpret cautiously:</b> this trainer does not know ADF occupational cut-scores and does not issue a pass/fail prediction. Use the result to diagnose speed, accuracy and weak question families.</div>
  <table class="breakdown"><thead><tr><th>Family</th><th>Correct</th><th>Attempted</th><th>Accuracy attempted</th></tr></thead><tbody>${Object.entries(r.by).map(([k,v])=>`<tr><td>${k}</td><td>${v.correct}/${v.total}</td><td>${v.attempted}/${v.total}</td><td>${v.attempted?Math.round(v.correct/v.attempted*100):0}%</td></tr>`).join("")}</tbody></table>`}
- <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn" onclick="showReview()">Review answers</button><button class="btn secondary" onclick="go('mocks')">Back to mocks</button></div></div><div id="reviewZone"></div></main>`;
+ <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn" onclick="showReview()">Review answers</button><button class="btn secondary" onclick="go('mocks')">Back to practice tests</button></div></div><div id="reviewZone"></div></main>`;
 }
 function showReview(){
  const z=document.getElementById("reviewZone"),r=state.review;
@@ -1405,7 +1438,7 @@ function mentalPage(){
  const s=state.mentalSetup,usesTables=s.ops.includes("mul")||s.ops.includes("div");
  const tableText=s.tableMode==="all"?"All tables 1–12":s.tableMode==="single"?`${s.singleTable} times table`:`Custom: ${s.selectedTables.join(", ")}`;
  return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Mental Math</h2><p>Build fast arithmetic recall for numerical reasoning and general test pace.</p></div></div><div class="mental-layout">
- <section class="card mental-card"><h3>1. Operations</h3><p class="section-copy">Choose one operation, any combination, or Quick Hit for all four.</p><div class="mental-op-grid">${Object.entries(MENTAL_OPS).map(([key,v])=>`<button class="mental-op ${s.ops.includes(key)?"active":""}" onclick="toggleMentalOp('${key}')">${v.label}</button>`).join("")}<button class="mental-op quick ${s.ops.length===4?"active":""}" onclick="setMentalAllOps()">Quick Hit · All 4</button></div></section>
+ <section class="card mental-card"><h3>1. Operations</h3><p class="section-copy">Choose one operation, any combination, or Quick Hit for all four.</p><div class="mental-op-grid">${Object.entries(MENTAL_OPS).map(([key,v])=>`<button class="mental-op ${s.ops.includes(key)?"active":""}" onclick="toggleMentalOp('${key}')">${v.label}</button>`).join("")}<button class="mental-op quick ${s.ops.length===4?"active":""}" onclick="setMentalAllOps()">All</button></div></section>
  <section class="card mental-card"><h3>2. Times tables</h3><p class="section-copy">${usesTables?"Multiplication and division use the selected tables. Addition and subtraction always use number facts based on 1–12.":"Times-table targeting becomes active when Multiplication or Division is selected."}</p><div class="mental-choice-row" style="${usesTables?"":"opacity:.48;pointer-events:none"}"><button class="mental-choice ${s.tableMode==="all"?"active":""}" onclick="setMentalTableMode('all')">All 1–12</button><button class="mental-choice ${s.tableMode==="single"?"active":""}" onclick="setMentalTableMode('single')">Specific table</button><button class="mental-choice ${s.tableMode==="custom"?"active":""}" onclick="openMentalTablePicker()">Choose tables…</button></div>${usesTables&&s.tableMode==="single"?`<div class="mental-setting-row" style="margin-top:12px"><div class="field"><label>Times table</label><select onchange="state.mentalSetup.singleTable=+this.value">${Array.from({length:12},(_,i)=>i+1).map(n=>`<option value="${n}" ${s.singleTable===n?"selected":""}>${n} times table</option>`).join("")}</select></div></div>`:""}<div class="mental-table-summary">${usesTables?tableText:"Not currently used"}</div></section>
  <section class="card mental-card"><h3>3. Session length</h3><p class="section-copy">Choose a fixed number of questions or work continuously against the clock.</p><div class="mental-choice-row"><button class="mental-choice ${s.lengthMode==="questions"?"active":""}" onclick="setMentalLengthMode('questions')">Number of questions</button><button class="mental-choice ${s.lengthMode==="time"?"active":""}" onclick="setMentalLengthMode('time')">Timed session</button></div><div class="mental-setting-row" style="margin-top:12px">${s.lengthMode==="questions"?`<div class="field"><label>Questions</label><select onchange="state.mentalSetup.questionCount=+this.value">${[10,20,30,50,100].map(n=>`<option value="${n}" ${s.questionCount===n?"selected":""}>${n}</option>`).join("")}</select></div>`:`<div class="field"><label>Duration</label><select onchange="state.mentalSetup.durationSeconds=+this.value">${[[60,"1 minute"],[120,"2 minutes"],[180,"3 minutes"],[300,"5 minutes"],[600,"10 minutes"]].map(([n,l])=>`<option value="${n}" ${s.durationSeconds===n?"selected":""}>${l}</option>`).join("")}</select></div>`}</div><div class="mental-start"><button class="btn" onclick="startMentalMath()">Start Mental Math</button></div></section>
  </div>${state.mentalPickerOpen?renderMentalTablePicker():""}${state.mental?renderMentalSessionModal():""}</main>`;
@@ -1414,7 +1447,7 @@ function toggleMentalOp(op){const ops=state.mentalSetup.ops;state.mentalSetup.op
 function setMentalAllOps(){state.mentalSetup.ops=["add","sub","mul","div"];render();}
 function setMentalTableMode(mode){state.mentalSetup.tableMode=mode;render();}
 function setMentalLengthMode(mode){state.mentalSetup.lengthMode=mode;render();}
-function openMentalTablePicker(){state.mentalPickerDraft=[...(state.mentalSetup.selectedTables||[])];if(!state.mentalPickerDraft.length)state.mentalPickerDraft=Array.from({length:12},(_,i)=>i+1);state.mentalPickerOpen=true;render();}
+function openMentalTablePicker(){state.mentalPickerDraft=state.mentalSetup.tableMode==="custom"?[...(state.mentalSetup.selectedTables||[])]:[];state.mentalPickerOpen=true;render();}
 function toggleMentalTablePick(n){const a=state.mentalPickerDraft;state.mentalPickerDraft=a.includes(n)?a.filter(x=>x!==n):[...a,n].sort((x,y)=>x-y);render();}
 function setMentalPickerAll(on){state.mentalPickerDraft=on?Array.from({length:12},(_,i)=>i+1):[];render();}
 async function applyMentalTablePicker(){if(!state.mentalPickerDraft.length){await uiAlert("Choose at least one times table.","Choose tables");return;}state.mentalSetup.selectedTables=[...state.mentalPickerDraft];state.mentalSetup.tableMode="custom";state.mentalPickerOpen=false;render();}
@@ -1426,7 +1459,31 @@ function startMentalMath(){const s=state.mentalSetup,seed=(Date.now()>>>0)^Math.
 function renderMentalSessionModal(){const m=state.mental;return `<div class="drill-modal" role="dialog" aria-modal="true" aria-label="Mental Math session"><div class="drill-dialog"><div class="drill-modal-head"><div><strong>Mental Math</strong><div class="smallnote">${m.phase==="summary"?"Session complete":MENTAL_OPS[m.questions[m.index]?.op]?.label||"Practice"}</div></div><button class="drill-close" onclick="${m.phase==="summary"?"closeMentalSummary()":"exitMentalMath()"}">${m.phase==="summary"?"Close":"Exit"}</button></div>${m.phase==="summary"?renderMentalSummary():renderMentalQuestion()}</div></div>`;}
 function mentalTimeLeft(){if(!state.mental?.endAt)return 0;return Math.max(0,Math.ceil((state.mental.endAt-Date.now())/1000));}
 function formatClockSeconds(seconds){const s=Math.max(0,Math.ceil(seconds));return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;}
-function renderMentalQuestion(){const m=state.mental,q=m.questions[m.index],timed=m.config.lengthMode==="time",progressText=timed?`Answered ${m.answers.length}`:`Question ${m.index+1} of ${m.questions.length}`;return `<div class="mental-session-card"><div class="mental-session-top"><div class="mental-session-progress">${progressText}</div>${timed?`<div id="mentalCountdown" class="mental-countdown">${formatClockSeconds(mentalTimeLeft())}</div>`:""}</div><div class="mental-problem">${q.prompt}</div><div class="mental-answer-row"><input id="mentalAnswer" class="mental-answer" inputmode="numeric" type="number" step="1" autocomplete="off" value="${m.currentValue||""}" oninput="state.mental.currentValue=this.value" onkeydown="if(event.key==='Enter'){event.preventDefault();submitMentalAnswer()}"><button class="btn" onclick="submitMentalAnswer()">Next</button></div><div class="smallnote" style="text-align:center;margin-top:10px">Answer mentally, type the result, then press Enter or Next.</div></div>`;}
+function renderMentalQuestion(){
+ const m=state.mental,q=m.questions[m.index],timed=m.config.lengthMode==="time",progressText=timed?`Answered ${m.answers.length}`:`Question ${m.index+1} of ${m.questions.length}`;
+ const touchValue=String(m.currentValue||"")||"—";
+ return `<div class="mental-session-card">
+   <div class="mental-session-top"><div class="mental-session-progress">${progressText}</div>${timed?`<div id="mentalCountdown" class="mental-countdown">${formatClockSeconds(mentalTimeLeft())}</div>`:""}</div>
+   <div class="mental-problem">${q.prompt}</div>
+   <div class="mental-desktop-entry">
+    <div class="mental-answer-row"><input id="mentalAnswer" class="mental-answer" inputmode="numeric" type="number" step="1" autocomplete="off" value="${m.currentValue||""}" oninput="state.mental.currentValue=this.value" onkeydown="if(event.key==='Enter'){event.preventDefault();submitMentalAnswer()}"><button class="btn" onclick="submitMentalAnswer()">Next</button></div>
+    <div class="smallnote" style="text-align:center;margin-top:10px">Answer mentally, type the result, then press Enter or Next.</div>
+   </div>
+   <div class="mental-touch-entry">
+    <div class="mental-touch-display" aria-live="polite">${touchValue}</div>
+    <div class="mental-keypad">
+      ${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="mental-key" onclick="mentalKey('${n}')">${n}</button>`).join("")}
+      <button class="mental-key utility" onclick="mentalBackspace()">⌫</button>
+      <button class="mental-key" onclick="mentalKey('0')">0</button>
+      <button class="mental-key utility" onclick="mentalClear()">Clear</button>
+      <button class="mental-key enter" onclick="submitMentalAnswer()">Enter</button>
+    </div>
+   </div>
+  </div>`;
+}
+function mentalKey(digit){if(!state.mental)return;const cur=String(state.mental.currentValue||"");if(cur.length>=6)return;state.mental.currentValue=cur+digit;render();if(state.mental?.config.lengthMode==="time")startMentalTimer();}
+function mentalBackspace(){if(!state.mental)return;state.mental.currentValue=String(state.mental.currentValue||"").slice(0,-1);render();if(state.mental?.config.lengthMode==="time")startMentalTimer();}
+function mentalClear(){if(!state.mental)return;state.mental.currentValue="";render();if(state.mental?.config.lengthMode==="time")startMentalTimer();}
 function focusMentalInput(){setTimeout(()=>document.getElementById("mentalAnswer")?.focus(),30);}
 function startMentalTimer(){clearInterval(state.mental?.interval);if(!state.mental)return;state.mental.interval=setInterval(()=>{if(!state.mental||state.mental.phase!=="questions")return;const left=mentalTimeLeft(),el=document.getElementById("mentalCountdown");if(el)el.textContent=formatClockSeconds(left);if(left<=0)finishMentalMath();},200);}
 function submitMentalAnswer(){const m=state.mental;if(!m||m.phase!=="questions")return;if(m.config.lengthMode==="time"&&mentalTimeLeft()<=0){finishMentalMath();return;}const raw=m.currentValue;if(raw===null||raw===undefined||String(raw).trim()==="")return;const value=Number(raw),elapsed=(Date.now()-m.qStart)/1000;m.answers.push(value);m.times.push(elapsed);m.currentValue="";if(m.config.lengthMode==="questions"){if(m.index>=m.questions.length-1){finishMentalMath();return;}m.index++;m.qStart=Date.now();render();focusMentalInput();return;}m.questions.push(generateMentalQuestion(m.r,m.config.ops,m.config.tables));m.index++;m.qStart=Date.now();render();startMentalTimer();focusMentalInput();}
@@ -1461,7 +1518,7 @@ function sourcesPage(){
  <section class="section"><h2>Question-family fidelity map</h2><table class="fidelity-table"><thead><tr><th>Training module</th><th>Fidelity</th><th>Why</th></tr></thead><tbody>
  ${Object.entries(SUBTYPES).map(([k,v])=>`<tr><td>${v.cat} — ${v.name}</td><td><span class="badge ${v.fidelity.toLowerCase()}">${v.fidelity}</span></td><td>${v.basis}</td></tr>`).join("")}
  </tbody></table></section>
- <section class="card section" style="padding:20px"><h3>Question-bank QA</h3><p>This build uses a finite category-practice bank of <b>1,320 questions</b> (40 per difficulty band for each question subtype) plus 18 fixed 51-question mocks. The full bank is exhaustively machine-checked before release for answer presence, selection counts, arithmetic consistency, matrix-rule ambiguity, correct-vs-incorrect visual distinguishability, clipping, reference/starting figures only where the prompt genuinely requires one, and deterministic regeneration. Semantic verbal templates are also manually reviewed. New completed full-test attempts save an exact snapshot of their 51 questions so later bank updates cannot change an old answer review.</p></section><section class="card section" style="padding:20px"><h3>Difficulty calibration</h3><p>Easy / Medium / Hard badges are now assigned by the <b>actual construction of each generated item</b>. Easy is reserved for one-rule or immediately classifiable items; Medium requires an additional inference, second attribute or two-step process; Hard is reserved for interleaved rules, dependent multi-step calculations, close logic traps, reflection-vs-rotation discrimination or similarly layered reasoning. A regression guard explicitly classifies simple A-B-A-B number alternation as Easy.</p></section><section class="card section" style="padding:20px"><h3>What this tool does not claim</h3><p>It does not claim to reproduce proprietary JOA questions, exact scoring, role cut-scores, adaptive behaviour, official item difficulty labels or an unpublished official section split. “Same difficulty as JOA” is therefore a best-match simulation tier based on the official public examples and current Australian JOA-focused descriptions, not an ADF-issued difficulty rating.</p></section>
+ <section class="card section" style="padding:20px"><h3>Question-bank QA</h3><p>This build uses a finite category-practice bank of <b>1,320 questions</b> (40 per difficulty band for each question subtype) plus 18 fixed 51-question practice tests. The full bank is exhaustively machine-checked before release for answer presence, selection counts, arithmetic consistency, matrix-rule ambiguity, correct-vs-incorrect visual distinguishability, clipping, reference/starting figures only where the prompt genuinely requires one, and deterministic regeneration. Semantic verbal templates are also manually reviewed. New completed full-test attempts save an exact snapshot of their 51 questions so later bank updates cannot change an old answer review.</p></section><section class="card section" style="padding:20px"><h3>Difficulty calibration</h3><p>Easy / Medium / Hard badges are now assigned by the <b>actual construction of each generated item</b>. Easy is reserved for one-rule or immediately classifiable items; Medium requires an additional inference, second attribute or two-step process; Hard is reserved for interleaved rules, dependent multi-step calculations, close logic traps, reflection-vs-rotation discrimination or similarly layered reasoning. A regression guard explicitly classifies simple A-B-A-B number alternation as Easy.</p></section><section class="card section" style="padding:20px"><h3>What this tool does not claim</h3><p>It does not claim to reproduce proprietary JOA questions, exact scoring, role cut-scores, adaptive behaviour, official item difficulty labels or an unpublished official section split. “Same difficulty as JOA” is therefore a best-match simulation tier based on the official public examples and current Australian JOA-focused descriptions, not an ADF-issued difficulty rating.</p></section>
  </main>`;
 }
 function render(){
