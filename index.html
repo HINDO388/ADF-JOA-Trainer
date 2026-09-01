@@ -1,0 +1,1315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ADF JOA Trainer — Australian Defence Force Job Opportunities Assessment Practice</title>
+<link rel="icon" type="image/png" sizes="64x64" href="./favicon-64.png">
+<link rel="shortcut icon" type="image/png" href="./favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+<meta name="theme-color" content="#082f4f">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="application-name" content="ADF JOA Trainer">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="JOA Trainer">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<style>
+:root{
+  /* Air Force-inspired palette: blue, white and red.
+     This is an independent trainer, not an official Air Force visual identity implementation. */
+  --bg:#eef5f9; --panel:#ffffff; --ink:#0d2941; --muted:#61798b; --line:#c9d9e4;
+  --nav:#082f4f; --nav2:#124e78; --accent:#c92d3b; --accent2:#a91f2d;
+  --sky:#68a9cf; --sky-deep:#327ba8; --sky-soft:#e5f2f8;
+  --good:#1f7555; --warn:#9a6700; --bad:#b22d3a; --soft:#e7f1f6; --flag:#e9b83e;
+  --shadow:0 8px 24px rgba(8,47,79,.09);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit;touch-action:manipulation}
+button{cursor:pointer}
+a{color:#1a5d82}
+.hidden{display:none!important}
+.shell{min-height:100vh;min-height:100dvh}
+.topbar{background:linear-gradient(90deg,var(--nav),#0b3c61);color:#fff;padding:calc(14px + env(safe-area-inset-top)) calc(24px + env(safe-area-inset-right)) 14px calc(24px + env(safe-area-inset-left));display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:30;box-shadow:0 2px 10px rgba(0,0,0,.18);border-bottom:3px solid var(--sky)}
+.brand{font-weight:850;letter-spacing:.02em;font-size:19px;white-space:nowrap;display:inline-flex;align-items:center;line-height:1}
+.brand span{color:#f2f7fa}.brand:before{content:"";display:block;flex:0 0 10px;width:10px;height:10px;border-radius:50%;background:var(--accent);margin-right:8px;box-shadow:0 0 0 3px rgba(255,255,255,.18)}
+.topnav{display:flex;gap:6px;flex-wrap:wrap;min-width:0}
+.topnav button{border:0;background:transparent;color:#dbe3e8;padding:9px 12px;border-radius:8px;font-weight:700;min-height:44px}
+.topnav button:hover,.topnav button.active{background:var(--nav2);color:white}
+.container{max-width:1180px;margin:0 auto;padding:28px 22px 50px}
+.hero{display:grid;grid-template-columns:1.4fr .85fr;gap:24px;align-items:stretch;margin-bottom:24px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.hero-main{padding:30px}
+.kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:900;color:var(--sky-deep);margin-bottom:8px}
+h1{font-size:38px;line-height:1.05;margin:0 0 12px}
+h2{margin:0 0 14px;font-size:26px}
+h3{margin:0 0 10px;font-size:19px}
+p{line-height:1.55}
+.lead{font-size:18px;color:#3f505b;max-width:800px}
+.badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800;color:#475862}
+.badge.high{border-color:#a8d2bf;color:#176343;background:#f0faf5}
+.badge.medium{border-color:#e4c687;color:#855700;background:#fff9ea}
+.badge.official{border-color:#b9c8d2;color:#324c5d;background:#f4f8fa}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:22px}
+.stat{background:linear-gradient(180deg,#f8fbfd,var(--soft));border:1px solid #d5e4ed;border-radius:11px;padding:15px}
+.stat b{display:block;font-size:25px}
+.stat span{font-size:12px;color:var(--muted);font-weight:700}
+.hero-side{padding:24px;display:flex;flex-direction:column;justify-content:space-between}
+.notice{padding:13px 15px;border-left:4px solid var(--accent);background:#fff4f5;border-radius:8px;color:#5b2630;font-size:14px;line-height:1.45}
+.notice.blue{border-left-color:var(--sky-deep);background:var(--sky-soft);color:#234a63}
+.btn{border:0;border-radius:9px;padding:11px 16px;font-weight:800;background:var(--accent);color:#fff;min-height:44px}
+.btn:hover{background:var(--accent2)}
+.btn.secondary{background:#dfeef6;color:#183d56}
+.btn.secondary:hover{background:#cfe4ef}
+.btn.ghost{background:white;color:#26343e;border:1px solid var(--line)}
+.btn.small{padding:8px 11px;font-size:13px;min-height:40px}
+.btn.good{background:var(--good)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.category-card{padding:20px;position:relative;overflow:hidden}
+.category-card .num{font-size:38px;font-weight:900;color:#cbdfea;position:absolute;right:16px;top:10px}
+.category-card ul{padding-left:18px;color:#4f5e67;line-height:1.7}
+.category-card .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.section{margin-top:28px}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:14px}
+.section-head p{margin:0;color:var(--muted)}
+.mock-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.mock-card{padding:18px}
+.mock-card .mockno{font-size:12px;font-weight:900;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.mock-card strong{display:block;font-size:20px;margin:6px 0}
+.mock-card p{font-size:13px;color:var(--muted);min-height:42px}
+.progress-strip{height:7px;background:#e6ecef;border-radius:999px;overflow:hidden;margin:12px 0}
+.progress-strip span{display:block;height:100%;background:var(--accent)}
+.practice-layout{display:grid;grid-template-columns:280px 1fr;gap:18px}
+.sidebar{padding:18px;align-self:start;position:sticky;top:82px}
+.side-title{font-weight:900;margin-bottom:10px}
+.side-list{display:grid;gap:7px}
+.side-list button{text-align:left;padding:10px;border:1px solid transparent;background:#f5f7f8;border-radius:8px;font-weight:750;color:#354650;min-height:44px}
+.side-list button.active{border-color:#8ebbd5;background:#e9f4fa;color:#164f73}
+.practice-main{padding:22px}
+.practice-header{padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid var(--line)}
+.practice-header h2{margin-bottom:12px}
+.practice-badges{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.practice-badges .basis-badge{white-space:normal;line-height:1.3}
+.practice-banknote{display:block;margin-top:12px;font-size:12px;line-height:1.45;color:var(--muted);font-weight:650}
+.controls{display:flex;gap:10px;align-items:end;flex-wrap:wrap;padding:14px;background:#f7f9fa;border:1px solid var(--line);border-radius:10px;margin-bottom:18px}
+.field label{display:block;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:5px}
+.field select{padding:10px 36px 10px 10px;border:1px solid #cfd8dd;border-radius:8px;background:white;min-height:44px}
+.helpbox{border:1px solid #cfdbe2;border-radius:11px;background:#f7fbfd;padding:18px;margin-bottom:18px}
+.helpbox summary{font-weight:900;cursor:pointer}
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:13px}
+.help-grid ul{margin:5px 0;padding-left:18px;line-height:1.55;color:#40525d}
+.workedbox{border:1px solid #b9d2e1;border-radius:11px;background:#ffffff;padding:18px;margin-bottom:18px;box-shadow:0 4px 14px rgba(8,47,79,.05)}
+.workedbox summary{font-weight:900;cursor:pointer;color:#174c6d}
+.worked-intro{font-size:13px;color:var(--muted);margin:10px 0 14px}
+.worked-examples{display:grid;gap:14px}
+.worked-example{border:1px solid #d7e4ec;border-left:4px solid var(--sky-deep);border-radius:9px;padding:15px;background:#f9fcfd}
+.worked-example h4{margin:0 0 8px;font-size:15px;color:#173e58}
+.worked-question{font-weight:800;margin-bottom:9px}
+.worked-steps{margin:0;padding-left:20px;line-height:1.55;color:#40596a}
+.worked-steps li{margin:4px 0}
+.worked-answer{margin-top:10px;padding:8px 10px;border-radius:7px;background:var(--sky-soft);font-weight:800;color:#174c6d}
+.tip-chip{display:inline-block;font-size:11px;font-weight:900;letter-spacing:.03em;text-transform:uppercase;background:#dcecf5;color:#285c7b;border-radius:999px;padding:4px 8px;margin-bottom:8px}
+.drill-card{border-top:4px solid var(--sky-deep);padding:22px}
+.qmeta{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:13px}
+.qmeta .left{display:flex;gap:8px;flex-wrap:wrap}
+.prompt{font-size:18px;font-weight:760;line-height:1.45;margin:12px 0 18px}
+.sequence{font-size:24px;font-weight:850;letter-spacing:.06em;text-align:center;padding:18px;background:#f7f9fa;border-radius:10px;margin:10px 0 18px}
+.matrix{margin:10px auto 18px;border-collapse:collapse}
+.matrix td{width:64px;height:54px;text-align:center;border:2px solid #6c7981;font-size:21px;font-weight:800;background:white}
+.options{display:grid;gap:9px}
+.option{border:1px solid #cfd7dc;border-radius:9px;background:white;padding:12px 14px;text-align:left;display:flex;gap:11px;align-items:center;transition:.12s;min-height:48px}
+.option:hover{border-color:#9fb2bd;background:#f8fbfc}
+.option.selected{border-color:var(--sky-deep);background:#eaf5fb}
+.option.correct{border-color:#66a988;background:#effaf5}
+.option.wrong{border-color:#d58d8d;background:#fff2f2}
+.option .letter{width:27px;height:27px;border-radius:50%;background:#edf1f3;display:inline-flex;align-items:center;justify-content:center;font-weight:900;flex:0 0 auto}
+.visual-options{display:grid;grid-template-columns:repeat(3,minmax(140px,1fr));gap:12px}
+.visual-option{border:1px solid #cfd7dc;border-radius:10px;padding:10px;background:white;text-align:center;min-height:112px}
+.visual-option.selected{border-color:var(--sky-deep);background:#eaf5fb}
+.visual-option.correct{border-color:#66a988;background:#effaf5}
+.visual-option.wrong{border-color:#d58d8d;background:#fff2f2}
+.fig{display:flex;justify-content:center;align-items:center;min-height:88px}
+.answer-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:18px}
+.numinput{padding:11px 12px;border:1px solid #bfcbd2;border-radius:8px;width:190px;font-size:18px;min-height:48px}
+.feedback{margin-top:16px;padding:14px 16px;border-radius:10px;border-left:4px solid #8aa1ae;background:#f4f7f8}
+.feedback.good{border-left-color:var(--good);background:#f1faf5}
+.feedback.bad{border-left-color:var(--bad);background:#fff2f2}
+.feedback b{display:block;margin-bottom:5px}
+.test-shell{background:linear-gradient(to bottom,var(--nav) 0,var(--nav) env(safe-area-inset-top),#fff env(safe-area-inset-top),#fff 100%);min-height:100vh;min-height:100dvh;padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+.test-head{min-height:44px;background:#e7eaec;border-bottom:1px solid #bfc6ca;padding:7px 12px;font-weight:850;font-size:13px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center}.test-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.test-qcount{white-space:nowrap}.test-exit{border:1px solid #b9c3c9;background:#fff;color:#7d2630;border-radius:7px;min-height:34px;padding:5px 10px;font-weight:900}.test-exit:hover{background:#fff2f3;border-color:#d09a9f}
+.test-body{display:grid;grid-template-columns:185px 1fr;min-height:calc(100vh - 99px)}
+.test-side{background:#e4e6e7;border-right:1px solid #b9c0c4;padding:12px;display:flex;flex-direction:column}
+.status-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin:8px 0 15px}
+.status-grid button{border:1px solid #aeb7bc;background:#f8f9f9;height:25px;font-size:10px;padding:0}
+.status-grid button.answered{background:#c7d1d6}
+.status-grid button.flagged{outline:2px solid var(--flag);outline-offset:-2px}
+.status-grid button.current{background:var(--sky-deep);color:white;border-color:var(--sky-deep)}
+.legend{font-size:11px;display:grid;gap:6px;color:#43515a}
+.legend span i{display:inline-block;width:13px;height:13px;border:1px solid #abb4b9;vertical-align:-2px;margin-right:5px;background:white}
+.legend span i.ans{background:#c7d1d6}
+.legend span i.flg{border:2px solid var(--flag)}
+.timerbox{margin-top:auto;border-top:1px solid #aab2b7;padding-top:12px}
+.timerbar{height:13px;background:#c7d0d4;border:1px solid #98a4aa}
+.timerbar span{height:100%;display:block;background:var(--sky-deep);width:100%}
+.time{font-weight:900;font-variant-numeric:tabular-nums;margin-top:5px}
+.test-main{display:flex;flex-direction:column}
+.test-question{flex:1;padding:28px 36px 20px;max-width:1050px;width:100%;margin:0 auto}
+.test-nav{background:#e5e7e8;border-top:1px solid #b8c0c4;padding:11px 18px;display:flex;justify-content:space-between;gap:10px;position:sticky;bottom:0;z-index:20;padding-bottom:max(11px,env(safe-area-inset-bottom))}
+.test-nav .middle{display:flex;gap:8px}
+.result-card{padding:24px}
+.result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+.result-stat{padding:15px;background:#f3f6f7;border-radius:10px}
+.result-stat b{font-size:26px;display:block}
+.breakdown{width:100%;border-collapse:collapse;margin-top:12px}
+.breakdown th,.breakdown td{text-align:left;border-bottom:1px solid var(--line);padding:10px}
+.review-item{padding:18px;border:1px solid var(--line);border-radius:10px;margin-top:10px;background:white}
+.sources{display:grid;gap:12px}
+.source-card{padding:18px}
+.source-card h3{display:flex;align-items:center;gap:8px}
+.source-card p{margin-bottom:0;color:#4f606a}
+.fidelity-table{width:100%;border-collapse:collapse;background:white}
+.fidelity-table th,.fidelity-table td{border-bottom:1px solid var(--line);padding:11px;text-align:left;vertical-align:top}
+.fidelity-table th{background:#f4f7f8}
+.footer{margin-top:35px;color:#6c7880;font-size:12px;line-height:1.5}
+.smallnote{font-size:12px;color:var(--muted)}
+.svg-seq{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin:14px 0 18px}
+.svg-frame{width:102px;height:88px;border:1px solid #cbd4d9;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center}
+
+
+/* Difficulty badges are assigned from the actual generated rule complexity, not just the requested band. */
+.badge.diff-easy{border-color:#a8d2bf;color:#176343;background:#f0faf5}
+.badge.diff-medium{border-color:#d6bd74;color:#76510a;background:#fff9ea}
+.badge.diff-hard{border-color:#d79aa2;color:#8d2430;background:#fff1f3}
+.difficulty-audit{margin-top:8px;font-size:11px;line-height:1.45;color:var(--muted)}
+
+/* Category drills open as an in-page modal so the first question cannot appear unnoticed below the fold. */
+body.drill-open{overflow:hidden}
+.drill-modal{position:fixed;inset:0;z-index:120;background:rgba(5,31,51,.72);display:flex;align-items:flex-start;justify-content:center;padding:calc(18px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));overflow:auto;-webkit-overflow-scrolling:touch}
+.drill-dialog{width:min(920px,100%);background:var(--panel);border:1px solid #b9cfdd;border-radius:16px;box-shadow:0 22px 70px rgba(2,26,44,.32);overflow:hidden;margin:auto}
+.drill-modal-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;background:linear-gradient(90deg,var(--nav),#0b3c61);color:#fff;border-bottom:3px solid var(--sky)}
+.drill-modal-head strong{font-size:15px}
+.drill-modal-head .smallnote{color:#dceaf2}
+.drill-close{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.10);color:#fff;border-radius:8px;min-width:44px;min-height:40px;padding:7px 11px;font-weight:800}
+.drill-dialog .drill-card{border-top:0}
+
+/* Full-test difficulty groups and persistent test history. */
+.mock-tier{margin-top:24px}
+.mock-tier:first-of-type{margin-top:0}
+.mock-tier-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px}
+.mock-tier-head p{margin:4px 0 0;color:var(--muted);max-width:780px}
+.tier-pill{display:inline-flex;align-items:center;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;white-space:nowrap}
+.tier-pill.easier{background:#eef9f4;color:#176343;border:1px solid #acd4c1}
+.tier-pill.joa{background:#eaf4fa;color:#1d5d82;border:1px solid #a7c9dd}
+.tier-pill.harder{background:#fff1f3;color:#8d2430;border:1px solid #d9a0a7}
+.history-actions{display:flex;gap:8px;flex-wrap:wrap}
+.history-list{display:grid;gap:12px;margin-top:16px}
+.history-item{padding:18px}
+.history-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.history-title{font-weight:900;font-size:17px;margin-bottom:5px}
+.history-meta{font-size:12px;color:var(--muted);line-height:1.55}
+.history-score{font-size:26px;font-weight:900;color:var(--ink);white-space:nowrap}
+.history-stats{display:flex;gap:12px;flex-wrap:wrap;margin:13px 0;color:#496071;font-size:13px}
+.history-empty{padding:24px;text-align:center;color:var(--muted)}
+.danger-btn{background:#fff;color:var(--bad);border:1px solid #d9a0a7}
+.danger-btn:hover{background:#fff1f3}
+
+.mobile-test-tools{display:none}
+.mobile-status-scroll{display:flex;gap:5px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.mobile-status-scroll::-webkit-scrollbar{display:none}
+.mobile-status-scroll button{flex:0 0 38px;height:38px;border:1px solid #aeb7bc;background:#f8f9f9;border-radius:7px;font-size:12px;font-weight:800}
+.mobile-status-scroll button.answered{background:#c7d1d6}
+.mobile-status-scroll button.flagged{outline:2px solid var(--flag);outline-offset:-2px}
+.mobile-status-scroll button.current{background:var(--sky-deep);color:#fff;border-color:var(--sky-deep)}
+.mobile-test-topline{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mobile-test-tools .timerbar{flex:1;min-width:120px}
+.mobile-test-tools .time{margin:0;white-space:nowrap;font-size:13px}
+.mobile-swipe-note{display:none;font-size:11px;color:var(--muted);text-align:center;margin:4px 0 0}
+
+@media(max-width:1024px){
+ .container{padding-left:20px;padding-right:20px}
+ .mock-grid{grid-template-columns:repeat(2,1fr)}
+ .hero{gap:18px}
+}
+
+@media(max-width:900px){
+ .hero,.practice-layout{grid-template-columns:1fr}
+ .hero-main{padding:26px}
+ .grid3{grid-template-columns:1fr}
+ .stats{grid-template-columns:repeat(2,1fr)}
+ .sidebar{position:static;padding:10px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+ .sidebar::-webkit-scrollbar{display:none}
+ .sidebar .side-title{display:none}
+ .sidebar .side-list{display:flex;gap:7px;flex:0 0 auto}
+ .sidebar .side-list button{white-space:nowrap}
+ .practice-main{padding:20px}
+ .help-grid{grid-template-columns:1fr}
+ .test-question{padding:24px 24px 18px}
+ .result-grid{grid-template-columns:repeat(2,1fr)}
+ .source-card h3{flex-wrap:wrap}
+ .fidelity-table{font-size:13px}
+}
+
+@media(max-width:820px){
+ .test-body{grid-template-columns:1fr;min-height:calc(100dvh - 99px)}
+ .test-side{display:none}
+ .mobile-test-tools{display:block;background:#eef3f6;border-bottom:1px solid #bdcbd4;padding:10px 14px}
+ .mobile-swipe-note{display:block}
+ .test-head{min-height:46px;padding:7px 10px;gap:8px}
+ .test-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .test-qcount{white-space:nowrap}
+ .test-exit{min-height:34px;padding:5px 9px}
+ .test-main{min-height:calc(100dvh - 150px)}
+ .visual-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:700px){
+ .drill-modal{padding:0;background:var(--bg)}
+ .drill-dialog{width:100%;min-height:100%;border:0;border-radius:0;box-shadow:none;margin:0}
+ .drill-modal-head{position:sticky;top:0;z-index:5;padding:calc(10px + env(safe-area-inset-top)) 12px 10px}
+ .drill-modal-head .smallnote{display:none}
+ .mock-tier-head{flex-direction:column;gap:7px}
+ .history-top{flex-direction:column}
+ .history-score{font-size:23px}
+ .history-actions .btn{flex:1 1 140px}
+
+ .topbar{padding:calc(10px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) 8px calc(12px + env(safe-area-inset-left));align-items:stretch;flex-direction:column;gap:7px}
+ .brand{font-size:18px;padding-left:2px}
+ .topnav{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -12px;padding:0 12px 2px}
+ .topnav::-webkit-scrollbar{display:none}
+ .topnav button{flex:0 0 auto;white-space:nowrap;padding:8px 11px;min-height:42px}
+ .container{padding:18px 14px 40px}
+ .section-head{align-items:flex-start;flex-direction:column;gap:8px}
+ .hero{margin-bottom:18px}
+ .hero-main,.hero-side{padding:20px}
+ h1{font-size:32px;line-height:1.08}
+ h2{font-size:24px}
+ h3{font-size:18px}
+ .lead{font-size:16px}
+ .mock-grid{grid-template-columns:1fr}
+ .practice-main{padding:16px}
+ .practice-header{padding-bottom:16px;margin-bottom:16px}
+ .practice-badges{align-items:flex-start}
+ .practice-badges .badge{max-width:100%;white-space:normal;line-height:1.35}
+ .controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:end;padding:12px;gap:10px}
+ .field{min-width:0}
+ .field select{width:100%;font-size:16px}
+ .controls>.btn{grid-column:1/-1;width:100%}
+ .helpbox,.workedbox{padding:15px}
+ .worked-example{padding:13px}
+ .drill-card{padding:16px}
+ .qmeta{align-items:flex-start;flex-direction:column;gap:8px}
+ .prompt{font-size:17px;margin:10px 0 15px}
+ .sequence{font-size:21px;letter-spacing:.025em;padding:15px 10px;overflow-wrap:anywhere}
+ .matrix td{width:58px;height:50px;font-size:20px}
+ .option{padding:12px;line-height:1.35}
+ .numinput{width:100%;font-size:18px}
+ .answer-row{align-items:stretch;flex-direction:column}
+ .answer-row .btn{width:100%}
+ .svg-seq{gap:7px}
+ .svg-frame{width:92px;height:80px}
+ .test-question{padding:18px 14px 14px}
+ .test-nav{display:grid;grid-template-columns:1fr 1fr;padding:9px 10px;gap:8px;padding-bottom:max(9px,env(safe-area-inset-bottom))}
+ .test-nav>.btn.secondary{grid-column:1}
+ .test-nav>.btn:last-child{grid-column:2;grid-row:1}
+ .test-nav .middle{grid-column:1/-1;grid-row:2;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .test-nav .btn{width:100%;padding-left:8px;padding-right:8px;font-size:13px;min-height:44px}
+ .result-card{padding:18px}
+ .result-grid{grid-template-columns:repeat(2,1fr)}
+ .breakdown{font-size:13px}
+ .breakdown th,.breakdown td{padding:8px 6px}
+ .review-item{padding:14px}
+ .source-card{padding:15px}
+ .fidelity-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:normal}
+ .fidelity-table th,.fidelity-table td{min-width:135px}
+}
+
+@media(max-width:430px){
+ .test-head{grid-template-columns:auto 1fr}.test-title{display:none}.test-qcount{justify-self:end}
+ .container{padding-left:10px;padding-right:10px}
+ .hero-main,.hero-side{padding:17px}
+ h1{font-size:29px}
+ .stats{grid-template-columns:1fr 1fr;gap:8px}
+ .stat{padding:12px}
+ .stat b{font-size:22px}
+ .category-card{padding:17px}
+ .practice-main{padding:12px}
+ .sidebar{margin:0 -2px}
+ .controls{grid-template-columns:1fr}
+ .controls>.btn{grid-column:1}
+ .visual-options{grid-template-columns:1fr 1fr;gap:8px}
+ .visual-option{padding:6px;min-height:105px}
+ .fig{min-height:78px}
+ .test-head{font-size:12px}
+ .mobile-test-tools{padding:9px 10px}
+ .mobile-test-topline{align-items:flex-start;flex-direction:column;gap:6px}
+ .mobile-test-tools .timerbar{width:100%}
+ .mobile-status-scroll button{flex-basis:36px;height:36px}
+ .test-question{padding-left:10px;padding-right:10px}
+ .test-nav .btn{font-size:12px}
+ .result-grid{grid-template-columns:1fr 1fr;gap:8px}
+ .result-stat{padding:12px}
+ .result-stat b{font-size:23px}
+}
+
+@media(max-width:360px){
+ .stats{grid-template-columns:1fr}
+ .visual-options{grid-template-columns:1fr}
+ .test-nav{grid-template-columns:1fr}
+ .test-nav>.btn.secondary,.test-nav>.btn:last-child,.test-nav .middle{grid-column:1;grid-row:auto}
+ .test-nav .middle{grid-template-columns:1fr 1fr}
+}
+
+@media(hover:none){
+ .btn:hover{background:var(--accent)}
+ .btn.secondary:hover{background:#dfeef6}
+ .option:hover{border-color:#cfd7dc;background:white}
+ .topnav button:hover{background:transparent;color:#dbe3e8}
+ .topnav button.active:hover{background:var(--nav2);color:#fff}
+}
+</style>
+</head>
+<body>
+<div id="app" class="shell"></div>
+
+<script>
+/* ===========================================================
+   ADF JOA Trainer
+   Independently developed practice items — not live/recalled JOA content.
+   Fidelity hierarchy:
+   1) ADF-RECREF132, revised 27 June 2025 (user-provided official guide)
+   2) Current ADF Careers application-process page
+   3) Current independent Australian-focused prep resources
+   4) Reddit anecdotes used only for broad pacing/experience, never leaked items
+   =========================================================== */
+
+const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const APP_VERSION = "1.1-mobile";
+const SUBTYPES = {
+  numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
+    help:[
+      "Scan in a fixed order: constant +/− step → changing differences → ×/÷ → alternating rules → two interleaved sequences.",
+      "Write only the differences you need. If differences are 4, 7, 10, the next likely difference is 13.",
+      "Repeated-pair patterns can be faster to see by grouping terms: A, B, B, C, C, D, D.",
+      "If a rule does not explain every shown term, reject it. Do not force a pattern that only fits the last two numbers."
+    ], traps:["Missing a second alternating rule","Doing long algebra before checking differences","Staying on a hard series after the pattern remains unclear"]},
+  numMatrix:{cat:"Numerical",name:"Number Matrices",fidelity:"High",basis:"Official 3×3 missing-number example",
+    help:[
+      "Test rows first, then columns. Look for +/−, equal step, sum/difference, double/half, or a fixed operation.",
+      "Use the complete rows/columns to prove the rule before applying it to the row with the blank.",
+      "If one relationship works horizontally and vertically, that is usually stronger than a complicated diagonal rule.",
+      "Keep arithmetic compact: jot 'R: +3' or 'C: +5' rather than rewriting the grid."
+    ], traps:["Using a rule that fits only one row","Ignoring a simpler column rule","Arithmetic slips after identifying the correct structure"]},
+  wordProblems:{cat:"Numerical",name:"Word Problems",fidelity:"High",basis:"Official speed–distance example + current secondary sources",
+    help:[
+      "Translate the question into one short relationship before calculating: distance = speed × time; percent = part/whole × 100; average = total/count.",
+      "For ratios, convert the ratio to total parts first. Example 3:2 means 5 parts altogether.",
+      "Mental-percent shortcuts: 10% = divide by 10; 5% = half of 10%; 25% = quarter; 20% = fifth; 75% = three quarters.",
+      "Check units before answering. Minutes versus hours is a common time-pressure error.",
+      "Estimate first. If the options are far apart, a rough answer can eliminate most choices."
+    ], traps:["Solving information the question did not ask for","Forgetting to convert minutes/hours","Multiplying when the relationship requires division"]},
+  oddWords:{cat:"Verbal",name:"Odd Words Out",fidelity:"Medium",basis:"Current Australian JOA-focused prep sources; not exhaustively listed in official guide",
+    help:[
+      "Find the most objective category that cleanly contains the majority of words.",
+      "When two answers are requested, define the 'club' first, then select the two outsiders.",
+      "Prefer ordinary dictionary/category relationships over clever associations.",
+      "Check every word against your proposed rule before committing."
+    ], traps:["Picking one unusual word when two are required","Using a broad theme that nearly fits everything","Overthinking cultural or subjective links"]},
+  analogy:{cat:"Verbal",name:"Word Analogies",fidelity:"Medium",basis:"Current Australian JOA-focused prep sources",
+    help:[
+      "Say a bridge sentence: 'A is a place where B is kept' or 'A is the tool used to do B'.",
+      "Preserve direction. 'Puppy : dog' is young-to-adult, not simply two animal words.",
+      "Reject answers that are merely associated with the third word but do not reproduce the original relationship.",
+      "Common relationships: synonym, antonym, part–whole, place–object, tool–function, cause–effect, degree and sequence."
+    ], traps:["Matching by topic rather than relationship","Reversing the direction of the analogy","Choosing a more familiar but less precise association"]},
+  wordRelation:{cat:"Verbal",name:"Synonym / Antonym / Neither",fidelity:"Medium",basis:"Current Australian JOA-focused prep sources",
+    help:[
+      "Define each word in a few plain words before comparing them.",
+      "Opposites must lie on the same dimension: hot/cold works; hot/wet does not.",
+      "If the words are related but not equivalent or opposite, choose neither.",
+      "Use roots and prefixes when vocabulary is unfamiliar: in-, im-, un-, dis-, anti- often signal negation or opposition."
+    ], traps:["Treating related words as synonyms","Missing a subtle antonym","Guessing from how the word sounds rather than meaning"]},
+  deduction:{cat:"Verbal",name:"Deductive Proof — Select Two",fidelity:"High",basis:"Official guide shows a two-statement proof item",
+    help:[
+      "Treat 'PROVE' literally: the selected statements must force the conclusion, not merely make it likely.",
+      "Underline the conclusion's subject and property. Ignore statements that cannot connect those two.",
+      "For conditional logic, you usually need both the rule ('If X then Y') and the fact that X is true.",
+      "For matching relationships, you need one statement linking the people/items and another giving the known property.",
+      "Select exactly the number of statements requested."
+    ], traps:["Using outside knowledge","Selecting one sufficient-looking statement when two are required","Choosing two statements that mention the right words but do not logically connect"]},
+  abstractOdd:{cat:"Abstract",name:"Figure Odd-One-Out",fidelity:"High",basis:"Official dot-circle and block-style odd-one-out examples",
+    help:[
+      "Inventory attributes quickly: count, fill/shading, position, orientation, border, symmetry and number of components.",
+      "Name the common rule in one short phrase, e.g. 'three filled dots'. Then find the figure(s) that break it.",
+      "If two figures are requested, the normal set may share two properties and each outsider may violate a different one.",
+      "Do not let decorative variation distract from the invariant property."
+    ], traps:["Ignoring how many figures must be selected","Choosing what looks visually different without defining the rule","Treating rotation as meaningful when count/fill is the actual invariant"]},
+  abstractSequence:{cat:"Abstract",name:"Shape Sequences",fidelity:"Medium",basis:"Current Australian JOA-focused prep resources; official guide confirms abstract reasoning but not a complete taxonomy",
+    help:[
+      "Track one attribute at a time: rotation, count, fill, position, shape type.",
+      "Ask what changes every step and what stays constant.",
+      "Check alternating changes: odd frames can follow one rule and even frames another.",
+      "For rotations, use a fixed reference point (the arrow tip or shaded corner) instead of mentally rotating the whole page."
+    ], traps:["Trying to see the whole pattern at once","Missing an alternating rule","Confusing a 90° rotation with a mirror reflection"]},
+  rotation:{cat:"Abstract",name:"Rotation & Orientation",fidelity:"Medium",basis:"Current Australian JOA-focused prep resources",
+    help:[
+      "Choose one distinctive feature and rotate that feature first.",
+      "90° clockwise maps top→right→bottom→left. 180° swaps top/bottom and left/right.",
+      "Rotation preserves handedness; reflection reverses it. If a shape becomes a mirror image, it is not a pure rotation.",
+      "Eliminate impossible options before doing the full mental rotation."
+    ], traps:["Mirroring instead of rotating","Rotating in the wrong direction","Losing track of asymmetric markers"]},
+  multiAttribute:{cat:"Abstract",name:"Multi-Attribute Patterns",fidelity:"Medium",basis:"Current Australian JOA-focused prep resources",
+    help:[
+      "Make a tiny feature table in your head: shape / count / fill / orientation / position.",
+      "Look for two independent rules rather than one overly complicated rule.",
+      "If the pattern is A-B-A-B, test alternating attributes before inventing arithmetic-like visual rules.",
+      "Use answer options to test hypotheses: often only one option satisfies both attributes."
+    ], traps:["Stopping after finding only one of two rules","Letting one salient feature hide a count rule","Overcomplicating a simple alternating pattern"]}
+};
+
+
+const WORKED = {
+  numSeries:[
+    {title:"Example 1 — Differences first",q:"7, 12, 17, 22, ?",steps:["<b>Tip applied:</b> start with the simplest rule — constant differences.","12−7=5, 17−12=5 and 22−17=5.","The same +5 rule explains every step, so do not look for anything more complicated."],a:"27"},
+    {title:"Example 2 — Two interleaved sequences",q:"4, 20, 7, 24, 10, ?",steps:["<b>Tip applied:</b> when one simple rule fails, check odd and even positions separately.","Odd positions: 4 → 7 → 10, so they increase by 3.","Even positions: 20 → 24 → ?, so they increase by 4.","Continue the even-position rule."],a:"28"}
+  ],
+  numMatrix:[
+    {title:"Example 1 — Prove a row rule",q:"2 &nbsp;|&nbsp; 5 &nbsp;|&nbsp; 7<br>4 &nbsp;|&nbsp; 6 &nbsp;|&nbsp; 10<br>7 &nbsp;|&nbsp; 8 &nbsp;|&nbsp; ?",steps:["<b>Tip applied:</b> use complete rows to prove the relationship before touching the blank.","Row 1: 2 + 5 = 7.","Row 2: 4 + 6 = 10.","The same rule is therefore strongly supported.","Row 3: 7 + 8 = 15."],a:"15"},
+    {title:"Example 2 — Horizontal and vertical step",q:"3 &nbsp;|&nbsp; 7 &nbsp;|&nbsp; 11<br>8 &nbsp;|&nbsp; 12 &nbsp;|&nbsp; 16<br>13 &nbsp;|&nbsp; 17 &nbsp;|&nbsp; ?",steps:["<b>Tip applied:</b> scan rows, then columns.","Across each row the step is +4.","Down each column the step is +5.","Both rules agree at the missing cell: 17 + 4 = 21, and 16 + 5 = 21."],a:"21"}
+  ],
+  wordProblems:[
+    {title:"Example 1 — Rate triangle",q:"A vehicle travels 150 km at 60 km/h. How long does it take?",steps:["<b>Tip applied:</b> write the relationship before calculating: D = S × T.","We need time, so T = D ÷ S.","150 ÷ 60 = 2.5.","Unit check: kilometres ÷ kilometres-per-hour gives hours."],a:"2.5 hours"},
+    {title:"Example 2 — Fast percentages",q:"What is 35% of 240?",steps:["<b>Tip applied:</b> build awkward percentages from easy ones.","30% of 240 = 72.","5% of 240 is half of 10%: 24 ÷ 2 = 12.","72 + 12 = 84."],a:"84"}
+  ],
+  oddWords:[
+    {title:"Example 1 — Define the club first",q:"oak, pine, rose, maple, tulip, birch — choose TWO odd words",steps:["<b>Tip applied:</b> identify the clean majority category before selecting outsiders.","Oak, pine, maple and birch are all trees.","Rose and tulip are flowers.","The rule is objective and accounts for every item."],a:"rose and tulip"},
+    {title:"Example 2 — Respect 'TWO'",q:"metre, litre, kilometre, gram, centimetre, millimetre — choose TWO odd words",steps:["<b>Tip applied:</b> check the instruction for how many answers are required.","Metre, kilometre, centimetre and millimetre all measure length.","Litre measures volume and gram measures mass."],a:"litre and gram"}
+  ],
+  analogy:[
+    {title:"Example 1 — Use a bridge sentence",q:"Bird : nest :: Bee : ?",steps:["<b>Tip applied:</b> say the relationship as a sentence.","‘A bird lives in / uses a nest as its home.’","Apply exactly the same relationship to a bee.","A bee lives in a hive."],a:"hive"},
+    {title:"Example 2 — Preserve direction",q:"Puppy : dog :: Kitten : ?",steps:["<b>Tip applied:</b> direction matters.","Puppy → dog is young form → adult form.","The matching young-form → adult-form relationship is kitten → cat.","An answer such as ‘animal’ is related, but it does not reproduce the relationship."],a:"cat"}
+  ],
+  wordRelation:[
+    {title:"Example 1 — Opposites on the same dimension",q:"scarce — plentiful",steps:["<b>Tip applied:</b> define both words plainly.","Scarce = available only in small amounts.","Plentiful = available in large amounts.","They sit at opposite ends of the same amount/availability dimension."],a:"Opposite meanings"},
+    {title:"Example 2 — Related is not synonymous",q:"increase — improve",steps:["<b>Tip applied:</b> ask whether either word can be true without the other.","Something can increase and become worse — for example, an error rate.","Something can improve without increasing in size or number.","So the words are related, but neither synonyms nor antonyms."],a:"Neither"}
+  ],
+  deduction:[
+    {title:"Example 1 — Rule + fact",q:"Prove Alex attends the briefing. Statements include: (1) If Alex arrives by 08:00, Alex attends. (2) Alex arrives at 08:00. (3) Alex normally takes the bus.",steps:["<b>Tip applied:</b> ‘PROVE’ means the conclusion must be forced.","Statement 1 gives the rule: arrive by 08:00 → attend.","Statement 2 establishes the condition is satisfied.","The bus statement is irrelevant because it does not establish attendance."],a:"Statements 1 and 2"},
+    {title:"Example 2 — Build a logical link",q:"Prove Blair's folder is blue. (1) Blair and Casey always have folders of the same colour. (2) Casey's folder is blue. (3) Blair likes blue clothing.",steps:["<b>Tip applied:</b> link the exact subject to the exact property.","Statement 1 links Blair's folder colour to Casey's folder colour.","Statement 2 supplies Casey's known colour.","Liking blue clothing does not logically prove anything about the folder."],a:"Statements 1 and 2"}
+  ],
+  abstractOdd:[
+    {title:"Example 1 — Count before appearance",q:"●●● &nbsp;&nbsp;|&nbsp;&nbsp; ●●● &nbsp;&nbsp;|&nbsp;&nbsp; ●● &nbsp;&nbsp;|&nbsp;&nbsp; ●●●",steps:["<b>Tip applied:</b> inventory attributes in a fixed order — count first.","Three figures contain three dots.","One contains only two.","No rotation or spacing analysis is needed once the invariant is clear."],a:"The two-dot figure"},
+    {title:"Example 2 — Fill can be the rule",q:"●●● &nbsp;&nbsp;|&nbsp;&nbsp; ●●● &nbsp;&nbsp;|&nbsp;&nbsp; ○○○ &nbsp;&nbsp;|&nbsp;&nbsp; ●●●",steps:["<b>Tip applied:</b> after count, check fill/shading.","Every figure has three dots, so count does not discriminate.","Three figures use filled dots; one uses outline dots."],a:"The outline-dot figure"}
+  ],
+  abstractSequence:[
+    {title:"Example 1 — Track two attributes separately",q:"↑ solid → → outline → ↓ solid → ← outline → ?",steps:["<b>Tip applied:</b> track rotation and fill as separate rules.","Orientation rotates 90° clockwise each step: ↑ → ↓ ← ↑.","Fill alternates solid, outline, solid, outline, ...","The next figure must satisfy both rules."],a:"↑ solid"},
+    {title:"Example 2 — Check alternating positions",q:"○, ■, ○○, ■■, ○○○, ?",steps:["<b>Tip applied:</b> split odd and even frames.","Odd frames are circles: 1, 2, 3 circles.","Even frames are squares: 1, 2, so the next even frame has 3 squares."],a:"■■■"}
+  ],
+  rotation:[
+    {title:"Example 1 — Fixed reference point",q:"An arrow points ↑. Rotate it 90° clockwise.",steps:["<b>Tip applied:</b> use the four-position map top → right → bottom → left.","The arrow tip begins at the top.","One 90° clockwise move takes the tip to the right."],a:"→"},
+    {title:"Example 2 — Rotation is not reflection",q:"An asymmetric L-shape is rotated 180°.",steps:["<b>Tip applied:</b> preserve handedness.","A 180° rotation swaps top with bottom and left with right.","Do not flip the shape as if viewed in a mirror.","If an answer reverses the L's handedness, eliminate it immediately."],a:"Choose the option with the same handedness after a half-turn"}
+  ],
+  multiAttribute:[
+    {title:"Example 1 — Feature table",q:"Four figures are triangles with changing rotation/fill; one figure is a square.",steps:["<b>Tip applied:</b> mentally list shape / rotation / fill.","Rotation varies, so it is not the invariant.","Fill varies, so it is not the invariant.","Base shape stays triangle in four figures.","The square breaks the underlying shape rule."],a:"The square"},
+    {title:"Example 2 — Two independent rules",q:"Frame sequence: triangle-up/solid, triangle-right/outline, triangle-down/solid, triangle-left/outline, ?",steps:["<b>Tip applied:</b> avoid one complicated rule; find two simple ones.","Rule 1: orientation rotates 90° clockwise.","Rule 2: fill alternates solid/outline.","Both must be true in the next frame."],a:"triangle-up / solid"}
+  ]
+};
+
+const state = {
+  page:"home", cat:"Numerical", subtype:"numSeries", practice:null, test:null, review:null,
+  settings:{difficulty:"mixed",count:15,timed:false}
+};
+// Only full 51-question practice tests are persisted. Category drills are deliberately not tracked.
+const storeKey="adfJoaTrainerFullTestProgressV3";
+let progress={attempts:[]};
+try{
+  const saved=JSON.parse(localStorage.getItem(storeKey)||'{"attempts":[]}');
+  if(saved && Array.isArray(saved.attempts)) progress=saved;
+}catch(e){ progress={attempts:[]}; }
+function saveProgress(){ localStorage.setItem(storeKey,JSON.stringify(progress)); }
+
+function rng(seed){ let a=seed>>>0; return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; } }
+function ri(r,min,max){ return Math.floor(r()*(max-min+1))+min; }
+function pick(r,arr){ return arr[Math.floor(r()*arr.length)]; }
+function shuffle(r,arr){ const x=[...arr]; for(let i=x.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[x[i],x[j]]=[x[j],x[i]];} return x; }
+function fmt(n){ return Number.isInteger(n)?String(n):String(Math.round(n*100)/100); }
+function uniqOptions(correct, vals, r){
+  const a=[correct,...vals].map(v=>typeof v==="number"?Math.round(v*100)/100:v);
+  const unique=[]; a.forEach(v=>{if(!unique.some(x=>String(x)===String(v))) unique.push(v)});
+  while(unique.length<4){ let v=typeof correct==="number"?correct+ri(r,-9,9):"Option "+unique.length; if(!unique.some(x=>String(x)===String(v))) unique.push(v); }
+  return shuffle(r,unique.slice(0,4));
+}
+function qbase(seed, subtype, difficulty){return {id:`${subtype}-${seed}`,subtype,category:SUBTYPES[subtype].cat,difficulty};}
+
+function requestedBand(d){ return ["easy","medium","hard"].includes(d)?d:"medium"; }
+function setDifficulty(q,d,reason){ q.difficulty=d; q.difficultyReason=reason; return q; }
+
+function genNumSeries(seed,difficulty="medium"){
+  const r=rng(seed), band=requestedBand(difficulty), q=qbase(seed,"numSeries",band);
+  let seq=[],ans,rule,reason;
+  const type=ri(r,0,2);
+  if(band==="easy"){
+    if(type===0){
+      const a=ri(r,2,20),d=ri(r,2,9); seq=[a,a+d,a+2*d,a+3*d,a+4*d]; ans=a+5*d;
+      rule=`add ${d} each time`; reason="One obvious arithmetic rule with a constant difference.";
+    }else if(type===1){
+      let a=ri(r,3,15),b=ri(r,16,30); if(a===b)b++;
+      seq=[a,b,a,b,a,b]; ans=a; rule=`alternate ${a}, ${b}`;
+      reason="A simple two-value alternation (A, B, A, B...). This is always Easy, including patterns such as 8, 18, 8, 18...";
+    }else{
+      const a=ri(r,2,7),m=pick(r,[2,3]); seq=[a,a*m,a*m*m,a*m*m*m]; ans=a*m*m*m*m;
+      rule=`multiply by ${m} each time`; reason="One obvious repeated multiplication rule.";
+    }
+  }else if(band==="medium"){
+    if(type===0){
+      const a=ri(r,3,12),d=ri(r,2,5),inc=ri(r,1,3); seq=[a];
+      for(let i=0;i<4;i++)seq.push(seq.at(-1)+d+i*inc); ans=seq.at(-1)+d+4*inc;
+      rule=`the differences increase by ${inc}: ${[0,1,2,3,4].map(i=>d+i*inc).join(", ")}`;
+      reason="Requires a second-level pattern in the differences, but only one derived sequence.";
+    }else if(type===1){
+      const a=ri(r,8,25),up=ri(r,5,11),down=ri(r,2,6); seq=[a];
+      for(let i=0;i<5;i++)seq.push(seq.at(-1)+(i%2===0?up:-down)); ans=seq[5]; seq=seq.slice(0,5);
+      rule=`alternate +${up}, −${down}`; reason="Requires recognising two alternating arithmetic operations.";
+    }else{
+      const base=ri(r,3,12),step=ri(r,3,9); seq=[base,base+step,base+step,base+2*step,base+2*step]; ans=base+3*step;
+      rule=`each new value is repeated twice while increasing by ${step}`; reason="Requires noticing both repetition and a separate arithmetic progression.";
+    }
+  }else{
+    if(type===0){
+      const a=ri(r,2,10),b=ri(r,18,35),d1=ri(r,2,6),d2=ri(r,3,8); seq=[a,b,a+d1,b+d2,a+2*d1]; ans=b+2*d2;
+      rule=`two interleaved sequences: odd positions +${d1}, even positions +${d2}`;
+      reason="Requires splitting the terms into two interleaved sequences and solving the correct strand.";
+    }else if(type===1){
+      const a=ri(r,2,6),d=ri(r,1,3); seq=[a]; let diff=d;
+      for(let i=0;i<4;i++){seq.push(seq.at(-1)+diff);diff*=2;} ans=seq.at(-1)+diff;
+      rule="the amount added doubles after each step"; reason="Requires deriving a changing-difference rule whose increments themselves grow geometrically.";
+    }else{
+      const a=ri(r,2,6),m=pick(r,[2,3]),add=ri(r,2,6); seq=[a];
+      seq.push(seq.at(-1)*m); seq.push(seq.at(-1)+add); seq.push(seq.at(-1)*m); seq.push(seq.at(-1)+add); ans=seq.at(-1)*m;
+      rule=`alternate ×${m}, then +${add}`; reason="Requires identifying and maintaining two different alternating operations under time pressure.";
+    }
+  }
+  q.prompt="What number comes next?"; q.display={type:"sequence",values:[...seq,"?"]};
+  q.kind="single"; q.options=uniqOptions(ans,[ans+ri(r,1,5),ans-ri(r,1,5),ans+ri(r,6,12)],r); q.answer=ans;
+  q.explanation=`The rule is: ${rule}. Therefore the missing value is ${ans}.`;
+  return setDifficulty(q,band,reason);
+}
+
+function genNumMatrix(seed,difficulty="medium"){
+  const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"numMatrix",band); let grid,ans,rule,reason;
+  const type=ri(r,0,2);
+  if(band==="easy"){
+    if(type===0){
+      const rows=Array.from({length:3},()=>{const a=ri(r,2,12),b=ri(r,2,12);return [a,b,a+b]}); ans=rows[2][2]; rows[2][2]=null; grid=rows;
+      rule="in each row, third = first + second"; reason="A single direct addition relationship repeated across rows.";
+    }else if(type===1){
+      const rows=Array.from({length:3},()=>{const b=ri(r,2,8),c=ri(r,2,9),a=b+c;return [a,b,c]}); ans=rows[2][2]; rows[2][2]=null; grid=rows;
+      rule="in each row, third = first − second"; reason="A single direct subtraction relationship repeated across rows.";
+    }else{
+      const a=ri(r,2,10),h=ri(r,2,5),v=ri(r,2,5); grid=[[a,a+h,a+2*h],[a+v,a+v+h,a+v+2*h],[a+2*v,a+2*v+h,null]]; ans=a+2*v+2*h;
+      rule=`move right +${h}; move down +${v}`; reason="Two visible constant steps that cross-check to the same missing cell.";
+    }
+  }else if(band==="medium"){
+    if(type===0){
+      const rows=Array.from({length:3},()=>{const a=ri(r,2,9),b=ri(r,2,7);return [a,b,a*b]}); ans=rows[2][2];rows[2][2]=null;grid=rows;
+      rule="in each row, third = first × second"; reason="Requires testing multiplication rather than only addition/subtraction.";
+    }else if(type===1){
+      const rows=Array.from({length:3},()=>{const a=ri(r,2,9),b=ri(r,2,9);return [a,b,2*a+b]}); ans=rows[2][2];rows[2][2]=null;grid=rows;
+      rule="in each row, third = (2 × first) + second"; reason="A consistent two-step arithmetic rule must be inferred from complete rows.";
+    }else{
+      const k=ri(r,2,6),rows=Array.from({length:3},()=>{const a=ri(r,3,10),b=ri(r,2,9);return [a,b,a+b+k]}); ans=rows[2][2];rows[2][2]=null;grid=rows;
+      rule=`in each row, third = first + second + ${k}`; reason="A two-step additive rule with a hidden constant must be inferred.";
+    }
+  }else{
+    if(type===0){
+      const k=ri(r,2,5),rows=Array.from({length:3},()=>{const a=ri(r,3,9),b=ri(r,2,7);return [a,b,a*b+k]}); ans=rows[2][2];rows[2][2]=null;grid=rows;
+      rule=`in each row, third = (first × second) + ${k}`; reason="Requires identifying a two-operation multiplicative rule and the hidden constant.";
+    }else if(type===1){
+      const k=ri(r,2,5),rows=Array.from({length:3},()=>{const a=ri(r,5,11),b=ri(r,2,7);return [a,b,a*b-k]}); ans=rows[2][2];rows[2][2]=null;grid=rows;
+      rule=`in each row, third = (first × second) − ${k}`; reason="Requires multiplication plus a second operation, with plausible simpler rules acting as distractors.";
+    }else{
+      const m=pick(r,[2,3]),rows=Array.from({length:3},()=>{const a=ri(r,2,8),b=ri(r,2,8);return [a,b,(a+b)*m]}); ans=rows[2][2];rows[2][2]=null;grid=rows;
+      rule=`in each row, third = (first + second) × ${m}`; reason="Requires recognising operation order across two linked arithmetic steps.";
+    }
+  }
+  q.prompt="What number should replace the question mark in the matrix?";q.display={type:"matrix",grid:grid.map(row=>row.map(v=>v===null?"?":v))};q.kind="numeric";q.answer=ans;
+  q.explanation=`Use the same rule on the complete rows: ${rule}. The missing value is ${ans}.`;
+  return setDifficulty(q,band,reason);
+}
+
+function genWordProblem(seed,difficulty="medium"){
+  const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"wordProblems",band); let ans,prompt,exp,reason;
+  const type=ri(r,0,2);
+  if(band==="easy"){
+    if(type===0){
+      const speed=pick(r,[12,15,20,24,25,30]),time=pick(r,[2,3,4,5]),dist=speed*time;ans=time;
+      prompt=`A vehicle travels ${dist} kilometres at an average speed of ${speed} km/h. How many hours does the journey take?`;
+      exp=`time = distance ÷ speed = ${dist} ÷ ${speed} = ${ans} hours.`;reason="One direct rate calculation with an integer result.";
+    }else if(type===1){
+      const total=pick(r,[80,120,160,200,240,320]),pct=pick(r,[10,25,50]);ans=total*pct/100;
+      prompt=`A unit has ${total} items. ${pct}% are allocated for training. How many items is that?`;
+      exp=`${pct}% of ${total} = ${ans}.`;reason="One-step percentage using a common mental-maths fraction (10%, 25% or 50%).";
+    }else{
+      const workers=pick(r,[3,4,5]),per=pick(r,[6,8,10]),hours=pick(r,[2,3]);ans=workers*per*hours;
+      prompt=`${workers} people each process ${per} forms per hour. How many forms do they process altogether in ${hours} hours?`;
+      exp=`${workers} × ${per} × ${hours} = ${ans}.`;reason="Straightforward multiplication with all required values stated directly.";
+    }
+  }else if(band==="medium"){
+    if(type===0){
+      const a=ri(r,2,6),b=ri(r,2,6),unit=ri(r,4,12),total=(a+b)*unit;ans=a*unit;
+      prompt=`Red and blue markers are in the ratio ${a}:${b}. There are ${total} markers altogether. How many are red?`;
+      exp=`Total ratio parts = ${a+b}. One part = ${unit}. Red = ${a} × ${unit} = ${ans}.`;reason="Requires converting a ratio into total parts before calculating the requested share.";
+    }else if(type===1){
+      const n=pick(r,[4,5,6]),avg=ri(r,12,25),sum=avg*n;let known=[];
+      for(let i=0;i<n-1;i++)known.push(ri(r,8,28)); const knownSum=known.reduce((a,b)=>a+b,0);ans=sum-knownSum;
+      if(ans<2||ans>45)return genWordProblem(seed+311,band);
+      prompt=`The average of ${n} scores is ${avg}. ${n-1} scores are ${known.join(", ")}. What is the remaining score?`;
+      exp=`Required total = ${avg} × ${n} = ${sum}. Known total = ${knownSum}. Missing = ${ans}.`;reason="Requires reversing an average: find the target total, then subtract several known values.";
+    }else{
+      const packs=ri(r,3,8),each=pick(r,[8,10,12,15]),pct=pick(r,[75,80,90]),total=packs*each;ans=total*pct/100;
+      if(!Number.isInteger(ans))return genWordProblem(seed+613,band);
+      prompt=`There are ${packs} packs with ${each} components in each pack. If ${pct}% pass inspection, how many components pass?`;
+      exp=`Total = ${packs} × ${each} = ${total}. Then ${pct}% of ${total} = ${ans}.`;reason="A genuine two-stage problem: calculate the total first, then apply a less-trivial percentage.";
+    }
+  }else{
+    if(type===0){
+      const total=pick(r,[200,240,300,400]),reserved=pick(r,[20,25,30]),use=pick(r,[20,25,50]);const rem=total*(100-reserved)/100;ans=rem*use/100;
+      if(!Number.isInteger(ans))return genWordProblem(seed+719,band);
+      prompt=`A store holds ${total} items. ${reserved}% are reserved and cannot be used. Of the remaining items, ${use}% are issued. How many items are issued?`;
+      exp=`Remaining = ${total} × ${100-reserved}% = ${rem}. Issued = ${use}% of ${rem} = ${ans}.`;reason="Two dependent percentage stages; the second percentage applies to a changed base, a common time-pressure trap.";
+    }else if(type===1){
+      const w1=ri(r,3,5),rate=pick(r,[6,8,10]),h1=pick(r,[2,3]),extra=ri(r,1,3),h2=1;ans=w1*rate*h1+(w1+extra)*rate*h2;
+      prompt=`${w1} people process ${rate} forms each per hour for ${h1} hours. Then ${extra} more people join for 1 further hour at the same individual rate. How many forms are processed altogether?`;
+      exp=`First stage: ${w1} × ${rate} × ${h1} = ${w1*rate*h1}. Second stage: ${w1+extra} × ${rate} = ${(w1+extra)*rate}. Total = ${ans}.`;reason="Requires calculating and combining two work-rate stages after the group size changes.";
+    }else{
+      const a=ri(r,2,5),b=ri(r,4,7),unit=pick(r,[6,8,10]),total=(a+b)*unit,move=pick(r,[2,3,4]);ans=a*unit+move;
+      prompt=`Red and blue markers are in the ratio ${a}:${b}, with ${total} markers altogether. Then ${move} blue markers are moved into the red group. How many red markers are there now?`;
+      exp=`Initially red = ${a}/${a+b} of ${total} = ${a*unit}. After moving ${move}, red = ${ans}.`;reason="Requires solving a ratio first, then correctly applying a second change to the result.";
+    }
+  }
+  q.prompt=prompt;q.kind=band==="hard"?"numeric":"single";q.answer=ans;
+  if(q.kind==="single")q.options=uniqOptions(ans,[ans+pick(r,[2,4,5,10]),ans-pick(r,[1,3,5]),ans*2],r);
+  q.explanation=exp;return setDifficulty(q,band,reason);
+}
+
+const oddSetsByDifficulty={
+ easy:[
+  {core:["hammer","saw","drill","spanner"],outs:["violin","trumpet"],rule:"the four core words are tools; the outsiders are musical instruments"},
+  {core:["oak","pine","maple","birch"],outs:["tulip","rose"],rule:"the four core words are trees; the outsiders are flowers"},
+  {core:["sparrow","eagle","parrot","magpie"],outs:["salmon","trout"],rule:"the four core words are birds; the outsiders are fish"},
+  {core:["January","March","July","October"],outs:["Monday","Friday"],rule:"the four core words are months; the outsiders are days of the week"},
+  {core:["circle","triangle","square","pentagon"],outs:["sphere","cube"],rule:"the four core words are 2D shapes; the outsiders are 3D solids"}
+ ],
+ medium:[
+  {core:["copper","iron","aluminium","gold"],outs:["glass","rubber"],rule:"the four core words are metals; the outsiders are non-metals"},
+  {core:["metre","kilometre","centimetre","millimetre"],outs:["litre","gram"],rule:"the four core words measure length; the outsiders measure different quantities"},
+  {core:["north","south","east","west"],outs:["above","below"],rule:"the four core words are cardinal compass directions; the outsiders are vertical relative positions"},
+  {core:["whisper","speak","shout","murmur"],outs:["listen","observe"],rule:"the four core words are ways of producing speech; the outsiders are receptive actions"},
+  {core:["infant","child","adolescent","adult"],outs:["morning","evening"],rule:"the four core words are human life stages; the outsiders are times of day"}
+ ],
+ hard:[
+  {core:["scarlet","crimson","vermilion","maroon"],outs:["cerulean","teal"],rule:"the four core words are red-family colour terms; the outsiders are blue/green-family colour terms"},
+  {core:["frugal","thrifty","economical","sparing"],outs:["lavish","wasteful"],rule:"the four core words describe economical use of resources; the outsiders describe the opposite tendency"},
+  {core:["concise","brief","succinct","terse"],outs:["verbose","wordy"],rule:"the four core words mean brief in expression; the outsiders mean using many words"},
+  {core:["rotate","revolve","spin","turn"],outs:["reflect","translate"],rule:"the four core words describe rotational movement; reflection and translation are different transformations"},
+  {core:["mandatory","compulsory","obligatory","required"],outs:["optional","voluntary"],rule:"the four core words mean required; the outsiders describe non-compulsory choice"}
+ ]
+};
+function genOddWords(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"oddWords",band),set=pick(r,oddSetsByDifficulty[band]);
+ q.prompt="Which TWO words are the odd ones out?";q.kind="multi";q.options=shuffle(r,[...set.core,...set.outs]);q.answer=set.outs;q.maxSelect=2;q.explanation=`The best common rule is: ${set.rule}.`;
+ const reason=band==="easy"?"Uses concrete everyday categories with clearly separated outsiders.":band==="medium"?"Requires a less-immediate conceptual category rather than a basic object class.":"Uses closer semantic/vocabulary relationships, so the category must be defined precisely before choosing the outsiders.";
+ return setDifficulty(q,band,reason);
+}
+
+const analogiesByDifficulty={
+ easy:[
+  {a:"bird",b:"nest",c:"bee",answer:"hive",opts:["hive","forest","flower","wing"],rel:"animal to home"},
+  {a:"knife",b:"cut",c:"pen",answer:"write",opts:["write","paper","read","draw"],rel:"tool to primary function"},
+  {a:"puppy",b:"dog",c:"kitten",answer:"cat",opts:["cat","animal","fur","cub"],rel:"young animal to adult animal"},
+  {a:"cold",b:"hot",c:"dark",answer:"light",opts:["light","night","shade","black"],rel:"opposites"},
+  {a:"doctor",b:"hospital",c:"teacher",answer:"school",opts:["school","student","book","office"],rel:"profession to typical workplace"}
+ ],
+ medium:[
+  {a:"wheel",b:"car",c:"wing",answer:"aircraft",opts:["aircraft","airport","pilot","engine"],rel:"part to whole"},
+  {a:"finger",b:"hand",c:"toe",answer:"foot",opts:["foot","leg","shoe","ankle"],rel:"part to containing body part"},
+  {a:"author",b:"novel",c:"composer",answer:"music",opts:["music","instrument","concert","sound"],rel:"creator to created work"},
+  {a:"map",b:"navigate",c:"dictionary",answer:"define",opts:["define","read","spell","write"],rel:"reference tool to typical purpose"},
+  {a:"minute",b:"hour",c:"centimetre",answer:"metre",opts:["metre","millimetre","litre","second"],rel:"smaller unit to larger unit of the same quantity"}
+ ],
+ hard:[
+  {a:"thermometer",b:"temperature",c:"barometer",answer:"pressure",opts:["pressure","altitude","humidity","speed"],rel:"instrument to quantity measured"},
+  {a:"chapter",b:"book",c:"scene",answer:"play",opts:["play","stage","actor","audience"],rel:"component to larger structured work"},
+  {a:"scarcity",b:"abundance",c:"deficit",answer:"surplus",opts:["surplus","shortage","budget","loss"],rel:"conceptual opposites"},
+  {a:"transparent",b:"opaque",c:"flexible",answer:"rigid",opts:["rigid","elastic","soft","fragile"],rel:"opposites on the same dimension"},
+  {a:"sentence",b:"paragraph",c:"paragraph",answer:"chapter",opts:["chapter","word","title","page"],rel:"smaller structural unit to larger structural unit"}
+ ]
+};
+function genAnalogy(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"analogy",band),a=pick(r,analogiesByDifficulty[band]);
+ q.prompt=`${a.a} is to ${a.b} as ${a.c} is to:`;q.kind="single";q.options=shuffle(r,a.opts);q.answer=a.answer;q.explanation=`The relationship is ${a.rel}. Therefore '${a.c}' pairs with '${a.answer}'.`;
+ const reason=band==="easy"?"Concrete, familiar relationship with distant distractors.":band==="medium"?"The relationship is still clear but more abstract or the distractors are closer.":"Requires a more abstract/vocabulary-based relationship and closer plausible distractors.";
+ return setDifficulty(q,band,reason);
+}
+
+const wordPairsByDifficulty={
+ easy:[
+  ["rapid","swift","similar","both mean fast"],["assist","help","similar","both mean to aid"],["expand","contract","opposite","expand means become larger; contract means become smaller"],["silent","quiet","similar","both describe little or no sound"],["repair","damage","opposite","repair restores; damage harms"],["complex","simple","opposite","they contrast directly in complexity"]
+ ],
+ medium:[
+  ["scarce","plentiful","opposite","scarce means limited; plentiful means abundant"],["fragile","sturdy","opposite","fragile is easily broken; sturdy is robust"],["permit","allow","similar","both mean to give permission"],["accurate","precise","similar","both can describe correctness or exactness"],["reluctant","unwilling","similar","both mean not eager or willing"],["increase","improve","neither","something can increase without improving; the meanings are related but not equivalent"],["transparent","opaque","opposite","transparent lets light through; opaque does not"]
+ ],
+ hard:[
+  ["tacit","explicit","opposite","tacit means understood without being stated; explicit means clearly stated"],["transient","permanent","opposite","transient means temporary; permanent means lasting"],["meticulous","careless","opposite","meticulous means very careful and precise; careless is the opposite"],["concise","verbose","opposite","concise uses few words; verbose uses many"],["mitigate","aggravate","opposite","mitigate means make less severe; aggravate means make worse"],["sporadic","intermittent","similar","both can describe something occurring irregularly rather than continuously"],["ambiguous","unequivocal","opposite","ambiguous allows multiple interpretations; unequivocal is unambiguous"]
+ ]
+};
+function genWordRelation(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"wordRelation",band),p=pick(r,wordPairsByDifficulty[band]);
+ q.prompt=`How are these two words related?  ${p[0]} — ${p[1]}`;q.kind="single";q.options=["Have similar meanings","Have opposite meanings","Are neither similar nor opposite"];
+ q.answer=p[2]==="similar"?q.options[0]:p[2]==="opposite"?q.options[1]:q.options[2];q.explanation=p[3]+".";
+ const reason=band==="easy"?"Uses common vocabulary with a direct synonym/antonym relationship.":band==="medium"?"Uses more nuanced meaning or a plausible 'related but neither' trap.":"Uses less-common vocabulary where precise meaning must be distinguished under time pressure.";
+ return setDifficulty(q,band,reason);
+}
+
+const names=["Alex","Blair","Casey","Devon","Elliot","Jordan","Morgan","Riley","Taylor","Sam","Jamie","Avery"];
+const objects=["folder","helmet","bag","bicycle","notebook","jacket","locker","mug"];
+const colors=["red","blue","green","black","white","yellow"];
+function genDeduction(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"deduction",band);const n1=pick(r,names),n2=pick(r,names.filter(x=>x!==n1)),obj=pick(r,objects),col=pick(r,colors);let statements,answer,reason;
+ if(band==="easy"){
+   const time=pick(r,["07:30","08:00","08:15","09:00"]);
+   statements=[`If ${n1} arrives by ${time}, ${n1} will attend the briefing.`,`${n1} arrives at ${time}.`,`${n1} normally travels by bus.`,`The briefing room has twelve chairs.`,`${n2} also attends briefings.`];answer=[statements[0],statements[1]];
+   q.prompt=`Which TWO statements together PROVE that ${n1} will attend the briefing?`;q.explanation="The conditional rule plus the fact satisfying its condition force the conclusion.";reason="A direct rule + matching fact; distractors do not closely mimic valid proof steps.";
+ }else if(band==="medium"){
+   statements=[`${n1} and ${n2} always have ${obj}s of the same colour.`,`${n2}'s ${obj} is ${col}.`,`${n1} likes ${col} clothing.`,`${n2} bought the ${obj} last week.`,`Someone in the group owns a ${col} ${obj}.`];answer=[statements[0],statements[1]];
+   q.prompt=`Which TWO statements together PROVE that ${n1}'s ${obj} is ${col}?`;q.explanation=`The first statement links ${n1}'s colour to ${n2}'s; the second establishes ${n2}'s colour.`;reason="Requires chaining an equality/relationship statement with a separate property statement.";
+ }else{
+   if(r()<.5){
+     statements=[`If ${n1} has security clearance, ${n1} attends the briefing.`,`${n1} has security clearance.`,`Everyone who attends the briefing receives a badge.`,`${n1} has a badge.`,`${n2} has security clearance.`];answer=[statements[0],statements[1]];
+     q.prompt=`Which TWO statements together PROVE that ${n1} attends the briefing?`;q.explanation="Only the rule 'clearance → attends' and the fact that clearance is held prove attendance. Having a badge is a tempting but invalid converse.";
+   }else{
+     statements=[`${n1} and ${n2} always have ${obj}s of different colours.`,`${n2}'s ${obj} is ${col}.`,`${n1} dislikes ${col}.`,`Every ${col} ${obj} has a label.`,`${n1}'s ${obj} has a label.`];answer=[statements[0],statements[1]];
+     q.prompt=`Which TWO statements together PROVE that ${n1}'s ${obj} is NOT ${col}?`;q.explanation=`Different colours plus the fact that ${n2}'s ${obj} is ${col} forces ${n1}'s ${obj} to be a different colour. The label statements do not prove colour.`;
+   }
+   reason="Includes logically tempting converse/association distractors; the correct proof requires rejecting statements that mention the conclusion without entailing it.";
+ }
+ q.kind="multi";q.options=shuffle(r,statements);q.answer=answer;q.maxSelect=2;return setDifficulty(q,band,reason);
+}
+
+function figSvg(spec,w=118,h=82){
+  const cx=w/2,cy=h/2;
+  if(spec.type==="dots"){
+    let dots="";const n=spec.dots||3,rad=18;
+    for(let i=0;i<n;i++){const ang=(-Math.PI/2)+(i*2*Math.PI/n),x=cx+Math.cos(ang)*rad,y=cy+Math.sin(ang)*rad;dots+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.3" fill="${spec.dotFill==="outline"?"white":"#111"}" stroke="#111" stroke-width="1.5"/>`;}
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true"><circle cx="${cx}" cy="${cy}" r="31" fill="white" stroke="#222" stroke-width="1.5"/>${dots}</svg>`;
+  }
+  if(spec.type==="block"){
+    const shade=spec.shade==="dark"?"#111":"#fff",studs=spec.studs||3;let st="";const start=cx-(studs-1)*9;
+    for(let i=0;i<studs;i++)st+=`<ellipse cx="${start+i*18}" cy="${cy-20}" rx="5" ry="2.8" fill="#e8e8e8" stroke="#333" stroke-width="1"/>`;
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><polygon points="${cx-35},${cy-22} ${cx+25},${cy-22} ${cx+35},${cy-14} ${cx-25},${cy-14}" fill="${shade}" stroke="#333"/><rect x="${cx-35}" y="${cy-22}" width="60" height="34" fill="none" stroke="#333"/><polygon points="${cx+25},${cy-22} ${cx+35},${cy-14} ${cx+35},${cy+14} ${cx+25},${cy+12}" fill="#f2f2f2" stroke="#333"/>${st}</svg>`;
+  }
+  const shape=spec.shape||"arrow",rot=spec.rot||0,fill=spec.fill==="outline"?"white":"#1c2830";let body="";
+  if(shape==="arrow")body=`<path d="M ${cx-26} ${cy-8} H ${cx+6} V ${cy-20} L ${cx+28} ${cy} L ${cx+6} ${cy+20} V ${cy+8} H ${cx-26} Z" fill="${fill}" stroke="#1c2830" stroke-width="2"/>`;
+  if(shape==="triangle")body=`<polygon points="${cx},${cy-27} ${cx+27},${cy+22} ${cx-27},${cy+22}" fill="${fill}" stroke="#1c2830" stroke-width="2"/>`;
+  if(shape==="square")body=`<rect x="${cx-23}" y="${cy-23}" width="46" height="46" fill="${fill}" stroke="#1c2830" stroke-width="2"/>`;
+  if(shape==="diamond")body=`<polygon points="${cx},${cy-28} ${cx+28},${cy} ${cx},${cy+28} ${cx-28},${cy}" fill="${fill}" stroke="#1c2830" stroke-width="2"/>`;
+  if(shape==="circle")body=`<circle cx="${cx}" cy="${cy}" r="25" fill="${fill}" stroke="#1c2830" stroke-width="2"/>`;
+  if(shape==="L")body=`<path d="M ${cx-23} ${cy-28} H ${cx-5} V ${cy+10} H ${cx+26} V ${cy+28} H ${cx-23} Z" fill="${fill}" stroke="#1c2830" stroke-width="2"/>`;
+  const marker=spec.marker?`<circle cx="${cx-14}" cy="${cy-17}" r="4" fill="${spec.marker==="white"?"white":"#c92d3b"}" stroke="#222"/>`:"";
+  const sx=spec.mirror?-1:1;return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><g transform="translate(${cx} ${cy}) rotate(${rot}) scale(${sx} 1) translate(${-cx} ${-cy})">${body}${marker}</g></svg>`;
+}
+
+function genAbstractOdd(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"abstractOdd",band);let reason;
+ if(band==="easy"){
+   const dots=pick(r,[3,4]),wrongCount=dots===3?2:3;let specs=[{type:"dots",dots,dotFill:"solid"},{type:"dots",dots,dotFill:"solid"},{type:"dots",dots,dotFill:"solid"},{type:"dots",dots,dotFill:"solid"},{type:"dots",dots:wrongCount,dotFill:"solid"},{type:"dots",dots,dotFill:"outline"}];specs=shuffle(r,specs);
+   q.prompt="Which TWO figures do not belong with the others?";q.kind="visualMulti";q.visualOptions=specs;q.answer=specs.map((x,i)=>({x,i})).filter(z=>z.x.dots!==dots||z.x.dotFill!=="solid").map(z=>z.i);q.maxSelect=2;q.explanation=`Four figures have ${dots} filled dots. One changes the count and one changes the fill.`;reason="The invariant is visible from basic count/fill inspection; no relational transformation is required.";
+ }else if(band==="medium"){
+   let specs=[0,90,180,270,0,90].map(rot=>({type:"shape",shape:"L",rot,fill:"solid",marker:"accent",mirror:false}));const bad=ri(r,0,specs.length-1);specs[bad]={...specs[bad],mirror:true};specs=shuffle(r,specs);const ans=specs.findIndex(x=>x.mirror);
+   q.prompt="Which figure is a mirror image rather than merely a rotation of the others?";q.kind="visualSingle";q.visualOptions=specs;q.answer=ans;q.explanation="Five figures preserve the same handedness and differ only by rotation. The outsider reverses handedness, so it is a reflection.";reason="Requires distinguishing rotation from reflection using an asymmetric figure.";
+ }else{
+   let specs=[0,90,180,270,0,90,180,270].map(rot=>({type:"shape",shape:"L",rot,fill:"solid",marker:"accent",mirror:false}));let bad1=ri(r,0,3),bad2=ri(r,4,7);specs[bad1]={...specs[bad1],mirror:true};specs[bad2]={...specs[bad2],mirror:true};specs=shuffle(r,specs);const ans=specs.map((x,i)=>({x,i})).filter(z=>z.x.mirror).map(z=>z.i);
+   q.prompt="Which TWO figures cannot be produced by rotating the same original figure?";q.kind="visualMulti";q.visualOptions=specs;q.answer=ans;q.maxSelect=2;q.explanation="Six options are rotations of the same asymmetric L. Two reverse its handedness and are reflections, not rotations.";reason="Requires checking handedness across eight orientations and identifying two reflection traps rather than one.";
+ }
+ return setDifficulty(q,band,reason);
+}
+function genBlockOdd(seed,difficulty="medium"){ return genAbstractOdd(seed,difficulty); }
+
+function genAbstractSequence(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"abstractSequence",band);let frames,correct,opts,reason,exp;
+ if(band==="easy"){
+   const base=pick(r,[0,90,180,270]),step=pick(r,[90,-90]),shape="arrow";frames=[0,1,2,3].map(i=>({type:"shape",shape,rot:(base+i*step+3600)%360,fill:"solid"}));correct={type:"shape",shape,rot:(base+4*step+3600)%360,fill:"solid"};opts=[correct,{...correct,rot:(correct.rot+90)%360},{...correct,rot:(correct.rot+180)%360},{...correct,rot:(correct.rot+270)%360}];exp=`The arrow rotates ${Math.abs(step)}° ${step>0?"clockwise":"anticlockwise"} each step.`;reason="Tracks one changing attribute only: orientation.";
+ }else if(band==="medium"){
+   const base=pick(r,[0,90,180,270]),step=pick(r,[90,-90]),shape=pick(r,["arrow","triangle"]);frames=[0,1,2,3].map(i=>({type:"shape",shape,rot:(base+i*step+3600)%360,fill:i%2===0?"solid":"outline"}));correct={type:"shape",shape,rot:(base+4*step+3600)%360,fill:"solid"};opts=[correct,{...correct,rot:(correct.rot+90)%360},{...correct,fill:"outline"},{...correct,rot:(correct.rot+180)%360,fill:"outline"}];exp=`Orientation changes by ${Math.abs(step)}° each step while fill alternates solid/outline.`;reason="Requires tracking two independent attributes: rotation and alternating fill.";
+ }else{
+   const a0=pick(r,[0,90,180,270]),t0=pick(r,[0,90,180,270]);frames=[{type:"shape",shape:"arrow",rot:a0,fill:"solid"},{type:"shape",shape:"triangle",rot:t0,fill:"outline"},{type:"shape",shape:"arrow",rot:(a0+90)%360,fill:"solid"},{type:"shape",shape:"triangle",rot:(t0+180)%360,fill:"outline"},{type:"shape",shape:"arrow",rot:(a0+180)%360,fill:"solid"}];correct={type:"shape",shape:"triangle",rot:t0,fill:"outline"};opts=[correct,{type:"shape",shape:"triangle",rot:(t0+90)%360,fill:"outline"},{type:"shape",shape:"triangle",rot:(t0+180)%360,fill:"solid"},{type:"shape",shape:"arrow",rot:(a0+270)%360,fill:"solid"}];exp="Split the odd and even frames. Arrows rotate +90° between their appearances; triangles rotate 180° between theirs. Shape/fill also alternate.";reason="Requires separating two interleaved visual sequences and tracking different rotation rules for each strand.";
+ }
+ q.prompt="Which figure should come next in the sequence?";q.display={type:"figSequence",frames};q.kind="visualSingle";q.visualOptions=shuffle(r,opts);q.answer=q.visualOptions.findIndex(o=>o.shape===correct.shape&&o.rot===correct.rot&&o.fill===correct.fill&&!!o.mirror===!!correct.mirror);q.explanation=exp;return setDifficulty(q,band,reason);
+}
+
+function genRotation(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"rotation",band);let target,correct,opts,reason,rot;
+ if(band==="easy"){
+   rot=pick(r,[90,180]),target={type:"shape",shape:"arrow",rot:0,fill:"solid"};correct={...target,rot};opts=[0,90,180,270].map(a=>({...target,rot:a}));reason="Symmetric arrow with one simple quarter- or half-turn and no reflection trap.";
+ }else if(band==="medium"){
+   rot=pick(r,[90,180,270]);const start=pick(r,[0,90,180,270]);target={type:"shape",shape:"L",rot:start,fill:"solid",marker:"accent",mirror:false};correct={...target,rot:(start+rot)%360};opts=[0,90,180,270].map(a=>({...target,rot:a}));reason="Asymmetric marked figure; correct rotation must preserve internal orientation and marker position.";
+ }else{
+   rot=pick(r,[90,270]);const start=pick(r,[0,90,180,270]);target={type:"shape",shape:"L",rot:start,fill:"solid",marker:"accent",mirror:false};correct={...target,rot:(start+rot)%360};opts=[correct,{...target,rot:(correct.rot+90)%360},{...target,rot:correct.rot,mirror:true},{...target,rot:(correct.rot+180)%360,mirror:true},{...target,rot:(correct.rot+180)%360},{...target,rot:(correct.rot+270)%360}];reason="Asymmetric figure with close rotation and mirror-image distractors; handedness must be preserved while rotating.";
+ }
+ q.prompt=`The figure on the left is rotated ${rot}° clockwise. Which option shows the result?`;q.display={type:"singleFig",spec:target};q.kind="visualSingle";q.visualOptions=shuffle(r,opts);q.answer=q.visualOptions.findIndex(o=>o.rot===correct.rot&&!!o.mirror===!!correct.mirror&&o.shape===correct.shape);q.explanation=`Rotate every feature ${rot}° clockwise. A true rotation preserves handedness; a mirror image does not.`;return setDifficulty(q,band,reason);
+}
+
+function genMultiAttribute(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"multiAttribute",band);let reason;
+ if(band==="easy"){
+   const shapes=["triangle","square","diamond"],shape=pick(r,shapes),other=pick(r,shapes.filter(x=>x!==shape));let specs=[{type:"shape",shape,rot:0,fill:"solid"},{type:"shape",shape,rot:90,fill:"outline"},{type:"shape",shape,rot:180,fill:"solid"},{type:"shape",shape,rot:270,fill:"outline"},{type:"shape",shape:other,rot:0,fill:"solid"}];specs=shuffle(r,specs);q.prompt="Which figure does NOT follow the same underlying shape rule as the others?";q.kind="visualSingle";q.visualOptions=specs;q.answer=specs.findIndex(x=>x.shape===other);q.explanation="Rotation and fill vary, but four options keep the same base shape. The outsider changes the base shape.";reason="Only one invariant ultimately matters: base shape.";
+ }else if(band==="medium"){
+   let specs=[0,90,180,270,0,90].map(rot=>({type:"shape",shape:"arrow",rot,fill:(rot===0||rot===180)?"solid":"outline"}));let bad=ri(r,0,specs.length-1);specs[bad]={...specs[bad],fill:specs[bad].fill==="solid"?"outline":"solid"};specs=shuffle(r,specs);q.prompt="Which figure breaks the relationship between orientation and fill?";q.kind="visualSingle";q.visualOptions=specs;q.answer=specs.findIndex(x=>((x.rot===0||x.rot===180)?"solid":"outline")!==x.fill);q.explanation="For the valid figures, vertical orientations (0°/180°) are solid and horizontal orientations (90°/270°) are outline. One option violates that relationship.";reason="Requires discovering a relationship between two attributes rather than spotting a single invariant.";
+ }else{
+   const start=pick(r,[0,90,180,270]);const frames=[{type:"shape",shape:"triangle",rot:start,fill:"solid"},{type:"shape",shape:"square",rot:(start+90)%360,fill:"outline"},{type:"shape",shape:"triangle",rot:(start+180)%360,fill:"solid"},{type:"shape",shape:"square",rot:(start+270)%360,fill:"outline"}];const correct={type:"shape",shape:"triangle",rot:start,fill:"solid"};const opts=[correct,{type:"shape",shape:"square",rot:start,fill:"solid"},{type:"shape",shape:"triangle",rot:(start+90)%360,fill:"outline"},{type:"shape",shape:"triangle",rot:(start+180)%360,fill:"solid"},{type:"shape",shape:"square",rot:(start+90)%360,fill:"outline"}];q.prompt="Which figure should come next when ALL attributes are continued?";q.display={type:"figSequence",frames};q.kind="visualSingle";q.visualOptions=shuffle(r,opts);q.answer=q.visualOptions.findIndex(o=>o.shape===correct.shape&&o.rot===correct.rot&&o.fill===correct.fill);q.explanation="Three attributes must all continue: shape alternates triangle/square, rotation advances 90° each frame, and fill alternates solid/outline.";reason="Requires simultaneously tracking three independent visual attributes and rejecting options that satisfy only one or two.";
+ }
+ return setDifficulty(q,band,reason);
+}
+
+function calibrateDifficulty(q){
+  // Regression guard for the exact class of issue reported by the user: A,B,A,B,A,B is never Hard.
+  if(q.subtype==="numSeries" && q.display?.type==="sequence"){
+    const vals=q.display.values.filter(v=>v!=="?");
+    if(vals.length>=5 && vals.every((v,i)=>v===vals[i%2])){
+      q.difficulty="easy";
+      q.difficultyReason="Simple two-value alternation (A, B, A, B...) — explicitly classified Easy.";
+    }
+  }
+  return q;
+}
+function generate(subtype,seed,difficulty="medium",attempt=0){
+  const band=requestedBand(difficulty); let q;
+  if(subtype==="numSeries")q=genNumSeries(seed,band);
+  else if(subtype==="numMatrix")q=genNumMatrix(seed,band);
+  else if(subtype==="wordProblems")q=genWordProblem(seed,band);
+  else if(subtype==="oddWords")q=genOddWords(seed,band);
+  else if(subtype==="analogy")q=genAnalogy(seed,band);
+  else if(subtype==="wordRelation")q=genWordRelation(seed,band);
+  else if(subtype==="deduction")q=genDeduction(seed,band);
+  else if(subtype==="abstractOdd")q=genAbstractOdd(seed,band);
+  else if(subtype==="abstractSequence")q=genAbstractSequence(seed,band);
+  else if(subtype==="rotation")q=genRotation(seed,band);
+  else if(subtype==="multiAttribute")q=genMultiAttribute(seed,band);
+  q=calibrateDifficulty(q);q.requestedDifficulty=band;
+  // If a future generator ever creates something that the calibration rubric downgrades/upgrades,
+  // regenerate instead of displaying a false badge.
+  if(q.difficulty!==band && attempt<12)return generate(subtype,seed+104729,band,attempt+1);
+  return q;
+}
+const byCat={
+ Numerical:["numSeries","numMatrix","wordProblems"],
+ Verbal:["oddWords","analogy","wordRelation","deduction"],
+ Abstract:["abstractOdd","abstractSequence","rotation","multiAttribute"]
+};
+const practiceCounts={Numerical:150,Verbal:150,Abstract:140}; // seeded, original practice items available
+const MOCK_TIER_INFO={
+ easier:{label:"Easier than JOA",short:"Easier",desc:"Confidence-building. Mostly Easy questions, some Medium, and only a small number of Hard items."},
+ joa:{label:"Same difficulty as JOA",short:"JOA-level",desc:"Best-match calibration using the public ADF examples plus current Australian JOA-focused prep descriptions. This is an estimate because ADF does not publish item difficulty labels."},
+ harder:{label:"Harder than JOA",short:"Harder",desc:"Stretch set. A much larger share of multi-step, interleaved, close-distractor and reflection/logic-trap items."}
+};
+const mocks=[];
+let mockId=1;
+["easier","joa","harder"].forEach((tier,ti)=>{
+  for(let set=1;set<=6;set++)mocks.push({id:mockId++,tier,set,seed:8675309+ti*900001+set*104729});
+});
+
+function currentPageNav(){
+ return `<div class="topbar"><div class="brand">ADF <span>JOA</span> Trainer</div><div class="topnav">
+  <button onclick="go('home')" class="${state.page==='home'?'active':''}">Home</button>
+  <button onclick="go('practice')" class="${state.page==='practice'?'active':''}">Category Practice</button>
+  <button onclick="go('mocks')" class="${state.page==='mocks'?'active':''}">Full Practice Tests</button>
+  <button onclick="go('progress')" class="${state.page==='progress'?'active':''}">Progress</button>
+  <button onclick="go('strategy')" class="${state.page==='strategy'?'active':''}">Strategy Guide</button>
+  <button onclick="go('sources')" class="${state.page==='sources'?'active':''}">Sources & Fidelity</button>
+ </div></div>`;
+}
+function go(page){state.page=page;state.practice=null;state.test=null;render();window.scrollTo(0,0);}
+function getStats(){
+ const attempts=progress.attempts||[];
+ const correct=attempts.reduce((n,a)=>n+(a.correct||0),0),questions=attempts.length*51;
+ return {tests:attempts.length,correct,questions,acc:questions?Math.round(correct/questions*100):0};
+}
+function home(){
+ const s=getStats();
+ return `${currentPageNav()}<main class="container">
+ <section class="hero">
+  <div class="card hero-main">
+   <div class="kicker">Australian Defence Force • Job Opportunities Assessment</div>
+   <h1>Train the reasoning.<br>Train the pace.</h1>
+   <p class="lead">An independent, offline-capable training tool built around the current official ADF JOA format and question styles, with original practice material rather than recalled live-test questions. The interface uses an Air Force-inspired blue, white and red palette.</p>
+   <div class="stats">
+    <div class="stat"><b>51</b><span>official scored questions</span></div>
+    <div class="stat"><b>20:00</b><span>official scored time</span></div>
+    <div class="stat"><b>23.5s</b><span>average pace per item</span></div>
+    <div class="stat"><b>440+</b><span>baseline generated practice variants</span></div>
+   </div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px">
+    <button class="btn" onclick="go('practice')">Start targeted practice</button>
+    <button class="btn secondary" onclick="go('mocks')">Take a 20-minute mock</button>
+   </div>
+  </div>
+  <aside class="card hero-side">
+   <div>
+    <h3>What the official guide confirms</h3>
+    <p>The scored JOA is a single 20-minute assessment with 51 numerical, verbal and abstract reasoning items. Before it, candidates receive 10 minutes of practice including five example questions.</p>
+    <div class="notice">The ADF explicitly says it is very rare to finish all 51. The goal is to work as fast and accurately as possible, flag difficult items and return if time remains.</div>
+   </div>
+   <p class="smallnote"><b>Important:</b> ADF Careers says the JOA measures natural ability and does not endorse commercial preparation. Use this trainer for format familiarity, reasoning technique and pace — never during the live assessment.</p>
+  </aside>
+ </section>
+ <div class="section-head"><div><h2>Practice by reasoning family</h2><p>Each family contains separate drills and an embedded help guide.</p></div></div>
+ <section class="grid3">
+  ${catCard("Numerical","01",["Number series","3×3 matrices","Rates, ratios, percentages & averages"],"High fidelity on the core styles shown in the official guide.")}
+  ${catCard("Verbal","02",["Two-statement proofs","Analogies & word relationships","Odd-word classification"],"The proof format is official; other verbal subtypes are informed by current Australian JOA-specific prep sources.")}
+  ${catCard("Abstract","03",["Figure odd-one-out","Rotation & orientation","Sequences & multi-attribute rules"],"Odd-one-out is directly shown in the official guide; sequence/rotation drills are secondary-source informed.")}
+ </section>
+ <section class="section card" style="padding:22px">
+  <div class="section-head"><div><h2>Full simulations</h2><p>Eighteen fixed 51-question mocks across Easier-than-JOA, JOA-level and Harder-than-JOA tiers, with flagging, navigation and a continuous 20:00 timer.</p></div><button class="btn" onclick="go('mocks')">Open mocks</button></div>
+  <div class="notice blue"><b>Simulation assumption:</b> the trainer uses a 17 numerical / 17 verbal / 17 abstract mix because multiple current Australian-focused prep sources describe that split. The official ADF guide confirms the three families and 51 total questions but does <i>not</i> publish the exact section split.</div>
+ </section>
+ <div class="footer">Independent practice resource. Not affiliated with or endorsed by the Australian Defence Force, ADF Careers, or any test provider. All practice questions in this tool are independently generated.</div>
+ </main>`;
+}
+function catCard(cat,num,items,desc){return `<div class="card category-card"><div class="num">${num}</div><h3>${cat} Reasoning</h3><p>${desc}</p><ul>${items.map(x=>`<li>${x}</li>`).join("")}</ul><div class="actions"><button class="btn small" onclick="openCat('${cat}')">Practice ${cat}</button><button class="btn ghost small" onclick="openHelp('${byCat[cat][0]}')">View help</button></div></div>`}
+function openCat(cat){state.cat=cat;state.subtype=byCat[cat][0];state.page="practice";state.practice=null;render();window.scrollTo(0,0)}
+function openHelp(st){state.cat=SUBTYPES[st].cat;state.subtype=st;state.page="practice";state.practice=null;render();setTimeout(()=>document.getElementById("helpDetails")?.setAttribute("open",""),50)}
+
+
+function workedExamplesBox(st){
+ const examples=WORKED[st]||[];
+ if(!examples.length) return "";
+ return `<details class="workedbox"><summary>Worked examples — see the method applied (${examples.length})</summary>
+   <p class="worked-intro">These are deliberately slower than test pace. The aim is to make the decision process explicit; once the method becomes automatic, you compress the same steps mentally.</p>
+   <div class="worked-examples">${examples.map((e,i)=>`<div class="worked-example">
+     <span class="tip-chip">Worked example ${i+1}</span>
+     <h4>${e.title}</h4>
+     <div class="worked-question">${e.q}</div>
+     <ol class="worked-steps">${e.steps.map(x=>`<li>${x}</li>`).join("")}</ol>
+     <div class="worked-answer">Answer: ${e.a}</div>
+   </div>`).join("")}</div>
+ </details>`;
+}
+
+function practicePage(){
+ const sub=SUBTYPES[state.subtype];
+ return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Category Practice</h2><p>Train one question type at a time, then review the reasoning immediately.</p></div></div>
+ <div class="practice-layout">
+  <aside class="card sidebar">
+   ${Object.keys(byCat).map(cat=>`<div class="side-title" style="margin-top:${cat===Object.keys(byCat)[0]?0:16}px">${cat}</div><div class="side-list">${byCat[cat].map(st=>`<button class="${state.subtype===st?'active':''}" onclick="chooseSubtype('${st}')">${SUBTYPES[st].name}</button>`).join("")}</div>`).join("")}
+  </aside>
+  <section class="card practice-main">
+   <div class="practice-header">
+    <div class="kicker">${sub.cat} reasoning</div>
+    <h2>${sub.name}</h2>
+    <div class="practice-badges">
+     <span class="badge ${sub.fidelity.toLowerCase()}">${sub.fidelity} fidelity</span>
+     <span class="badge basis-badge">${sub.basis}</span>
+    </div>
+    <div class="practice-banknote">${practiceCounts[sub.cat]}+ baseline generated variants in the ${sub.cat.toLowerCase()} practice bank</div>
+   </div>
+   <div class="controls">
+    <div class="field"><label>Difficulty</label><select id="difficulty" onchange="state.settings.difficulty=this.value"><option value="mixed" ${state.settings.difficulty==="mixed"?"selected":""}>Mixed</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></div>
+    <div class="field"><label>Questions</label><select id="count" onchange="state.settings.count=+this.value"><option ${state.settings.count===10?"selected":""}>10</option><option ${state.settings.count===15?"selected":""}>15</option><option ${state.settings.count===25?"selected":""}>25</option><option ${state.settings.count===40?"selected":""}>40</option></select></div>
+    <div class="field"><label>Mode</label><select id="timed" onchange="state.settings.timed=this.value==='yes'"><option value="no" ${!state.settings.timed?"selected":""}>Learn (feedback)</option><option value="yes" ${state.settings.timed?"selected":""}>Paced (23.5s target)</option></select></div>
+    <button class="btn" onclick="startPractice()">Start drill</button>
+   </div>
+   ${helpBox(state.subtype)}
+   ${workedExamplesBox(state.subtype)}
+   <div id="practiceZone"><div class="notice blue">Choose settings and start a drill. Category drills are intentionally not saved; only completed full 51-question practice tests appear in Progress.</div></div>
+  </section>
+ </div>${state.practice?renderPracticeModal():""}</main>`;
+}
+function chooseSubtype(st){state.subtype=st;state.cat=SUBTYPES[st].cat;state.practice=null;render()}
+function helpBox(st){
+ const x=SUBTYPES[st];
+ return `<details id="helpDetails" class="helpbox" open><summary>Help & speed guide — ${x.name}</summary><div class="help-grid"><div><h3>Best approach</h3><ul>${x.help.map(t=>`<li>${t}</li>`).join("")}</ul></div><div><h3>Common traps</h3><ul>${x.traps.map(t=>`<li>${t}</li>`).join("")}</ul><p class="smallnote"><b>Fidelity:</b> ${x.fidelity}. ${x.basis}.</p></div></div></details>`;
+}
+function diffFor(i){
+ if(state.settings.difficulty!=="mixed") return state.settings.difficulty;
+ return i%5===0?"hard":i%3===0?"easy":"medium";
+}
+function startPractice(){
+ const seedBase=Date.now()%100000000;
+ const qs=Array.from({length:state.settings.count},(_,i)=>generate(state.subtype,seedBase+i*7919,diffFor(i)));
+ state.practice={qs,index:0,answers:Array(qs.length).fill(null),checked:Array(qs.length).fill(false),start:Date.now(),qStart:Date.now(),times:Array(qs.length).fill(0)};
+ render();
+}
+function renderPracticeModal(){
+ const p=state.practice,q=p.qs[p.index];
+ return `<div class="drill-modal" role="dialog" aria-modal="true" aria-label="Category practice drill"><div class="drill-dialog">
+  <div class="drill-modal-head"><div><strong>${SUBTYPES[q.subtype].name} drill</strong><div class="smallnote">Question ${p.index+1} of ${p.qs.length}</div></div><button class="drill-close" onclick="closePractice()">Exit</button></div>
+  ${renderPractice()}
+ </div></div>`;
+}
+function closePractice(){
+ const p=state.practice;if(!p)return;
+ const answered=p.checked.filter(Boolean).length;
+ if(answered>0 && answered<p.qs.length && !confirm("Exit this drill? Category-practice progress is not saved."))return;
+ state.practice=null;render();
+}
+
+function renderPractice(){
+ const p=state.practice,q=p.qs[p.index],checked=p.checked[p.index];
+ return `<div class="drill-card"><div class="qmeta"><div class="left"><span class="badge">Question ${p.index+1}/${p.qs.length}</span><span class="badge diff-${q.difficulty}" title="${q.difficultyReason||''}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span></div><span class="smallnote">${state.settings.timed?'Target pace: 23.5 seconds':'Learn mode'}</span></div>
+ ${renderQuestion(q,p.answers[p.index],checked,"practice")}
+ ${checked?`<div class="feedback ${isCorrect(q,p.answers[p.index])?'good':'bad'}"><b>${isCorrect(q,p.answers[p.index])?'Correct':'Not quite'}</b>${q.explanation}<div class="difficulty-audit"><b>Difficulty rationale:</b> ${q.difficultyReason}</div></div>`:""}
+ <div class="answer-row">
+  ${!checked?`<button class="btn" onclick="checkPractice()">Check answer</button>`:`<button class="btn" onclick="nextPractice()">${p.index===p.qs.length-1?'Finish drill':'Next question'}</button>`}
+  <span class="smallnote">${checked?"Review the method, not just the answer.":q.kind.includes("Multi")||q.kind==="multi"?"Select exactly two answers.":""}</span>
+ </div></div>`;
+}
+function renderQuestion(q,ans,checked,mode){
+ let d=q.display?renderDisplay(q.display):"";
+ let body="";
+ if(q.kind==="numeric"){
+  body=`<input class="numinput" type="number" step="any" value="${ans??''}" ${checked?'disabled':''} oninput="${mode==='practice'?'setPracticeNumeric(this.value)':'setTestNumeric(this.value)'}" placeholder="Type answer">`;
+ } else if(q.kind==="single"||q.kind==="multi"){
+  body=`<div class="options">${q.options.map((o,i)=>{
+   const sel=q.kind==="multi"?(ans||[]).includes(o):ans===o;
+   const cls=checked?(isOptionCorrect(q,o,i)?'correct':sel?'wrong':''):(sel?'selected':'');
+   return `<button class="option ${cls}" ${checked?'disabled':''} onclick="${mode==='practice'?`selectPractice(${i})`:`selectTest(${i})`}"><span class="letter">${LETTERS[i]}</span><span>${o}</span></button>`;
+  }).join("")}</div>`;
+ } else {
+  body=`<div class="visual-options">${q.visualOptions.map((o,i)=>{
+   const sel=q.kind==="visualMulti"?(ans||[]).includes(i):ans===i;
+   const cls=checked?(isOptionCorrect(q,o,i)?'correct':sel?'wrong':''):(sel?'selected':'');
+   return `<button class="visual-option ${cls}" ${checked?'disabled':''} onclick="${mode==='practice'?`selectPractice(${i})`:`selectTest(${i})`}"><div class="fig">${figSvg(o)}</div><div><b>${LETTERS[i]}</b></div></button>`;
+  }).join("")}</div>`;
+ }
+ return `<div class="prompt">${q.prompt}</div>${d}${body}`;
+}
+function renderDisplay(d){
+ if(d.type==="sequence") return `<div class="sequence">${d.values.join(" &nbsp; ")}</div>`;
+ if(d.type==="matrix") return `<table class="matrix">${d.grid.map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join("")}</tr>`).join("")}</table>`;
+ if(d.type==="figSequence") return `<div class="svg-seq">${d.frames.map(f=>`<div class="svg-frame">${figSvg(f,94,76)}</div>`).join("")}<div style="font-size:28px;font-weight:900">?</div></div>`;
+ if(d.type==="singleFig") return `<div class="svg-seq"><div class="svg-frame">${figSvg(d.spec,94,76)}</div></div>`;
+ return "";
+}
+function isOptionCorrect(q,o,i){
+ if(q.kind==="single"||q.kind==="multi") return q.kind==="single"?String(o)===String(q.answer):q.answer.includes(o);
+ return q.kind==="visualSingle"?i===q.answer:q.answer.includes(i);
+}
+function isCorrect(q,ans){
+ if(ans===null||ans===undefined) return false;
+ if(q.kind==="numeric") return Math.abs(Number(ans)-Number(q.answer))<1e-8;
+ if(q.kind==="single") return String(ans)===String(q.answer);
+ if(q.kind==="visualSingle") return ans===q.answer;
+ const a=[...(ans||[])].map(String).sort(), b=[...q.answer].map(String).sort();
+ return a.length===b.length&&a.every((x,i)=>x===b[i]);
+}
+function setPracticeNumeric(v){state.practice.answers[state.practice.index]=v===''?null:v}
+function selectPractice(i){
+ const p=state.practice,q=p.qs[p.index];
+ if(q.kind==="multi"){let a=p.answers[p.index]||[],val=q.options[i];a=a.includes(val)?a.filter(x=>x!==val):a.length<(q.maxSelect||2)?[...a,val]:a;p.answers[p.index]=a}
+ else if(q.kind==="visualMulti"){let a=p.answers[p.index]||[];a=a.includes(i)?a.filter(x=>x!==i):a.length<(q.maxSelect||2)?[...a,i]:a;p.answers[p.index]=a}
+ else p.answers[p.index]=(q.kind==="single"?q.options[i]:i);
+ render();
+}
+function checkPractice(){
+ const p=state.practice,i=p.index,q=p.qs[i]; if(p.answers[i]===null||p.answers[i]===undefined||(Array.isArray(p.answers[i])&&p.answers[i].length===0)) return;
+ p.times[i]=(Date.now()-p.qStart)/1000;p.checked[i]=true;render();
+}
+function nextPractice(){
+ const p=state.practice;if(p.index===p.qs.length-1){finishPractice();return;}p.index++;p.qStart=Date.now();render();
+}
+function finishPractice(){
+ const p=state.practice; const correct=p.qs.filter((q,i)=>isCorrect(q,p.answers[i])).length;
+ alert(`Drill complete: ${correct}/${p.qs.length} correct (${Math.round(correct/p.qs.length*100)}%).`);
+ state.practice=null;render();
+}
+
+function mocksPage(){
+ return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Full Practice Tests</h2><p>18 fixed simulations • 51 questions • 20 minutes • full review history saved locally.</p></div><button class="btn secondary" onclick="go('progress')">View Progress</button></div>
+ <div class="notice" style="margin-bottom:18px"><b>Difficulty calibration:</b> “Same difficulty as JOA” is a best-match estimate, not an official ADF rating. The ADF publishes the format and sample item styles, but does not publish Easy/Medium/Hard labels or item difficulty statistics.</div>
+ ${["easier","joa","harder"].map(tier=>mockTierSection(tier)).join("")}
+ <section class="card section" style="padding:20px"><h3>Before each mock</h3><p>The official guide gives candidates 10 minutes of practice including five example questions before the scored JOA. Use the optional familiarisation below if you want to reproduce that transition.</p><button class="btn secondary" onclick="startWarmup()">Start 5-question / 10-minute familiarisation</button></section></main>`;
+}
+function mockTierSection(tier){
+ const info=MOCK_TIER_INFO[tier],items=mocks.filter(m=>m.tier===tier);
+ return `<section class="mock-tier"><div class="mock-tier-head"><div><h3>${info.label}</h3><p>${info.desc}</p></div><span class="tier-pill ${tier}">${items.length} tests</span></div><div class="mock-grid">${items.map(m=>mockCard(m)).join("")}</div></section>`;
+}
+function mockCard(m){
+ const hist=(progress.attempts||[]).filter(x=>x.testId===m.id),last=hist[0],info=MOCK_TIER_INFO[m.tier];
+ return `<div class="card mock-card"><div class="mockno">${info.short} · Set ${m.set}</div><strong>Practice Test ${m.id}</strong><p>51 questions · continuous 20:00 timer</p>${last?`<div class="smallnote">Attempts: <b>${hist.length}</b> · Last: <b>${last.correct}/51</b></div>`:'<div class="smallnote">Not attempted yet</div>'}<div class="progress-strip"><span style="width:${last?last.correct/51*100:0}%"></span></div><button class="btn small" onclick="startMock(${m.id})">Start Test</button></div>`;
+}
+function startWarmup(){
+ const st=["numMatrix","abstractOdd","deduction","numSeries","wordProblems"],qs=st.map((x,i)=>generate(x,987123+i*443,"easy"));
+ state.test={id:"Warm-up",tier:null,questions:qs,index:0,answers:Array(5).fill(null),flags:Array(5).fill(false),started:Date.now(),duration:600,interval:null,warmup:true,submitted:false};state.page="test";render();startTimer();
+}
+function difficultyPlan(tier,r){
+ if(tier==="easier")return shuffle(r,[...Array(11).fill("easy"),...Array(5).fill("medium"),"hard"]);
+ if(tier==="harder")return shuffle(r,[...Array(2).fill("easy"),...Array(7).fill("medium"),...Array(8).fill("hard")]);
+ return shuffle(r,[...Array(5).fill("easy"),...Array(9).fill("medium"),...Array(3).fill("hard")]);
+}
+function buildMock(id){
+ const m=mocks.find(x=>x.id===Number(id));if(!m)throw new Error("Unknown practice test");const seed=m.seed,r=rng(seed),qs=[];
+ Object.entries(byCat).forEach(([cat,sts])=>{
+   const plan=difficultyPlan(m.tier,r);
+   for(let i=0;i<17;i++){const st=sts[i%sts.length],q=generate(st,seed+i*1009+(cat.charCodeAt(0)*997),plan[i]);qs.push(q);}
+ });
+ return shuffle(r,qs).map((q,i)=>({...q,testNo:i+1}));
+}
+function startMock(id){
+ const m=mocks.find(x=>x.id===Number(id)),qs=buildMock(id);state.test={id:m.id,tier:m.tier,questions:qs,index:0,answers:Array(51).fill(null),flags:Array(51).fill(false),started:Date.now(),duration:1200,interval:null,warmup:false,submitted:false};state.page="test";render();startTimer();
+}
+function startTimer(){
+ clearInterval(state.test?.interval);
+ state.test.interval=setInterval(()=>{if(!state.test||state.page!=="test")return; const left=timeLeft(); updateTimerDom(left); if(left<=0){clearInterval(state.test.interval);submitTest(true)}},250);
+}
+function timeLeft(){return Math.max(0,state.test.duration-Math.floor((Date.now()-state.test.started)/1000))}
+function updateTimerDom(left){
+ const txt=`${Math.floor(left/60)}:${String(left%60).padStart(2,"0")} remaining`, pct=`${left/state.test.duration*100}%`;
+ document.querySelectorAll(".timer-text").forEach(el=>el.textContent=txt);
+ document.querySelectorAll(".timer-fill").forEach(bar=>bar.style.width=pct);
+}
+function testPage(){
+ const t=state.test,q=t.questions[t.index],ans=t.answers[t.index],left=timeLeft();
+ return `<div class="test-shell"><div class="test-head"><button class="test-exit" onclick="exitTest()" aria-label="Exit this practice test">Exit</button><span class="test-title">${t.warmup?"Cognitive Ability — Familiarisation":"Cognitive Ability Practice Test"}</span><span class="test-qcount">Question ${t.index+1} of ${t.questions.length}</span></div>
+ <div class="mobile-test-tools"><div class="mobile-test-topline"><div class="timerbar"><span class="timer-fill" style="width:${left/t.duration*100}%"></span></div><div class="time timer-text">${Math.floor(left/60)}:${String(left%60).padStart(2,"0")} remaining</div></div><div class="mobile-status-scroll">${t.questions.map((_,i)=>`<button class="${i===t.index?'current ':''}${t.answers[i]!==null?'answered ':''}${t.flags[i]?'flagged':''}" onclick="jumpQ(${i})">${i+1}</button>`).join("")}</div><div class="mobile-swipe-note">Question numbers scroll horizontally</div></div>
+ <div class="test-body"><aside class="test-side"><b style="font-size:12px">Question Status</b><div class="status-grid">${t.questions.map((_,i)=>`<button class="${i===t.index?'current ':''}${t.answers[i]!==null?'answered ':''}${t.flags[i]?'flagged':''}" onclick="jumpQ(${i})">${i+1}</button>`).join("")}</div>
+ <div class="legend"><span><i></i> Not answered</span><span><i class="ans"></i> Answered</span><span><i class="flg"></i> Flagged</span></div>
+ <div class="timerbox"><div class="timerbar"><span id="timerFill" class="timer-fill" style="width:${left/t.duration*100}%"></span></div><div id="timerText" class="time timer-text">${Math.floor(left/60)}:${String(left%60).padStart(2,"0")} remaining</div></div></aside>
+ <main class="test-main"><div class="test-question">${renderQuestion(q,ans,false,"test")}<div class="smallnote" style="margin-top:12px">${q.kind==="multi"||q.kind==="visualMulti"?"Select exactly two answers.":q.kind==="numeric"?"Type your numeric answer.":""}</div></div>
+ <div class="test-nav"><button class="btn secondary" onclick="prevQ()" ${t.index===0?'disabled':''}>‹ Previous Question</button><div class="middle"><button class="btn ghost" onclick="toggleFlag()">${t.flags[t.index]?"★ Flagged":"⚑ Flag Question"}</button><button class="btn ghost" onclick="confirmSubmit()">Submit Test</button></div><button class="btn" onclick="nextQ()">${t.index===t.questions.length-1?'Review / Submit':'Next Question ›'}</button></div></main></div></div>`;
+}
+function setTestNumeric(v){state.test.answers[state.test.index]=v===''?null:v}
+function selectTest(i){
+ const t=state.test,q=t.questions[t.index];
+ if(q.kind==="multi"){let a=t.answers[t.index]||[],val=q.options[i];a=a.includes(val)?a.filter(x=>x!==val):a.length<(q.maxSelect||2)?[...a,val]:a;t.answers[t.index]=a}
+ else if(q.kind==="visualMulti"){let a=t.answers[t.index]||[];a=a.includes(i)?a.filter(x=>x!==i):a.length<(q.maxSelect||2)?[...a,i]:a;t.answers[t.index]=a}
+ else t.answers[t.index]=(q.kind==="single"?q.options[i]:i);
+ render();startTimer();
+}
+function jumpQ(i){state.test.index=i;render();startTimer()}
+function prevQ(){if(state.test.index>0){state.test.index--;render();startTimer()}}
+function nextQ(){if(state.test.index<state.test.questions.length-1){state.test.index++;render();startTimer()}else confirmSubmit()}
+function toggleFlag(){state.test.flags[state.test.index]=!state.test.flags[state.test.index];render();startTimer()}
+function exitTest(){
+ const t=state.test;
+ if(!t)return;
+ const label=t.warmup?"familiarisation":"practice test";
+ if(confirm(`Exit this ${label}?\n\nYour answers and progress in this unfinished attempt will be lost.`)){
+   clearInterval(t.interval);
+   state.test=null;
+   state.page="mocks";
+   render();
+   window.scrollTo(0,0);
+ }
+}
+function confirmSubmit(){
+ const t=state.test,un=t.answers.filter(x=>x===null||x===undefined||(Array.isArray(x)&&x.length===0)).length;
+ if(confirm(`${un} question${un===1?" is":"s are"} unanswered. Submit now?`)) submitTest(false);
+}
+function calculateBreakdown(questions,answers){
+ const by={};questions.forEach((q,i)=>{by[q.category]??={total:0,correct:0,attempted:0};const a=answers[i],attempted=a!==null&&a!==undefined&&(!Array.isArray(a)||a.length>0);by[q.category].total++;by[q.category].correct+=isCorrect(q,a)?1:0;by[q.category].attempted+=attempted?1:0;});return by;
+}
+function submitTest(auto){
+ const t=state.test;if(!t||t.submitted)return;t.submitted=true;clearInterval(t.interval);
+ const correct=t.questions.filter((q,i)=>isCorrect(q,t.answers[i])).length,attempted=t.answers.filter(x=>x!==null&&x!==undefined&&(!Array.isArray(x)||x.length>0)).length,elapsed=Math.min(t.duration,Math.floor((Date.now()-t.started)/1000)),by=calculateBreakdown(t.questions,t.answers);
+ state.review={id:t.id,tier:t.tier,questions:t.questions,answers:t.answers,flags:t.flags,correct,attempted,by,auto,warmup:t.warmup,elapsed,date:new Date().toISOString()};
+ if(!t.warmup){
+   const attemptId=`${Date.now()}-${Math.floor(Math.random()*1000000)}`;
+   progress.attempts.unshift({attemptId,testId:t.id,tier:t.tier,date:state.review.date,elapsed,correct,attempted,answers:t.answers,flags:t.flags,auto:!!auto});saveProgress();state.review.savedAttemptId=attemptId;
+ }
+ state.test=null;state.page="results";render();window.scrollTo(0,0);
+}
+function formatAttemptDate(iso){
+ try{return new Date(iso).toLocaleString("en-AU",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch(e){return iso||"";}
+}
+function openSavedAttempt(attemptId){
+ const a=(progress.attempts||[]).find(x=>x.attemptId===attemptId);if(!a)return;const qs=buildMock(a.testId),by=calculateBreakdown(qs,a.answers);
+ state.review={id:a.testId,tier:a.tier,questions:qs,answers:a.answers,flags:a.flags||Array(qs.length).fill(false),correct:a.correct,attempted:a.attempted,by,auto:a.auto,warmup:false,elapsed:a.elapsed,date:a.date,savedAttemptId:a.attemptId,fromHistory:true};state.page="results";render();window.scrollTo(0,0);setTimeout(showReview,0);
+}
+function deleteAttempt(attemptId){
+ if(!confirm("Delete this saved full-test attempt? This cannot be undone."))return;progress.attempts=progress.attempts.filter(x=>x.attemptId!==attemptId);saveProgress();render();
+}
+function deleteAllAttempts(){
+ if(!(progress.attempts||[]).length)return;if(!confirm("Delete EVERY saved full practice-test result and answer review? This cannot be undone."))return;progress.attempts=[];saveProgress();render();
+}
+function progressPage(){
+ const a=progress.attempts||[],avg=a.length?Math.round(a.reduce((n,x)=>n+x.correct,0)/(a.length*51)*100):0,best=a.length?Math.max(...a.map(x=>x.correct)):0;
+ return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Full-Test Progress</h2><p>Only completed 51-question practice tests are stored. Category drills and the 5-question familiarisation are not tracked.</p></div>${a.length?`<button class="btn danger-btn" onclick="deleteAllAttempts()">Delete all history</button>`:""}</div>
+ <div class="result-grid"><div class="result-stat"><b>${a.length}</b><span>Saved test attempts</span></div><div class="result-stat"><b>${avg}%</b><span>Average score</span></div><div class="result-stat"><b>${best}/51</b><span>Best score</span></div><div class="result-stat"><b>${a.filter(x=>x.tier==="joa").length}</b><span>JOA-level attempts</span></div></div>
+ ${a.length?`<div class="history-list">${a.map(historyItem).join("")}</div>`:`<div class="card history-empty"><h3>No full tests saved yet</h3><p>Complete any full 51-question practice test and its score, answers and right/wrong review will appear here.</p><button class="btn" onclick="go('mocks')">Choose a Practice Test</button></div>`}
+ <div class="footer">History is stored in this browser's local storage for this HTML file. Clearing site/browser data or opening a separately copied file may remove or separate the history.</div></main>`;
+}
+function historyItem(a){
+ const info=MOCK_TIER_INFO[a.tier]||{label:"Practice test"},acc=a.attempted?Math.round(a.correct/a.attempted*100):0;
+ return `<div class="card history-item"><div class="history-top"><div><div class="history-title">Practice Test ${a.testId} <span class="tier-pill ${a.tier}">${info.label}</span></div><div class="history-meta">${formatAttemptDate(a.date)}${a.auto?" · time expired":" · submitted manually"}</div></div><div class="history-score">${a.correct}/51</div></div><div class="history-stats"><span>Attempted ${a.attempted}/51</span><span>Accuracy on attempted ${acc}%</span><span>Time ${Math.floor(a.elapsed/60)}:${String(a.elapsed%60).padStart(2,"0")}</span></div><div class="history-actions"><button class="btn small" onclick="openSavedAttempt('${a.attemptId}')">Open answer review</button><button class="btn small danger-btn" onclick="deleteAttempt('${a.attemptId}')">Delete this result</button></div></div>`;
+}
+
+function resultsPage(){
+ const r=state.review; const accuracy=r.attempted?Math.round(r.correct/r.attempted*100):0;
+ return `${currentPageNav()}<main class="container"><div class="card result-card"><div class="kicker">${r.warmup?"Familiarisation complete":`Practice Test ${r.id} · ${MOCK_TIER_INFO[r.tier]?.label||"Full test"}`}</div><h2>${r.correct}/${r.questions.length} correct</h2>${!r.warmup&&r.date?`<div class="smallnote">${r.fromHistory?"Saved attempt":"Saved to Progress"} · ${formatAttemptDate(r.date)}</div>`:""}
+ <div class="result-grid"><div class="result-stat"><b>${r.correct}</b><span>Correct</span></div><div class="result-stat"><b>${r.attempted}</b><span>Attempted</span></div><div class="result-stat"><b>${accuracy}%</b><span>Accuracy on attempted</span></div><div class="result-stat"><b>${Math.floor(r.elapsed/60)}:${String(r.elapsed%60).padStart(2,"0")}</b><span>Elapsed</span></div></div>
+ ${r.warmup?'<div class="notice blue">The real scored JOA follows the official familiarisation period. You can now start a full 20-minute mock.</div>':`<div class="notice"><b>Interpret cautiously:</b> this trainer does not know ADF occupational cut-scores and does not issue a pass/fail prediction. Use the result to diagnose speed, accuracy and weak question families.</div>
+ <table class="breakdown"><thead><tr><th>Family</th><th>Correct</th><th>Attempted</th><th>Accuracy attempted</th></tr></thead><tbody>${Object.entries(r.by).map(([k,v])=>`<tr><td>${k}</td><td>${v.correct}/${v.total}</td><td>${v.attempted}/${v.total}</td><td>${v.attempted?Math.round(v.correct/v.attempted*100):0}%</td></tr>`).join("")}</tbody></table>`}
+ <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn" onclick="showReview()">Review answers</button><button class="btn secondary" onclick="go('mocks')">Back to mocks</button></div></div><div id="reviewZone"></div></main>`;
+}
+function showReview(){
+ const z=document.getElementById("reviewZone"),r=state.review;
+ z.innerHTML=`<h2 style="margin-top:24px">Answer Review</h2>${r.questions.map((q,i)=>`<div class="review-item"><div class="qmeta"><div class="left"><span class="badge">${i+1}</span><span class="badge">${q.category}</span><span class="badge diff-${q.difficulty}" title="${q.difficultyReason||''}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span></div><b style="color:${isCorrect(q,r.answers[i])?'var(--good)':'var(--bad)'}">${isCorrect(q,r.answers[i])?'Correct':'Incorrect / unanswered'}</b></div>${renderQuestion(q,r.answers[i],true,"review")}<div class="feedback ${isCorrect(q,r.answers[i])?'good':'bad'}">${q.explanation}<div class="difficulty-audit"><b>Difficulty rationale:</b> ${q.difficultyReason}</div></div></div>`).join("")}`;
+ z.scrollIntoView({behavior:"smooth"});
+}
+
+function strategyPage(){
+ return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>JOA Strategy Guide</h2><p>Official advice first; training techniques second.</p></div></div>
+ <section class="card" style="padding:22px"><h3>1. The pacing reality</h3><p>51 questions in 20 minutes is an average of about <b>23.5 seconds per question</b>. The official ADF guide says finishing all 51 is very rare and recommends answering the questions you feel confident about first, flagging difficult questions and returning later.</p>
+ <div class="notice blue">Training rule: use ~10–15 seconds for immediately obvious items, and consider moving on around 30 seconds if you are still not making progress. The exact 30-second cap is a training heuristic, not an ADF rule.</div></section>
+ <section class="grid3 section">
+  <div class="card category-card"><h3>Numerical speed</h3><ul><li>Memorise common fraction/percent equivalents: 1/2=50%, 1/4=25%, 3/4=75%, 1/5=20%.</li><li>For rates, write D = S × T, then cover the variable you need.</li><li>For series, differences first; do not immediately reach for algebra.</li><li>Use rough estimation to eliminate impossible options.</li></ul></div>
+  <div class="card category-card"><h3>Verbal speed</h3><ul><li>For analogies, form a one-line bridge sentence.</li><li>For proof questions, use only given facts — never background assumptions.</li><li>For odd-word sets, define the majority category before picking outsiders.</li><li>Read the instruction word: NOT, TWO, PROVE and ONLY change the task.</li></ul></div>
+  <div class="card category-card"><h3>Abstract speed</h3><ul><li>Scan count → fill → position → rotation → symmetry.</li><li>Track one attribute at a time.</li><li>Test alternating patterns early.</li><li>Say the rule in words before selecting an odd figure.</li></ul></div>
+ </section>
+ <section class="card section" style="padding:22px"><h3>2. Test-day setup from the official guide</h3><ul style="line-height:1.75"><li>Use a laptop or desktop and a supported browser.</li><li>Be rested, comfortable and free of distractions.</li><li>Do not accept help from anyone.</li><li>Do not open the unique JOA link until you are ready to complete the assessment in full.</li><li>Use the practice period to learn the navigation and answer mechanics.</li></ul></section>
+ <section class="card section" style="padding:22px"><h3>3. Calculator / paper caution</h3><p>Current independent JOA prep sources commonly advise practising without a calculator and some say pen and paper are permitted. The attached official ADF guide does not state a calculator/paper rule. This trainer therefore assumes <b>mental arithmetic first</b> but does not present calculator policy as an official fact. Follow the instructions shown in your actual assessment.</p></section>
+ </main>`;
+}
+function sourcesPage(){
+ return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Sources & Fidelity</h2><p>What is official, what is secondary, and what this simulator deliberately does not claim.</p></div></div>
+ <div class="sources">
+  <div class="card source-card"><h3><span class="badge official">Primary / official</span> ADF-RECREF132 — A Guide to the Job Opportunities Assessment for the Australian Defence Force</h3><p>Revised 27 June 2025. Used as the controlling source for timing, 51-item length, 10-minute / 5-question familiarisation, numerical-verbal-abstract families, flagging/navigation advice and the high-fidelity example styles (number matrix, dot odd-one-out, two-statement verbal proof, block odd-one-out, number sequence and speed-distance word problem).</p></div>
+  <div class="card source-card"><h3><span class="badge official">Primary / official</span> ADF Careers — Application Process</h3><p>Used to verify that the JOA is an early application step intended to help determine suitable services and positions, and to separate the JOA from the later YOU Session.</p></div>
+  <div class="card source-card"><h3><span class="badge medium">Secondary</span> Current Australian-focused JOA preparation providers</h3><p>ADFTestPrep.com, Army-Test / Seliant, ADF Mentors, OpenExamPrep and the Institute of Psychometric Coaching were checked for current JOA-specific descriptions. They broadly support numerical/verbal/abstract preparation and add likely subtypes such as word analogies, synonyms/antonyms, number series/matrices, odd-word classification and visual sequences. Where secondary sources conflict with the revised official guide (for example older 'game-based mini-test' descriptions), this trainer follows the official guide.</p></div>
+  <div class="card source-card"><h3><span class="badge medium">Anecdotal only</span> Reddit — AustralianMilitary / ADFRecruiting</h3><p>Used only for broad experience signals: candidates repeatedly describe intense time pressure, strategic skipping/flagging and value in becoming familiar with the format. No recalled or restricted live-test questions were copied. Current ADFRecruiting moderation also explicitly prohibits sharing specific JOA assessment content, so this tool stays with independently generated practice material.</p></div>
+ </div>
+ <section class="section"><h2>Question-family fidelity map</h2><table class="fidelity-table"><thead><tr><th>Training module</th><th>Fidelity</th><th>Why</th></tr></thead><tbody>
+ ${Object.entries(SUBTYPES).map(([k,v])=>`<tr><td>${v.cat} — ${v.name}</td><td><span class="badge ${v.fidelity.toLowerCase()}">${v.fidelity}</span></td><td>${v.basis}</td></tr>`).join("")}
+ </tbody></table></section>
+ <section class="card section" style="padding:20px"><h3>Difficulty calibration</h3><p>Easy / Medium / Hard badges are now assigned by the <b>actual construction of each generated item</b>. Easy is reserved for one-rule or immediately classifiable items; Medium requires an additional inference, second attribute or two-step process; Hard is reserved for interleaved rules, dependent multi-step calculations, close logic traps, reflection-vs-rotation discrimination or similarly layered reasoning. A regression guard explicitly classifies simple A-B-A-B number alternation as Easy.</p></section><section class="card section" style="padding:20px"><h3>What this tool does not claim</h3><p>It does not claim to reproduce proprietary JOA questions, exact scoring, role cut-scores, adaptive behaviour, official item difficulty labels or an unpublished official section split. “Same difficulty as JOA” is therefore a best-match simulation tier based on the official public examples and current Australian JOA-focused descriptions, not an ADF-issued difficulty rating.</p></section>
+ </main>`;
+}
+function render(){
+ const app=document.getElementById("app");
+ if(state.page==="home")app.innerHTML=home();
+ else if(state.page==="practice")app.innerHTML=practicePage();
+ else if(state.page==="mocks")app.innerHTML=mocksPage();
+ else if(state.page==="test")app.innerHTML=testPage();
+ else if(state.page==="results")app.innerHTML=resultsPage();
+ else if(state.page==="progress")app.innerHTML=progressPage();
+ else if(state.page==="strategy")app.innerHTML=strategyPage();
+ else if(state.page==="sources")app.innerHTML=sourcesPage();
+ document.body.classList.toggle("drill-open",state.page==="practice"&&!!state.practice);
+}
+render();
+</script>
+
+<script>
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(err => {
+      console.warn("JOA Trainer offline service worker could not be registered:", err);
+    });
+  });
+}
+</script>
+
+</body>
+</html>
