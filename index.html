@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.4">
+<meta name="app-version" content="1.5">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -515,12 +515,74 @@ body.ui-modal-open{overflow:hidden}
 .mental-key.mental-key-flash{background:#dceef8;border-color:#4c91b8}
 .mental-key.enter.mental-key-flash{background:#185f89;border-color:#185f89}
 
+
+/* v1.5 Mental Math keypad: contiguous hit zones + inset visible key faces */
+.mental-keypad{
+  gap:0 !important;
+  max-width:380px;
+  width:100%;
+  margin:0 auto;
+}
+.mental-key{
+  min-height:66px;
+  padding:0 !important;
+  margin:0;
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  display:flex;
+  align-items:stretch;
+  justify-content:stretch;
+  position:relative;
+}
+.mental-key-face{
+  pointer-events:none;
+  width:calc(100% - 8px);
+  min-height:58px;
+  margin:4px;
+  padding:12px 8px;
+  border:1px solid #b9cad4;
+  background:#fff;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  font-size:22px;
+  line-height:1;
+  font-weight:900;
+  color:#183f58;
+  box-shadow:0 1px 2px rgba(8,47,79,.05);
+}
+.mental-key.utility .mental-key-face{
+  font-size:15px;
+  background:#eef4f7;
+}
+.mental-key.enter .mental-key-face{
+  background:#1f6f9f;
+  color:#fff;
+  border-color:#1f6f9f;
+  min-height:58px;
+}
+.mental-key.mental-key-flash .mental-key-face{
+  background:#dceef8;
+  border-color:#4c91b8;
+}
+.mental-key.enter.mental-key-flash .mental-key-face{
+  background:#185f89;
+  border-color:#185f89;
+}
+@media(max-width:430px){
+  .mental-key{min-height:64px}
+  .mental-key-face{min-height:56px;margin:4px;padding:11px 7px}
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version">v1.4</div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version">v1.5</div>
 
 <script>
 /* ===========================================================
@@ -534,7 +596,7 @@ body.ui-modal-open{overflow:hidden}
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.4";
+const APP_VERSION = "1.5";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -1555,11 +1617,11 @@ function renderMentalQuestion(){
    <div class="mental-touch-entry">
     <div class="mental-touch-display">${touchValue}</div>
     <div class="mental-keypad" aria-label="Mental Math number pad">
-      ${[1,2,3,4,5,6,7,8,9].map(n=>`<div class="mental-key" role="button" data-mental-key="${n}">${n}</div>`).join("")}
-      <div class="mental-key utility" role="button" data-mental-key="back">⌫</div>
-      <div class="mental-key" role="button" data-mental-key="0">0</div>
-      <div class="mental-key utility" role="button" data-mental-key="clear">Clear</div>
-      <div class="mental-key enter" role="button" data-mental-key="enter">Enter</div>
+      ${[1,2,3,4,5,6,7,8,9].map(n=>`<div class="mental-key" role="button" data-mental-key="${n}"><span class="mental-key-face">${n}</span></div>`).join("")}
+      <div class="mental-key utility" role="button" data-mental-key="back"><span class="mental-key-face">⌫</span></div>
+      <div class="mental-key" role="button" data-mental-key="0"><span class="mental-key-face">0</span></div>
+      <div class="mental-key utility" role="button" data-mental-key="clear"><span class="mental-key-face">Clear</span></div>
+      <div class="mental-key enter" role="button" data-mental-key="enter"><span class="mental-key-face">Enter</span></div>
     </div>
    </div>
   </div>`;
