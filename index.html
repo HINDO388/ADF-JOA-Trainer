@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.8">
+<meta name="app-version" content="1.9">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -778,12 +778,30 @@ body.ui-modal-open{overflow:hidden}
   .practice-sidebar-wrap.at-end .mobile-category-more{display:none}
 }
 
+
+/* v1.9: gentler mobile category-strip affordance */
+@media(max-width:900px){
+  .practice-sidebar-wrap:not(.at-end)::after{
+    width:82px;
+    background:linear-gradient(
+      90deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,.14) 38%,
+      rgba(255,255,255,.28) 67%,
+      rgba(255,255,255,.34) 100%
+    );
+  }
+  .mobile-category-more{
+    text-shadow:0 1px 5px rgba(255,255,255,.95);
+  }
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.8</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.9</span></div>
 
 <script>
 /* ===========================================================
@@ -797,7 +815,7 @@ body.ui-modal-open{overflow:hidden}
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.8";
+const APP_VERSION = "1.9";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -929,7 +947,7 @@ const WORKED = {
 };
 
 const QUESTION_BANK_VERSION="2026-09-01-QA2";
-const PRACTICE_BANK_SIZE_PER_DIFFICULTY=40;
+const PRACTICE_BANK_SIZE_PER_DIFFICULTY=80;
 const PRACTICE_BANK_BANDS=["easy","medium","hard"];
 const PRACTICE_BANK_SUBTYPES=["numSeries","numMatrix","wordProblems","oddWords","analogy","wordRelation","deduction","abstractOdd","abstractSequence","rotation","multiAttribute"];
 function practiceBankSeed(subtype,band,index){
@@ -1379,6 +1397,1050 @@ function generate(subtype,seed,difficulty="medium",attempt=0){
   if(q.difficulty!==band && attempt<12)return generate(subtype,seed+104729,band,attempt+1);
   return q;
 }
+
+/* ===========================================================
+   Question Bank QA3 — broader construction families,
+   stronger Medium/Hard calibration and diversity controls.
+   =========================================================== */
+
+function withFamily(q,family){
+ q.family=family;
+ return q;
+}
+function stableCanonical(value){
+ if(Array.isArray(value))return value.map(stableCanonical);
+ if(value&&typeof value==="object"){
+   const out={};
+   Object.keys(value).sort().forEach(k=>{
+     if(!["id","testNo","difficultyReason","requestedDifficulty","family"].includes(k))out[k]=stableCanonical(value[k]);
+   });
+   return out;
+ }
+ return value;
+}
+function questionFingerprint(q){
+ const options=q.options?[...q.options].map(String).sort():null;
+ const visuals=q.visualOptions?q.visualOptions.map(v=>JSON.stringify(stableCanonical(v))).sort():null;
+ return JSON.stringify(stableCanonical({
+   subtype:q.subtype,
+   prompt:q.prompt,
+   display:q.display||null,
+   options,
+   visuals
+ }));
+}
+function questionFamily(q){
+ return q.family||`${q.subtype}-${q.difficulty}`;
+}
+
+/* ---------- Number Series QA3 ---------- */
+function genNumSeriesV3(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"numSeries",band);
+ let seq=[],ans,rule,reason,family;
+ const type=band==="easy"?ri(r,0,3):band==="medium"?ri(r,0,5):ri(r,0,6);
+
+ if(band==="easy"){
+   if(type===0){
+     const a=ri(r,4,30),d=ri(r,2,11);seq=[a,a+d,a+2*d,a+3*d,a+4*d];ans=a+5*d;
+     rule=`add ${d} each time`;family="series-constant-add";reason="One direct constant-difference rule.";
+   }else if(type===1){
+     const a=ri(r,25,60),d=ri(r,2,9);seq=[a,a-d,a-2*d,a-3*d,a-4*d];ans=a-5*d;
+     rule=`subtract ${d} each time`;family="series-constant-subtract";reason="One direct constant-difference rule in descending form.";
+   }else if(type===2){
+     const a=ri(r,2,7),m=pick(r,[2,3]);seq=[a,a*m,a*m*m,a*m*m*m];ans=a*m*m*m*m;
+     rule=`multiply by ${m} each time`;family="series-constant-multiply";reason="One obvious repeated multiplication rule.";
+   }else{
+     let a=ri(r,3,18),b=ri(r,20,38);if(a===b)b++;
+     seq=[a,b,a,b,a,b];ans=a;rule=`alternate ${a}, ${b}`;family="series-simple-abab";
+     reason="Simple A-B-A-B alternation, explicitly retained as Easy.";
+   }
+ }else if(band==="medium"){
+   if(type===0){
+     const a=ri(r,3,15),d=ri(r,2,6),inc=ri(r,2,4);seq=[a];
+     for(let i=0;i<5;i++)seq.push(seq.at(-1)+d+i*inc);
+     ans=seq.at(-1)+d+5*inc;seq=seq.slice(0,6);
+     rule=`differences increase by ${inc}: ${[0,1,2,3,4,5].map(i=>d+i*inc).join(", ")}`;
+     family="series-growing-differences";reason="Requires deriving a second-level pattern across several differences.";
+   }else if(type===1){
+     const a=ri(r,15,35),up=ri(r,7,14),down=ri(r,3,8);seq=[a];
+     for(let i=0;i<6;i++)seq.push(seq.at(-1)+(i%2===0?up:-down));
+     ans=seq[6];seq=seq.slice(0,6);
+     rule=`alternate +${up}, −${down}`;family="series-alternating-add-subtract";
+     reason="Requires maintaining two alternating operations over a longer sequence.";
+   }else if(type===2){
+     const a=ri(r,2,10),b=ri(r,15,30),d1=ri(r,3,8),d2=ri(r,4,10);
+     seq=[a,b,a+d1,b+d2,a+2*d1,b+2*d2];ans=a+3*d1;
+     rule=`split odd/even positions: odd +${d1}, even +${d2}`;family="series-interleaved-arithmetic";
+     reason="Requires splitting the display into two interleaved arithmetic strands.";
+   }else if(type===3){
+     const a=ri(r,2,8),m=2,k=ri(r,3,8);seq=[a];
+     seq.push(seq.at(-1)*m);seq.push(seq.at(-1)+k);seq.push(seq.at(-1)*m);seq.push(seq.at(-1)+k);seq.push(seq.at(-1)*m);ans=seq.at(-1)+k;
+     rule=`alternate ×2, then +${k}`;family="series-multiply-add-cycle";
+     reason="Requires recognising a two-operation cycle rather than a single arithmetic progression.";
+   }else if(type===4){
+     const base=ri(r,3,15),step=ri(r,4,10);
+     seq=[base,base+step,base+step,base+2*step,base+2*step,base+3*step];ans=base+3*step;
+     rule=`each new stepped value appears twice`;family="series-repeated-step";
+     reason="Requires separating the repetition pattern from the underlying arithmetic progression.";
+   }else{
+     const base=ri(r,2,14);
+     seq=[base+1,base+4,base+9,base+16,base+25];ans=base+36;
+     rule="add consecutive square numbers to the same base: 1², 2², 3², 4², 5², 6²";
+     family="series-square-offsets";reason="Requires recognising square-number growth rather than constant first differences.";
+   }
+ }else{
+   if(type===0){
+     const a=ri(r,2,6),b=ri(r,18,32),m=2,d=ri(r,4,9);
+     seq=[a,b,a*m,b+d,a*m*m,b+2*d];ans=a*m*m*m;
+     rule=`odd positions ×2; even positions +${d}`;family="series-interleaved-mixed";
+     reason="Two interleaved strands use different operation families (multiplication versus addition).";
+   }else if(type===1){
+     const a=ri(r,2,6),d=ri(r,2,4);seq=[a];let diff=d;
+     for(let i=0;i<5;i++){seq.push(seq.at(-1)+diff);diff*=2;}
+     ans=seq.at(-1)+diff;seq=seq.slice(0,6);
+     rule="the amount added doubles after each step";family="series-geometric-differences";
+     reason="Requires detecting that the differences themselves grow geometrically.";
+   }else if(type===2){
+     const a=ri(r,3,8),minus=ri(r,3,7),plus=ri(r,5,11);seq=[a];
+     const ops=[x=>x*2,x=>x-minus,x=>x+plus];
+     for(let i=0;i<6;i++)seq.push(ops[i%3](seq.at(-1)));
+     ans=seq[6];seq=seq.slice(0,6);
+     rule=`repeat a three-operation cycle: ×2, −${minus}, +${plus}`;
+     family="series-three-operation-cycle";reason="Requires holding a three-step repeating operation cycle under time pressure.";
+   }else if(type===3){
+     const a=ri(r,2,8),b=ri(r,3,10),k=ri(r,1,4);seq=[a,b];
+     while(seq.length<6)seq.push(seq.at(-1)+seq.at(-2)+k);
+     ans=seq.at(-1)+seq.at(-2)+k;
+     rule=`each term = previous two terms + ${k}`;family="series-fibonacci-offset";
+     reason="Requires a two-term dependency plus a constant offset, not a one-step rule.";
+   }else if(type===4){
+     const a=ri(r,4,10),d=ri(r,2,4),inc=ri(r,1,2);seq=[a];let diff=d,stepInc=inc;
+     for(let i=0;i<5;i++){seq.push(seq.at(-1)+diff);diff+=stepInc;stepInc+=inc;}
+     ans=seq.at(-1)+diff;seq=seq.slice(0,6);
+     rule=`differences grow by an increasing amount (+${inc}, +${2*inc}, +${3*inc}...)`;
+     family="series-third-level-differences";reason="Requires recognising a pattern in how the differences themselves change.";
+   }else if(type===5){
+     const a=ri(r,2,7),m=2,k1=ri(r,1,4),k2=ri(r,2,5);seq=[a];
+     for(let i=0;i<5;i++)seq.push(seq.at(-1)*m+(i%2===0?k1:-k2));
+     ans=seq.at(-1)*m+(5%2===0?k1:-k2);
+     rule=`multiply by 2 each time, alternating +${k1} and −${k2}`;
+     family="series-multiply-with-alternating-offset";reason="A repeated multiplication is modified by a second alternating offset rule.";
+   }else{
+     const a=ri(r,3,9),d=ri(r,2,5);
+     seq=[a,a+d,(a+d)*2,(a+d)*2+d,((a+d)*2+d)*2,((a+d)*2+d)*2+d];
+     ans=seq.at(-1)*2;
+     rule=`alternate +${d}, then ×2`;
+     family="series-add-multiply-alternation";reason="Requires alternating two unlike operations while resisting simple-difference distractors.";
+   }
+ }
+
+ q.prompt="What number comes next?";
+ q.display={type:"sequence",values:[...seq,"?"]};
+ q.kind="single";
+ q.options=uniqOptions(ans,[ans+ri(r,2,7),ans-ri(r,2,7),ans+ri(r,9,18)],r);
+ q.answer=ans;
+ q.explanation=`The rule is: ${rule}. Therefore the missing value is ${ans}.`;
+ return withFamily(setDifficulty(q,band,reason),family);
+}
+
+/* ---------- Matrix QA3 ---------- */
+function matrixPlausiblePredictionsV3(grid){
+ const rows=grid.map(row=>row.map(v=>v===null?null:v));
+ const a3=rows[2][0],b3=rows[2][1],preds=[];
+ const funcs=[];
+ const add=(name,fn)=>funcs.push([name,fn]);
+ add("a+b",(a,b)=>a+b);add("a-b",(a,b)=>a-b);add("b-a",(a,b)=>b-a);add("a*b",(a,b)=>a*b);
+ add("2a+b",(a,b)=>2*a+b);add("a+2b",(a,b)=>a+2*b);add("2a-b",(a,b)=>2*a-b);add("2b-a",(a,b)=>2*b-a);
+ for(const m of [2,3,4]){
+   add(`(a+b)*${m}`,(a,b)=>(a+b)*m);
+   add(`a*${m}+b`,(a,b)=>a*m+b);
+   add(`a+b*${m}`,(a,b)=>a+b*m);
+ }
+ for(let k=-8;k<=8;k++){
+   add(`a+b+${k}`,(a,b)=>a+b+k);
+   add(`a*b+${k}`,(a,b)=>a*b+k);
+   add(`2a+b+${k}`,(a,b)=>2*a+b+k);
+   add(`a+2b+${k}`,(a,b)=>a+2*b+k);
+ }
+ for(const [name,fn] of funcs){
+   if(fn(rows[0][0],rows[0][1])===rows[0][2]&&fn(rows[1][0],rows[1][1])===rows[1][2]){
+     preds.push({name,value:fn(a3,b3)});
+   }
+ }
+ return preds;
+}
+function matrixIsClearV3(grid,intendedAnswer){
+ if(grid[0][0]===grid[1][0]&&grid[0][1]===grid[1][1])return false;
+ const values=[...new Set(matrixPlausiblePredictionsV3(grid).map(x=>x.value))];
+ return values.length===1&&values[0]===intendedAnswer;
+}
+function genNumMatrixV3(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"numMatrix",band);
+ let grid,ans,rule,reason,family;
+ const type=band==="easy"?ri(r,0,3):band==="medium"?ri(r,0,4):ri(r,0,4);
+ const rowsFrom=fn=>Array.from({length:3},()=>{let a=ri(r,3,11),b=ri(r,2,9),c=fn(a,b);return [a,b,c]});
+
+ if(band==="easy"){
+   if(type===0){let rows=rowsFrom((a,b)=>a+b);ans=rows[2][2];rows[2][2]=null;grid=rows;rule="third = first + second";family="matrix-add";reason="One repeated addition relationship.";}
+   else if(type===1){let rows=Array.from({length:3},()=>{const b=ri(r,2,8),c=ri(r,2,9),a=b+c;return [a,b,c]});ans=rows[2][2];rows[2][2]=null;grid=rows;rule="third = first − second";family="matrix-subtract";reason="One repeated subtraction relationship.";}
+   else if(type===2){const a=ri(r,2,10),h=ri(r,2,5),v=ri(r,2,5);grid=[[a,a+h,a+2*h],[a+v,a+v+h,a+v+2*h],[a+2*v,a+2*v+h,null]];ans=a+2*v+2*h;rule=`move right +${h}; move down +${v}`;family="matrix-grid-steps";reason="Simple row/column constant-step grid.";}
+   else{let rows=rowsFrom((a,b)=>a*b);ans=rows[2][2];rows[2][2]=null;grid=rows;rule="third = first × second";family="matrix-multiply";reason="One repeated multiplication relationship.";}
+ }else if(band==="medium"){
+   if(type===0){let rows=rowsFrom((a,b)=>a+2*b);ans=rows[2][2];rows[2][2]=null;grid=rows;rule="third = first + (2 × second)";family="matrix-a-plus-2b";}
+   else if(type===1){let rows=rowsFrom((a,b)=>2*a+b);ans=rows[2][2];rows[2][2]=null;grid=rows;rule="third = (2 × first) + second";family="matrix-2a-plus-b";}
+   else if(type===2){let rows=Array.from({length:3},()=>{const b=ri(r,2,7),a=ri(r,b+2,b+10);return [a,b,2*a-b]});ans=rows[2][2];rows[2][2]=null;grid=rows;rule="third = (2 × first) − second";family="matrix-2a-minus-b";}
+   else if(type===3){let rows=Array.from({length:3},()=>{const a=ri(r,2,7),b=ri(r,a+2,a+10);return [a,b,2*b-a]});ans=rows[2][2];rows[2][2]=null;grid=rows;rule="third = (2 × second) − first";family="matrix-2b-minus-a";}
+   else{const k=ri(r,3,8);let rows=rowsFrom((a,b)=>a+b+k);ans=rows[2][2];rows[2][2]=null;grid=rows;rule=`third = first + second + ${k}`;family="matrix-sum-plus-constant";}
+   reason="Requires inferring and applying a two-operation row rule; simple addition or multiplication alone is insufficient.";
+ }else{
+   if(type===0){const k=ri(r,3,7);let rows=rowsFrom((a,b)=>a*b+k);ans=rows[2][2];rows[2][2]=null;grid=rows;rule=`third = (first × second) + ${k}`;family="matrix-product-plus-constant";}
+   else if(type===1){const k=ri(r,3,7);let rows=Array.from({length:3},()=>{let a=ri(r,4,10),b=ri(r,3,8);return [a,b,a*b-k]});ans=rows[2][2];rows[2][2]=null;grid=rows;rule=`third = (first × second) − ${k}`;family="matrix-product-minus-constant";}
+   else if(type===2){const m=pick(r,[2,3]);let rows=rowsFrom((a,b)=>(a+b)*m);ans=rows[2][2];rows[2][2]=null;grid=rows;rule=`third = (first + second) × ${m}`;family="matrix-sum-times";}
+   else if(type===3){const k=ri(r,2,6);let rows=rowsFrom((a,b)=>2*a+b+k);ans=rows[2][2];rows[2][2]=null;grid=rows;rule=`third = (2 × first) + second + ${k}`;family="matrix-2a-b-plus-constant";}
+   else{const k=ri(r,2,6);let rows=Array.from({length:3},()=>{const a=ri(r,3,10),b=ri(r,4,11);return [a,b,a+2*b-k]});ans=rows[2][2];rows[2][2]=null;grid=rows;rule=`third = first + (2 × second) − ${k}`;family="matrix-a-2b-minus-constant";}
+   reason="Requires a layered operation with multiplication/weighting plus an additional constant or operation-order step.";
+ }
+
+ if(!matrixIsClearV3(grid,ans))return genNumMatrixV3(seed+104729,band);
+ q.prompt="What number should replace the question mark in the matrix?";
+ q.display={type:"matrix",grid:grid.map(row=>row.map(v=>v===null?"?":v))};
+ q.kind="numeric";q.answer=ans;
+ q.explanation=`Use the same rule on the complete rows: ${rule}. The missing value is ${ans}.`;
+ return withFamily(setDifficulty(q,band,reason),family);
+}
+
+/* ---------- Word Problems QA3 ---------- */
+function genWordProblemV3(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"wordProblems",band);
+ let ans,prompt,exp,reason,family;
+ const type=band==="easy"?ri(r,0,4):band==="medium"?ri(r,0,6):ri(r,0,7);
+
+ if(band==="easy"){
+   if(type===0){
+     const speed=pick(r,[12,15,20,24,25,30]),time=pick(r,[2,3,4,5]),dist=speed*time;ans=time;
+     prompt=`A patrol vehicle travels ${dist} kilometres at an average speed of ${speed} km/h. How many hours does the journey take?`;
+     exp=`time = distance ÷ speed = ${dist} ÷ ${speed} = ${ans} hours.`;family="word-rate-time";
+   }else if(type===1){
+     const total=pick(r,[80,120,160,200,240,320]),pct=pick(r,[10,25,50]);ans=total*pct/100;
+     prompt=`A store has ${total} batteries. ${pct}% are assigned to a training activity. How many batteries is that?`;
+     exp=`${pct}% of ${total} = ${ans}.`;family="word-simple-percent";
+   }else if(type===2){
+     const workers=pick(r,[3,4,5]),per=pick(r,[6,8,10]),hours=pick(r,[2,3]);ans=workers*per*hours;
+     prompt=`${workers} staff each check ${per} records per hour. How many records are checked altogether in ${hours} hours?`;
+     exp=`${workers} × ${per} × ${hours} = ${ans}.`;family="word-output-rate";
+   }else if(type===3){
+     const a=ri(r,1,4),b=ri(r,2,5),unit=pick(r,[4,5,6,8]);const total=(a+b)*unit;ans=a*unit;
+     prompt=`Red and blue tags are in the ratio ${a}:${b}. There are ${total} tags altogether. How many are red?`;
+     exp=`There are ${a+b} ratio parts, so one part is ${unit}. Red = ${a} × ${unit} = ${ans}.`;family="word-simple-ratio";
+   }else{
+     const n=pick(r,[3,4,5]),avg=pick(r,[8,10,12,15]),sum=n*avg;ans=avg;
+     prompt=`${n} equal containers hold ${sum} items altogether. How many items are in each container?`;
+     exp=`${sum} ÷ ${n} = ${ans}.`;family="word-equal-share";
+   }
+   reason="One direct relationship with all required values stated and a single main calculation.";
+ }else if(band==="medium"){
+   if(type===0){
+     const a=ri(r,2,6),b=ri(r,2,6),unit=ri(r,5,14),total=(a+b)*unit;ans=a*unit;
+     prompt=`Two equipment types are stocked in the ratio ${a}:${b}. There are ${total} items altogether. How many belong to the first type?`;
+     exp=`Total parts = ${a+b}; one part = ${unit}; first type = ${a} × ${unit} = ${ans}.`;family="word-ratio-share";
+   }else if(type===1){
+     const n=pick(r,[5,6,7]),avg=ri(r,14,28),sum=avg*n;let known=[];
+     for(let i=0;i<n-1;i++)known.push(ri(r,8,30));
+     const knownSum=known.reduce((a,b)=>a+b,0);ans=sum-knownSum;
+     if(ans<3||ans>50)return genWordProblemV3(seed+311,band);
+     prompt=`The average of ${n} test scores is ${avg}. ${n-1} scores are ${known.join(", ")}. What is the remaining score?`;
+     exp=`Target total = ${avg} × ${n} = ${sum}. Known total = ${knownSum}. Missing score = ${ans}.`;family="word-reverse-average";
+   }else if(type===2){
+     const packs=ri(r,4,9),each=pick(r,[8,10,12,15]),pct=pick(r,[65,75,80,85,90]),total=packs*each;ans=total*pct/100;
+     if(!Number.isInteger(ans))return genWordProblemV3(seed+613,band);
+     prompt=`A delivery contains ${packs} cartons with ${each} components in each. If ${pct}% pass inspection, how many components pass?`;
+     exp=`Total components = ${packs} × ${each} = ${total}. Then ${pct}% of ${total} = ${ans}.`;family="word-total-then-percent";
+   }else if(type===3){
+     const speed=pick(r,[40,48,60,72,80]),mins=pick(r,[45,75,90,105]),dist=speed*mins/60;
+     if(!Number.isInteger(dist))return genWordProblemV3(seed+907,band);
+     ans=dist;
+     prompt=`A vehicle maintains ${speed} km/h for ${mins} minutes. How far does it travel?`;
+     exp=`${mins} minutes = ${mins/60} hours. Distance = ${speed} × ${mins/60} = ${ans} km.`;family="word-time-unit-conversion";
+   }else if(type===4){
+     const original=pick(r,[80,100,120,160,200]),pct=pick(r,[15,20,25,30]);ans=original*(100+pct)/100;
+     prompt=`A stock level of ${original} units is increased by ${pct}%. What is the new stock level?`;
+     exp=`Increase = ${pct}% of ${original} = ${original*pct/100}. New level = ${ans}.`;family="word-percent-increase";
+   }else if(type===5){
+     const total=pick(r,[120,180,240,300]),used=pick(r,[20,25,30,40]),damaged=pick(r,[5,10,15]);const after=total-total*used/100;ans=after-after*damaged/100;
+     if(!Number.isInteger(ans))return genWordProblemV3(seed+1213,band);
+     prompt=`A store begins with ${total} items. ${used}% are issued. Then ${damaged}% of what remains is found damaged. How many usable items remain?`;
+     exp=`After issue: ${after}. After damage: ${ans}.`;family="word-dependent-percent-medium";
+   }else{
+     const a=ri(r,3,7),b=ri(r,3,7),unit=pick(r,[5,6,8,10]),move=pick(r,[2,3,4]);const total=(a+b)*unit;ans=a*unit+move;
+     prompt=`Group A and Group B are in the ratio ${a}:${b}, with ${total} people altogether. Then ${move} people move from B to A. How many are now in A?`;
+     exp=`Initially A = ${a} × ${unit} = ${a*unit}. After the move, A = ${ans}.`;family="word-ratio-then-change";
+   }
+   reason="Requires at least two linked steps, a conversion, reverse operation or a changed-base calculation.";
+ }else{
+   if(type===0){
+     const total=pick(r,[240,300,360,400,480]),reserved=pick(r,[20,25,30]),use=pick(r,[20,25,40,50]);const rem=total*(100-reserved)/100;ans=rem*use/100;
+     if(!Number.isInteger(ans))return genWordProblemV3(seed+719,band);
+     prompt=`A warehouse holds ${total} items. ${reserved}% are reserved. Of the remaining items, ${use}% are issued. How many items are issued?`;
+     exp=`Remaining after reservation = ${rem}. Issued = ${use}% of ${rem} = ${ans}.`;family="word-dependent-percent-hard";
+   }else if(type===1){
+     const w1=ri(r,3,6),rate=pick(r,[6,8,10,12]),h1=pick(r,[2,3]),extra=ri(r,1,3),h2=pick(r,[1,2]);ans=w1*rate*h1+(w1+extra)*rate*h2;
+     prompt=`${w1} staff process ${rate} forms each per hour for ${h1} hours. Then ${extra} more staff join for ${h2} further hour${h2===1?"":"s"} at the same individual rate. How many forms are processed altogether?`;
+     exp=`Stage 1 = ${w1*rate*h1}. Stage 2 = ${(w1+extra)*rate*h2}. Total = ${ans}.`;family="word-changing-workforce";
+   }else if(type===2){
+     const a=ri(r,2,5),b=ri(r,5,8),unit=pick(r,[6,8,10]),total=(a+b)*unit,move=pick(r,[3,4,5]);ans=a*unit+move;
+     prompt=`Red and blue markers are in the ratio ${a}:${b}, with ${total} markers altogether. Then ${move} blue markers are moved into the red group. How many red markers are there now?`;
+     exp=`Initial red = ${a*unit}. After the transfer, red = ${ans}.`;family="word-ratio-transfer";
+   }else if(type===3){
+     const d1=pick(r,[60,80,90,120]),s1=pick(r,[40,60]),d2=pick(r,[60,90,120]),s2=pick(r,[60,90]);const t1=d1/s1,t2=d2/s2;
+     if(!Number.isInteger(t1*60)||!Number.isInteger(t2*60))return genWordProblemV3(seed+1511,band);
+     ans=(t1+t2)*60;
+     prompt=`A journey has two legs: ${d1} km at ${s1} km/h, then ${d2} km at ${s2} km/h. How many minutes does the whole journey take?`;
+     exp=`Leg 1 = ${t1*60} min. Leg 2 = ${t2*60} min. Total = ${ans} min.`;family="word-two-leg-time";
+   }else if(type===4){
+     const original=pick(r,[120,160,200,240,320]),discount=pick(r,[20,25]),sale=original*(100-discount)/100;ans=original;
+     prompt=`After a ${discount}% reduction, an equipment allocation is ${sale} units. What was the original allocation?`;
+     exp=`${sale} is ${100-discount}% of the original. Original = ${sale} ÷ ${(100-discount)/100} = ${ans}.`;family="word-reverse-percent";
+   }else if(type===5){
+     const start=pick(r,[200,240,300,400]),up=pick(r,[20,25]),down=pick(r,[10,20,25]);const raised=start*(100+up)/100;ans=raised*(100-down)/100;
+     if(!Number.isInteger(ans))return genWordProblemV3(seed+1811,band);
+     prompt=`A quantity starts at ${start}. It increases by ${up}% and is then reduced by ${down}% of the new amount. What is the final quantity?`;
+     exp=`After the increase: ${raised}. Then apply ${down}% to the changed base: final = ${ans}.`;family="word-successive-percent-change";
+   }else if(type===6){
+     const r1=pick(r,[6,8,10]),r2=pick(r,[4,5,6]),h=pick(r,[3,4,5]);ans=(r1+r2)*h;
+     prompt=`Two people work together for ${h} hours. One completes ${r1} tasks per hour and the other completes ${r2} tasks per hour. How many tasks do they complete in total?`;
+     exp=`Combined hourly rate = ${r1+r2}. Over ${h} hours: ${ans}.`;family="word-combined-rates";
+   }else{
+     const n1=pick(r,[2,3,4]),v1=pick(r,[10,12,15,18]),n2=pick(r,[3,4,5]),v2=pick(r,[20,24,30]);ans=(n1*v1+n2*v2)/(n1+n2);
+     if(!Number.isInteger(ans))return genWordProblemV3(seed+2017,band);
+     prompt=`${n1} readings average ${v1}, and another ${n2} readings average ${v2}. What is the average across all ${n1+n2} readings?`;
+     exp=`First subtotal = ${n1*v1}; second subtotal = ${n2*v2}; combined average = ${(n1*v1+n2*v2)} ÷ ${n1+n2} = ${ans}.`;family="word-weighted-average";
+   }
+   reason="Requires a layered or reverse calculation, a changed base, multiple stages, or combining separate rates/averages.";
+ }
+
+ q.prompt=prompt;
+ q.kind=band==="hard"?"numeric":"single";
+ q.answer=ans;
+ if(q.kind==="single")q.options=uniqOptions(ans,[ans+pick(r,[2,4,5,8,10]),ans-pick(r,[1,3,5,7]),ans+pick(r,[12,15,20])],r);
+ q.explanation=exp;
+ return withFamily(setDifficulty(q,band,reason),family);
+}
+
+/* ---------- Odd Words QA3 ---------- */
+const oddWordTemplatesV3={
+ easy:[
+  {id:"tools",core:["hammer","saw","drill","spanner","pliers","chisel","screwdriver","wrench"],outs:["violin","trumpet","flute","cello","drum"],rule:"the core words are tools; the outsiders are musical instruments"},
+  {id:"trees",core:["oak","pine","maple","birch","cedar","willow","elm","ash"],outs:["tulip","rose","daisy","lily","orchid"],rule:"the core words are trees; the outsiders are flowers"},
+  {id:"birds",core:["sparrow","eagle","parrot","magpie","robin","falcon","owl","cockatoo"],outs:["salmon","trout","tuna","cod","bream"],rule:"the core words are birds; the outsiders are fish"},
+  {id:"months",core:["January","March","July","October","April","August","November","December"],outs:["Monday","Friday","Tuesday","Sunday","Thursday"],rule:"the core words are months; the outsiders are days of the week"},
+  {id:"2d-shapes",core:["circle","triangle","square","pentagon","hexagon","rectangle","oval","rhombus"],outs:["sphere","cube","cone","cylinder","pyramid"],rule:"the core words are 2D shapes; the outsiders are 3D solids"},
+  {id:"vehicles",core:["car","truck","bus","motorcycle","bicycle","tram","train","van"],outs:["house","shed","tower","garage","cottage"],rule:"the core words are forms of transport; the outsiders are buildings"},
+  {id:"body-parts",core:["elbow","wrist","ankle","knee","shoulder","thumb","heel","chin"],outs:["jacket","sock","glove","scarf","hat"],rule:"the core words are body parts; the outsiders are clothing"},
+  {id:"kitchen",core:["spoon","fork","whisk","ladle","grater","tongs","peeler","spatula"],outs:["sofa","desk","wardrobe","stool","bookcase"],rule:"the core words are kitchen utensils; the outsiders are furniture"}
+ ],
+ medium:[
+  {id:"metals",core:["copper","iron","aluminium","gold","silver","zinc","nickel","tin"],outs:["glass","rubber","ceramic","plastic","timber"],rule:"the core words are metals; the outsiders are non-metal materials"},
+  {id:"length-units",core:["metre","kilometre","centimetre","millimetre","micrometre","nanometre","decimetre","hectometre"],outs:["litre","gram","second","ampere","degree"],rule:"the core words measure length; the outsiders measure other quantities"},
+  {id:"compass",core:["north","south","east","west","northeast","northwest","southeast","southwest"],outs:["above","below","inside","outside","beneath"],rule:"the core words are compass directions; the outsiders describe other spatial relationships"},
+  {id:"speech-production",core:["whisper","speak","shout","murmur","utter","announce","yell","recite"],outs:["listen","observe","watch","hear","notice"],rule:"the core words are ways of producing speech; the outsiders are receptive actions"},
+  {id:"life-stages",core:["infant","toddler","child","adolescent","adult","middle-aged","elderly","newborn"],outs:["morning","afternoon","evening","midnight","dawn"],rule:"the core words are human life stages; the outsiders are times of day"},
+  {id:"navigation",core:["bearing","heading","latitude","longitude","compass","waypoint","route","azimuth"],outs:["temperature","humidity","pressure","voltage","mass"],rule:"the core words relate to navigation or position; the outsiders are measurements of other physical quantities"},
+  {id:"documents",core:["invoice","receipt","contract","memo","report","brief","form","certificate"],outs:["hammer","spanner","drill","pliers","saw"],rule:"the core words are documents; the outsiders are hand tools"},
+  {id:"weather",core:["rain","hail","sleet","fog","thunder","lightning","drizzle","snow"],outs:["earthquake","volcano","landslide","erosion","fault"],rule:"the core words are weather phenomena; the outsiders are geological phenomena"}
+ ],
+ hard:[
+  {id:"red-colours",core:["scarlet","crimson","vermilion","maroon","ruby","carmine","burgundy","garnet"],outs:["cerulean","teal","azure","cyan","turquoise"],rule:"the core words are red-family colour terms; the outsiders are blue/green-family colour terms"},
+  {id:"economical",core:["frugal","thrifty","economical","sparing","prudent","abstemious","parsimonious","saving"],outs:["lavish","wasteful","extravagant","profligate","spendthrift"],rule:"the core words describe restrained or economical use of resources; the outsiders describe excessive spending or use"},
+  {id:"brief-expression",core:["concise","brief","succinct","terse","compact","pithy","laconic","compressed"],outs:["verbose","wordy","rambling","prolix","long-winded"],rule:"the core words describe brevity of expression; the outsiders describe excessive wordiness"},
+  {id:"rotation",core:["rotate","revolve","spin","turn","twirl","pivot","swivel","wheel"],outs:["reflect","translate","mirror","slide","invert"],rule:"the core words describe rotational movement; the outsiders describe different transformations"},
+  {id:"required",core:["mandatory","compulsory","obligatory","required","imperative","binding","prescribed","essential"],outs:["optional","voluntary","elective","discretionary","facultative"],rule:"the core words describe something required; the outsiders describe choice or non-compulsion"},
+  {id:"calm",core:["placid","serene","tranquil","composed","unruffled","equable","calm","peaceful"],outs:["agitated","turbulent","frantic","restless","disturbed"],rule:"the core words describe calmness; the outsiders describe agitation"},
+  {id:"certainty",core:["certain","definite","assured","unequivocal","conclusive","decisive","unambiguous","categorical"],outs:["doubtful","uncertain","ambiguous","tentative","equivocal"],rule:"the core words convey certainty or clarity; the outsiders convey uncertainty or ambiguity"},
+  {id:"increase",core:["augment","amplify","expand","enlarge","escalate","intensify","magnify","increase"],outs:["diminish","reduce","lessen","contract","decrease"],rule:"the core words describe increase; the outsiders describe decrease"}
+ ]
+};
+function genOddWordsV3(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"oddWords",band);
+ const template=pick(r,oddWordTemplatesV3[band]);
+ const core=shuffle(r,template.core).slice(0,4),outs=shuffle(r,template.outs).slice(0,2);
+ q.prompt="Which TWO words are the odd ones out?";
+ q.kind="multi";q.options=shuffle(r,[...core,...outs]);q.answer=outs;q.maxSelect=2;
+ q.explanation=`The best common rule is: ${template.rule}.`;
+ const reason=band==="easy"?"Concrete, familiar categories with clearly separated outsiders.":band==="medium"?"Requires a more conceptual category and closer domain discrimination.":"Uses closer semantic/vocabulary categories that must be defined precisely before selecting the outsiders.";
+ return withFamily(setDifficulty(q,band,reason),`oddwords-${template.id}`);
+}
+
+/* ---------- Analogies QA3 ---------- */
+const analogyFamiliesV3={
+ easy:[
+  {id:"animal-home",rel:"animal to its typical home",pairs:[["bird","nest"],["bee","hive"],["horse","stable"],["dog","kennel"],["rabbit","burrow"],["spider","web"]]},
+  {id:"tool-function",rel:"tool to its primary function",pairs:[["knife","cut"],["pen","write"],["broom","sweep"],["key","unlock"],["scissors","snip"],["thermometer","measure"]]},
+  {id:"young-adult",rel:"young animal to adult animal",pairs:[["puppy","dog"],["kitten","cat"],["calf","cow"],["foal","horse"],["lamb","sheep"],["chick","chicken"]]},
+  {id:"profession-place",rel:"profession to typical workplace",pairs:[["doctor","hospital"],["teacher","school"],["judge","court"],["chef","kitchen"],["pilot","cockpit"],["librarian","library"]]},
+  {id:"opposites",rel:"direct opposites",pairs:[["cold","hot"],["dark","light"],["early","late"],["open","closed"],["full","empty"],["up","down"]]}
+ ],
+ medium:[
+  {id:"part-whole",rel:"part to larger whole",pairs:[["wheel","car"],["wing","aircraft"],["page","book"],["key","keyboard"],["blade","fan"],["petal","flower"]]},
+  {id:"body-part",rel:"smaller body part to containing body part",pairs:[["finger","hand"],["toe","foot"],["hand","arm"],["foot","leg"],["tooth","mouth"],["eye","face"]]},
+  {id:"creator-work",rel:"creator to created work",pairs:[["author","novel"],["composer","music"],["architect","plan"],["painter","portrait"],["poet","poem"],["sculptor","statue"]]},
+  {id:"reference-purpose",rel:"reference/tool to typical purpose",pairs:[["map","navigate"],["dictionary","define"],["calendar","schedule"],["compass","orient"],["ruler","measure"],["index","locate"]]},
+  {id:"unit-scale",rel:"smaller unit to larger unit of the same quantity",pairs:[["minute","hour"],["centimetre","metre"],["gram","kilogram"],["millilitre","litre"],["second","minute"],["metre","kilometre"]]},
+  {id:"container-content",rel:"container to typical content",pairs:[["wallet","money"],["bottle","liquid"],["folder","documents"],["toolbox","tools"],["library","books"],["garage","vehicles"]]}
+ ],
+ hard:[
+  {id:"instrument-measure",rel:"instrument to quantity measured",pairs:[["thermometer","temperature"],["barometer","pressure"],["speedometer","speed"],["ammeter","current"],["voltmeter","voltage"],["odometer","distance"]]},
+  {id:"structured-component",rel:"component to larger structured work",pairs:[["chapter","book"],["scene","play"],["movement","symphony"],["article","journal"],["clause","contract"],["section","report"]]},
+  {id:"abstract-opposite",rel:"conceptual opposites",pairs:[["scarcity","abundance"],["deficit","surplus"],["certainty","doubt"],["expansion","contraction"],["approval","rejection"],["stability","instability"]]},
+  {id:"dimension-opposite",rel:"opposites on the same property dimension",pairs:[["transparent","opaque"],["flexible","rigid"],["permanent","temporary"],["explicit","implicit"],["concise","verbose"],["precise","vague"]]},
+  {id:"process-result",rel:"process to its direct result",pairs:[["evaporation","vapour"],["combustion","heat"],["erosion","wear"],["compression","pressure"],["freezing","solid"],["condensation","liquid"]]},
+  {id:"specialist-output",rel:"specialist to characteristic output",pairs:[["cartographer","map"],["composer","score"],["architect","blueprint"],["editor","revision"],["translator","translation"],["analyst","report"]]}
+ ]
+};
+function analogyDistractorsV3(r,band,answer,avoidFamily){
+ const vals=[];
+ for(const fam of analogyFamiliesV3[band]){
+   if(fam.id===avoidFamily)continue;
+   for(const p of fam.pairs)if(p[1]!==answer)vals.push(p[1]);
+ }
+ return shuffle(r,[...new Set(vals)]).slice(0,3);
+}
+function genAnalogyV3(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"analogy",band);
+ const fam=pick(r,analogyFamiliesV3[band]);
+ const pairOrder=shuffle(r,fam.pairs);
+ const p1=pairOrder[0],p2=pairOrder[1];
+ const distractors=analogyDistractorsV3(r,band,p2[1],fam.id);
+ q.prompt=`${p1[0]} is to ${p1[1]} as ${p2[0]} is to:`;
+ q.kind="single";q.options=shuffle(r,[p2[1],...distractors]);q.answer=p2[1];
+ q.explanation=`The relationship is ${fam.rel}. Therefore '${p2[0]}' pairs with '${p2[1]}'.`;
+ const reason=band==="easy"?"Concrete relationship with familiar vocabulary and distant distractors.":band==="medium"?"Requires identifying a more abstract relationship with plausible same-domain distractors.":"Uses abstract/technical relationships and closer distractors, increasing the need for an exact bridge sentence.";
+ return withFamily(setDifficulty(q,band,reason),`analogy-${fam.id}`);
+}
+
+/* ---------- Synonym / Antonym / Neither QA3 ---------- */
+const wordRelationGroupsV3={
+ easy:{
+  similar:[
+   {id:"fast",words:["fast","rapid","swift","quick"],gloss:"all mean moving or happening quickly"},
+   {id:"help",words:["help","assist","aid","support"],gloss:"all mean to give assistance"},
+   {id:"quiet",words:["quiet","silent","hushed","soundless"],gloss:"all describe little or no sound"},
+   {id:"happy",words:["happy","glad","pleased","cheerful"],gloss:"all describe a positive or pleased state"},
+   {id:"begin",words:["begin","start","commence","initiate"],gloss:"all mean to cause or come into action"},
+   {id:"finish",words:["finish","end","complete","conclude"],gloss:"all mean to bring something to an end"}
+  ],
+  opposite:[
+   {id:"size",a:["large","big","huge"],b:["small","little","tiny"],gloss:"they contrast in size"},
+   {id:"open",a:["open","unlocked"],b:["closed","shut"],gloss:"they contrast in openness"},
+   {id:"early",a:["early","prompt"],b:["late","delayed"],gloss:"they contrast in timing"},
+   {id:"increase",a:["increase","rise","grow"],b:["decrease","fall","shrink"],gloss:"they contrast in direction of change"},
+   {id:"repair",a:["repair","mend"],b:["damage","break"],gloss:"one restores while the other harms"},
+   {id:"light",a:["bright","light"],b:["dark","dim"],gloss:"they contrast in light level"}
+  ],
+  neither:[
+   ["increase","improve","an increase is not necessarily an improvement"],
+   ["listen","speak","both involve communication but are different actions"],
+   ["road","vehicle","they are related by travel but are not synonyms or opposites"],
+   ["book","read","one is an object and the other an action"],
+   ["teacher","student","they are related roles but are not opposites in meaning"],
+   ["warm","wet","they describe different properties"],
+   ["circle","sphere","they are related shapes in different dimensions"],
+   ["buy","sell","they are complementary actions, but the words do not simply mean opposite states"],
+   ["morning","night","they are different times of day rather than direct lexical antonyms"],
+   ["engine","fuel","they are related mechanically but have different meanings"],
+   ["write","paper","an action and a material are related but not equivalent"],
+   ["north","left","both can describe direction but on different reference systems"]
+  ]
+ },
+ medium:{
+  similar:[
+   {id:"permit",words:["permit","allow","authorize","sanction"],gloss:"all can mean to give permission"},
+   {id:"scarce",words:["scarce","limited","meagre","insufficient"],gloss:"all can describe something not plentiful enough"},
+   {id:"reluctant",words:["reluctant","unwilling","disinclined","averse"],gloss:"all describe a lack of willingness"},
+   {id:"obvious",words:["obvious","evident","clear","apparent"],gloss:"all can describe something readily recognised"},
+   {id:"robust",words:["robust","sturdy","strong","durable"],gloss:"all can describe strength or resilience"},
+   {id:"accurate",words:["accurate","exact","correct","precise"],gloss:"all relate to correctness or exactness in ordinary usage"}
+  ],
+  opposite:[
+   {id:"scarce-plentiful",a:["scarce","limited"],b:["plentiful","abundant"],gloss:"they contrast in availability"},
+   {id:"fragile-sturdy",a:["fragile","delicate"],b:["sturdy","robust"],gloss:"they contrast in resistance to damage"},
+   {id:"transparent-opaque",a:["transparent","clear"],b:["opaque","nontransparent"],gloss:"they contrast in transmission of light"},
+   {id:"reluctant-eager",a:["reluctant","unwilling"],b:["eager","willing"],gloss:"they contrast in willingness"},
+   {id:"accept-reject",a:["accept","approve"],b:["reject","refuse"],gloss:"they contrast in acceptance"},
+   {id:"expand-contract",a:["expand","enlarge"],b:["contract","shrink"],gloss:"they contrast in size change"}
+  ],
+  neither:[
+   ["accurate","detailed","something can be detailed without being accurate"],
+   ["increase","improve","a quantity can increase without becoming better"],
+   ["efficient","fast","speed and efficiency are related but not identical"],
+   ["fragile","lightweight","a lightweight object need not be fragile"],
+   ["permit","recommend","permission is different from advice"],
+   ["visible","bright","something can be visible without being bright"],
+   ["frequent","regular","something frequent can still be irregular"],
+   ["stable","strong","stability and strength are different properties"],
+   ["precise","complex","precision and complexity are unrelated dimensions"],
+   ["temporary","uncertain","duration and certainty are different properties"],
+   ["observe","measure","observation and measurement are related but distinct actions"],
+   ["reduce","remove","reducing something is not the same as eliminating it"]
+  ]
+ },
+ hard:{
+  similar:[
+   {id:"concise",words:["concise","succinct","brief","terse"],gloss:"all describe brevity of expression"},
+   {id:"meticulous",words:["meticulous","fastidious","scrupulous","painstaking"],gloss:"all describe very careful attention to detail"},
+   {id:"transient",words:["transient","temporary","ephemeral","short-lived"],gloss:"all describe limited duration"},
+   {id:"ambiguous",words:["ambiguous","equivocal","unclear","indeterminate"],gloss:"all can describe a lack of one clear interpretation"},
+   {id:"mitigate",words:["mitigate","alleviate","lessen","moderate"],gloss:"all can mean to reduce severity"},
+   {id:"sporadic",words:["sporadic","intermittent","irregular","occasional"],gloss:"all can describe non-continuous occurrence"}
+  ],
+  opposite:[
+   {id:"tacit-explicit",a:["tacit","implicit"],b:["explicit","stated"],gloss:"they contrast between unstated and clearly stated"},
+   {id:"transient-permanent",a:["transient","temporary"],b:["permanent","enduring"],gloss:"they contrast in duration"},
+   {id:"meticulous-careless",a:["meticulous","scrupulous"],b:["careless","negligent"],gloss:"they contrast in care and attention"},
+   {id:"concise-verbose",a:["concise","succinct"],b:["verbose","wordy"],gloss:"they contrast in brevity of expression"},
+   {id:"mitigate-aggravate",a:["mitigate","alleviate"],b:["aggravate","worsen"],gloss:"they contrast in severity change"},
+   {id:"ambiguous-unequivocal",a:["ambiguous","equivocal"],b:["unequivocal","unambiguous"],gloss:"they contrast in clarity"}
+  ],
+  neither:[
+   ["pragmatic","cautious","a practical approach is not necessarily cautious"],
+   ["plausible","proven","something can be plausible without being proven"],
+   ["concise","accurate","brevity and correctness are separate properties"],
+   ["meticulous","slow","careful work need not be slow"],
+   ["sporadic","rare","irregular occurrence is not the same as low frequency"],
+   ["robust","inflexible","strength and flexibility are different dimensions"],
+   ["ambiguous","complex","complexity does not necessarily create ambiguity"],
+   ["mitigate","prevent","reducing harm is not the same as preventing it"],
+   ["explicit","lengthy","clarity of statement is separate from length"],
+   ["transient","unstable","short duration and instability are not equivalent"],
+   ["objective","certain","objectivity and certainty are separate concepts"],
+   ["arbitrary","random","an arbitrary choice need not be random"]
+  ]
+ }
+};
+function buildWordRelationPoolV3(band){
+ const g=wordRelationGroupsV3[band],pool=[];
+ for(const group of g.similar){
+   for(let i=0;i<group.words.length;i++)for(let j=i+1;j<group.words.length;j++){
+     pool.push({a:group.words[i],b:group.words[j],rel:"similar",desc:group.gloss,family:`wordrel-sim-${group.id}`});
+   }
+ }
+ for(const group of g.opposite){
+   for(const a of group.a)for(const b of group.b){
+     pool.push({a,b,rel:"opposite",desc:group.gloss,family:`wordrel-opp-${group.id}`});
+   }
+ }
+ g.neither.forEach((p,i)=>pool.push({a:p[0],b:p[1],rel:"neither",desc:p[2],family:`wordrel-neither-${i%6}`}));
+ return pool;
+}
+const wordRelationPoolsV3={
+ easy:buildWordRelationPoolV3("easy"),
+ medium:buildWordRelationPoolV3("medium"),
+ hard:buildWordRelationPoolV3("hard")
+};
+function genWordRelationV3(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"wordRelation",band);
+ const pool=wordRelationPoolsV3[band];
+ // Mix relation types deterministically instead of allowing one type to dominate.
+ const relation=["similar","opposite","neither"][seed%3];
+ const sub=pool.filter(x=>x.rel===relation);
+ const p=pick(r,sub.length?sub:pool);
+ q.prompt=`How are these two words related?  ${p.a} — ${p.b}`;
+ q.kind="single";
+ q.options=["Have similar meanings","Have opposite meanings","Are neither similar nor opposite"];
+ q.answer=p.rel==="similar"?q.options[0]:p.rel==="opposite"?q.options[1]:q.options[2];
+ q.explanation=`${p.desc}.`;
+ const reason=band==="easy"?"Uses common vocabulary and a direct semantic relationship.":band==="medium"?"Uses closer meanings and related-but-neither traps that demand more precise comparison.":"Uses less-common or nuanced vocabulary where exact semantic distinction matters under time pressure.";
+ return withFamily(setDifficulty(q,band,reason),p.family);
+}
+
+/* ---------- Deductive Proof QA3 ---------- */
+function genDeductionV3(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"deduction",band);
+ const n1=pick(r,names),n2=pick(r,names.filter(x=>x!==n1)),n3=pick(r,names.filter(x=>x!==n1&&x!==n2));
+ const obj=pick(r,objects),col=pick(r,colors),time=pick(r,["07:30","08:00","08:15","09:00"]);
+ let statements,answer,reason,family,explanation,prompt;
+ const type=band==="easy"?ri(r,0,2):band==="medium"?ri(r,0,4):ri(r,0,4);
+
+ if(band==="easy"){
+   if(type===0){
+     statements=[`If ${n1} arrives by ${time}, ${n1} will attend the briefing.`,`${n1} arrives at ${time}.`,`${n1} normally travels by bus.`,`The briefing room has twelve chairs.`,`${n2} also attends briefings.`];
+     answer=[statements[0],statements[1]];prompt=`Which TWO statements together PROVE that ${n1} will attend the briefing?`;
+     explanation="The conditional rule plus the fact satisfying its condition force the conclusion.";family="deduction-direct-conditional";
+   }else if(type===1){
+     statements=[`Every numbered ${obj} is inspected.`,`${n1}'s ${obj} is numbered.`,`${n2} owns a ${obj}.`,`Some inspected items are ${col}.`,`${n1} likes organised equipment.`];
+     answer=[statements[0],statements[1]];prompt=`Which TWO statements together PROVE that ${n1}'s ${obj} is inspected?`;
+     explanation="The general category rule and the fact placing the item in that category prove the conclusion.";family="deduction-category-membership";
+   }else{
+     statements=[`${n1}'s and ${n2}'s ${obj}s have the same colour.`,`${n2}'s ${obj} is ${col}.`,`${n1} likes ${col}.`,`${n3}'s ${obj} is black.`,`${n2} bought the ${obj} yesterday.`];
+     answer=[statements[0],statements[1]];prompt=`Which TWO statements together PROVE that ${n1}'s ${obj} is ${col}?`;
+     explanation="The equality relationship transfers the known colour from one item to the other.";family="deduction-equality-transfer";
+   }
+   reason="Two directly compatible premises establish the conclusion without a converse or multi-stage trap.";
+ }else if(band==="medium"){
+   if(type===0){
+     statements=[`${n1} is older than ${n2}.`,`${n2} is older than ${n3}.`,`${n3} arrived before ${n1}.`,`${n1} is taller than ${n3}.`,`${n2} owns a ${obj}.`];
+     answer=[statements[0],statements[1]];prompt=`Which TWO statements together PROVE that ${n1} is older than ${n3}?`;
+     explanation="Age ordering is transitive: if A is older than B and B is older than C, then A is older than C.";family="deduction-transitive-order";
+   }else if(type===1){
+     statements=[`No damaged ${obj} is approved.`,`${n1}'s ${obj} is damaged.`,`${n1}'s ${obj} has a label.`,`${n2}'s ${obj} is approved.`,`All ${col} items are labelled.`];
+     answer=[statements[0],statements[1]];prompt=`Which TWO statements together PROVE that ${n1}'s ${obj} is NOT approved?`;
+     explanation="The exclusion rule plus the fact that the item is damaged directly forces non-approval.";family="deduction-exclusion-rule";
+   }else if(type===2){
+     statements=[`${n1}'s access code is the same as ${n2}'s.`,`${n2}'s access code is ${ri(r,20,99)}.`,`${n1} entered the room early.`,`${n3}'s code is different from ${n2}'s.`,`The access panel is beside the door.`];
+     answer=[statements[0],statements[1]];
+     const code=statements[1].match(/(\d+)\.$/)[1];
+     prompt=`Which TWO statements together PROVE that ${n1}'s access code is ${code}?`;
+     explanation="The first statement equates the two codes; the second supplies the known value.";family="deduction-value-transfer";
+   }else if(type===3){
+     statements=[`If a score is above 70, the candidate advances.`,`${n1}'s score is ${ri(r,71,92)}.`,`${n2}'s score is 68.`,`The assessment has multiple sections.`,`${n1} completed the assessment quickly.`];
+     answer=[statements[0],statements[1]];prompt=`Which TWO statements together PROVE that ${n1} advances?`;
+     explanation="The threshold rule and the score exceeding that threshold are sufficient.";family="deduction-threshold";
+   }else{
+     statements=[`${n1} and ${n2} always have ${obj}s of different colours.`,`${n2}'s ${obj} is ${col}.`,`${n1} dislikes ${col}.`,`Every ${col} ${obj} has a label.`,`${n1}'s ${obj} has a label.`];
+     answer=[statements[0],statements[1]];prompt=`Which TWO statements together PROVE that ${n1}'s ${obj} is NOT ${col}?`;
+     explanation="Different colours plus the known colour of the second item force the first item to be a different colour.";family="deduction-difference-transfer";
+   }
+   reason="Requires a genuine logical link such as transitivity, exclusion, threshold comparison or property transfer; related distractors do not entail the conclusion.";
+ }else{
+   if(type===0){
+     statements=[`If ${n1} has security clearance, ${n1} receives a badge.`,`${n1} does not have a badge.`,`${n1} attended a briefing yesterday.`,`${n2} has security clearance.`,`Everyone with a badge signs the register.`];
+     answer=[statements[0],statements[1]];prompt=`Which TWO statements together PROVE that ${n1} does NOT have security clearance?`;
+     explanation="By valid contraposition: clearance would guarantee a badge; absence of a badge therefore rules out clearance.";family="deduction-contraposition";
+   }else if(type===1){
+     statements=[`Every red token is damaged.`,`No damaged token is accepted.`,`Some blue tokens are accepted.`,`Every accepted token is recorded.`,`A damaged token may be photographed.`];
+     answer=[statements[0],statements[1]];prompt="Which TWO statements together PROVE that no red token is accepted?";
+     explanation="Red implies damaged, and damaged excludes accepted; chaining those category rules proves the conclusion.";family="deduction-category-chain";
+   }else if(type===2){
+     statements=[`If ${n1} passes inspection, ${n1} is cleared for entry.`,`If ${n1} is cleared for entry, ${n1} receives a green pass.`,`${n1} has a green pass.`,`${n2} passes inspection.`,`Green passes are printed daily.`];
+     answer=[statements[0],statements[1]];prompt=`Which TWO statements together PROVE that IF ${n1} passes inspection, ${n1} receives a green pass?`;
+     explanation="The two conditional statements chain: inspection → cleared → green pass. The existing-pass statement would be an invalid converse for proving inspection.";family="deduction-conditional-chain";
+   }else if(type===3){
+     statements=[`${n1} is faster than ${n2}.`,`${n2} is faster than ${n3}.`,`${n3} finished before ${n1}.`,`${n1} trained longer than ${n3}.`,`${n2} wore a ${col} jacket.`];
+     answer=[statements[0],statements[1]];prompt=`Which TWO statements together PROVE that ${n1} is faster than ${n3}?`;
+     explanation="The ranking relation is transitive; timing or clothing statements do not establish speed.";family="deduction-ranking-chain";
+   }else{
+     statements=[`If a package weighs more than 20 kg, it requires two handlers.`,`Package A weighs ${ri(r,21,35)} kg.`,`Package A is marked ${col}.`,`Package B requires two handlers.`,`All packages are logged.`];
+     answer=[statements[0],statements[1]];prompt="Which TWO statements together PROVE that Package A requires two handlers?";
+     explanation="The threshold rule plus the specific weight prove the handling requirement; the other package is irrelevant.";family="deduction-numeric-threshold";
+   }
+   reason="Uses chaining, contraposition, transitive ranking or a close logical trap; statements that resemble the conclusion must be rejected unless they entail it.";
+ }
+
+ q.prompt=prompt;q.kind="multi";q.options=shuffle(r,statements);q.answer=answer;q.maxSelect=2;q.explanation=explanation;
+ return withFamily(setDifficulty(q,band,reason),family);
+}
+
+/* ---------- Abstract QA3 ---------- */
+function genAbstractOddV3(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"abstractOdd",band);
+ let reason,family;
+ if(band==="easy"){
+   const type=ri(r,0,1);
+   if(type===0){
+     const dots=pick(r,[2,3,4,5,6]),possible=[2,3,4,5,6,7].filter(n=>n!==dots),wrongCount=pick(r,possible);
+     const outsiderFillDots=pick(r,possible.filter(n=>n!==wrongCount));
+     let specs=[...Array(4)].map(()=>({type:"dots",dots,dotFill:"solid"}));
+     specs.push({type:"dots",dots:wrongCount,dotFill:"solid"},{type:"dots",dots:outsiderFillDots,dotFill:"outline"});
+     specs=shuffle(r,specs);
+     q.prompt="Which TWO figures do not belong with the others?";q.kind="visualMulti";q.visualOptions=specs;
+     q.answer=specs.map((x,i)=>({x,i})).filter(z=>z.x.dots!==dots||z.x.dotFill!=="solid").map(z=>z.i);q.maxSelect=2;
+     q.explanation=`Four figures have ${dots} filled dots. One changes the count and one changes the fill/count combination.`;
+     family="abstractodd-count-fill";
+   }else{
+     const baseShapes=["arrow","triangle","L"],shape=pick(r,baseShapes),other=pick(r,["square","diamond","circle"].filter(x=>x!==shape));
+     const angles=shuffle(r,[0,45,90,135,180,225,270,315]).slice(0,4);
+     let specs=angles.map(rot=>({type:"shape",shape,rot,fill:"solid",marker:shape==="L"?"accent":undefined}));
+     specs.push({type:"shape",shape:other,rot:pick(r,[0,45,90,135,180,225,270,315]),fill:"solid"});
+     specs=shuffle(r,specs);
+     q.prompt="Which ONE figure does not belong with the others?";q.kind="visualSingle";q.visualOptions=specs;q.answer=specs.findIndex(x=>x.shape===other);
+     q.explanation="Four figures keep the same base shape while orientation varies. One changes the base shape.";
+     family="abstractodd-base-shape";
+   }
+   reason="Uses a directly visible invariant such as count, fill or base shape.";
+ }else if(band==="medium"){
+   const type=ri(r,0,1);
+   if(type===0){
+     const base={type:"shape",shape:"L",fill:"solid",marker:"accent"};
+     const angles=shuffle(r,[0,45,90,135,180,225,270,315]).slice(0,6);
+     let specs=angles.slice(0,5).map(rot=>({...base,rot,mirror:false}));
+     specs.push({...base,rot:angles[5],mirror:true});specs=shuffle(r,specs);
+     q.prompt="Which ONE figure does not belong with the others?";q.kind="visualSingle";q.visualOptions=specs;q.answer=specs.findIndex(x=>x.mirror);
+     q.explanation="Five figures are rotations of the same asymmetric marked shape. One reverses handedness and is therefore a reflection.";
+     family="abstractodd-rotation-v-reflection-one";
+   }else{
+     const offset=pick(r,[0,45]),solidAxis=pick(r,[0,90]);
+     let specs=[0,90,180,270,360].map((step,i)=>{
+       const rot=(offset+step)%360;
+       const shouldSolid=((rot-solidAxis+360)%180)===0;
+       return {type:"shape",shape:"arrow",rot,fill:shouldSolid?"solid":"outline"};
+     });
+     const badIndex=ri(r,0,specs.length-1);
+     specs[badIndex]={...specs[badIndex],fill:specs[badIndex].fill==="solid"?"outline":"solid"};
+     specs=shuffle(r,specs);
+     q.prompt="Which ONE figure does not belong with the others?";
+     q.kind="visualSingle";q.visualOptions=specs;
+     q.answer=specs.findIndex(x=>{
+       const shouldSolid=((x.rot-solidAxis+360)%180)===0;
+       return x.fill!==(shouldSolid?"solid":"outline");
+     });
+     q.explanation="The valid figures follow a consistent orientation-to-fill relationship. One figure reverses the required fill for its axis.";
+     family="abstractodd-orientation-fill";
+   }
+   reason="Requires recognising a relational invariant rather than a simple count difference, with several close visual alternatives.";
+ }else{
+   const type=ri(r,0,1);
+   if(type===0){
+     const base={type:"shape",shape:"L",fill:"solid",marker:"accent"};
+     const angles=shuffle(r,[0,45,90,135,180,225,270,315]);
+     let specs=angles.slice(0,5).map(rot=>({...base,rot,mirror:false}));
+     specs.push({...base,rot:angles[5],mirror:true},{...base,rot:angles[6],mirror:true});specs=shuffle(r,specs);
+     q.prompt="Which TWO figures do not belong with the others?";q.kind="visualMulti";q.visualOptions=specs;
+     q.answer=specs.map((x,i)=>({x,i})).filter(z=>z.x.mirror).map(z=>z.i);q.maxSelect=2;
+     q.explanation="Five figures are true rotations of one asymmetric marked shape. Two reverse handedness and are reflections.";
+     family="abstractodd-rotation-v-reflection-two";
+   }else{
+     const start=pick(r,[0,45,90,135]),axisA=start%180,shape=pick(r,["arrow","L"]);
+     let specs=[];
+     for(const rot of [start,(start+45)%360,(start+90)%360,(start+135)%360,(start+180)%360,(start+225)%360,(start+270)%360]){
+       const onAxis=(rot%180)===axisA;
+       specs.push({type:"shape",shape,rot,fill:onAxis?"solid":"outline",marker:shape==="L"?"accent":undefined});
+     }
+     const bad=shuffle(r,[0,1,2,3,4,5,6]).slice(0,2);
+     bad.forEach(i=>specs[i]={...specs[i],fill:specs[i].fill==="solid"?"outline":"solid"});
+     specs=shuffle(r,specs);
+     q.prompt="Which TWO figures do not belong with the others?";q.kind="visualMulti";q.visualOptions=specs;
+     q.answer=specs.map((x,i)=>({x,i})).filter(({x})=>{
+       const onAxis=(x.rot%180)===axisA;
+       return x.fill!==(onAxis?"solid":"outline");
+     }).map(z=>z.i);
+     if(q.answer.length!==2)return genAbstractOddV3(seed+4099,band);
+     q.maxSelect=2;
+     q.explanation="Five figures obey the same orientation-to-fill relationship. Two violate it and are the outsiders.";
+     family="abstractodd-two-relational-outsiders";
+   }
+   reason="Requires tracking a relationship across seven close options and identifying two separate violations.";
+ }
+ return withFamily(setDifficulty(q,band,reason),family);
+}
+
+function genAbstractSequenceV3(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"abstractSequence",band);
+ let frames,correct,opts,reason,exp,family;
+ const type=band==="easy"?ri(r,0,1):band==="medium"?ri(r,0,2):ri(r,0,2);
+
+ if(band==="easy"){
+   if(type===0){
+     const base=pick(r,[0,45,90,135,180,225,270,315]),step=pick(r,[45,-45,90,-90,180]),shape=pick(r,["arrow","triangle","L"]);
+     frames=[0,1,2,3].map(i=>({type:"shape",shape,rot:(base+i*step+3600)%360,fill:"solid",marker:shape==="L"?"accent":undefined}));
+     correct={type:"shape",shape,rot:(base+4*step+3600)%360,fill:"solid",marker:shape==="L"?"accent":undefined};
+     opts=[correct,{...correct,rot:(correct.rot+45)%360},{...correct,rot:(correct.rot+90)%360},{...correct,rot:(correct.rot+180)%360}];
+     exp=`The figure rotates ${Math.abs(step)}° ${step>0?"clockwise":"anticlockwise"} each step.`;
+     family="sequence-single-rotation";
+   }else{
+     const shapes=pick(r,[["arrow","triangle"],["L","diamond"]]),base=pick(r,[0,90,180,270]);
+     frames=[0,1,2,3].map(i=>({type:"shape",shape:shapes[i%2],rot:base,fill:"solid",marker:shapes[i%2]==="L"?"accent":undefined}));
+     correct={type:"shape",shape:shapes[0],rot:base,fill:"solid",marker:shapes[0]==="L"?"accent":undefined};
+     opts=[correct,{...correct,shape:shapes[1],marker:shapes[1]==="L"?"accent":undefined},{...correct,rot:(base+90)%360},{...correct,fill:"outline"}];
+     exp=`The base shape alternates ${shapes[0]} / ${shapes[1]}.`;
+     family="sequence-simple-shape-alternation";
+   }
+   reason="One clearly visible sequence rule with no requirement to combine multiple changing attributes.";
+ }else if(band==="medium"){
+   if(type===0){
+     const base=pick(r,[0,45,90,135,180,225,270,315]),step=pick(r,[90,-90]),shape=pick(r,["arrow","triangle","L"]);
+     frames=[0,1,2,3,4].map(i=>({type:"shape",shape,rot:(base+i*step+3600)%360,fill:i%2===0?"solid":"outline",marker:shape==="L"?"accent":undefined}));
+     correct={type:"shape",shape,rot:(base+5*step+3600)%360,fill:"outline",marker:shape==="L"?"accent":undefined};
+     opts=[correct,{...correct,rot:(correct.rot+90)%360},{...correct,fill:"solid"},{...correct,rot:(correct.rot+180)%360,fill:"solid"}];
+     exp=`Orientation changes by ${Math.abs(step)}° each step while fill alternates solid/outline.`;family="sequence-rotation-fill";
+   }else if(type===1){
+     const base=pick(r,[0,45,90,135,180,225,270,315]),step=pick(r,[90,180]);
+     frames=[0,1,2,3,4].map(i=>({type:"shape",shape:i%2===0?"arrow":"triangle",rot:(base+i*step)%360,fill:"solid"}));
+     correct={type:"shape",shape:"triangle",rot:(base+5*step)%360,fill:"solid"};
+     opts=[correct,{...correct,shape:"arrow"},{...correct,rot:(correct.rot+45)%360},{...correct,fill:"outline"}];
+     exp=`Shape alternates arrow/triangle while orientation advances ${step}° every frame.`;family="sequence-shape-rotation";
+   }else{
+     const base=pick(r,[0,45,90,135,180,225,270,315]),steps=pick(r,[[90,180],[45,135]]);
+     const rots=[base];
+     for(let i=0;i<4;i++)rots.push((rots.at(-1)+steps[i%2])%360);
+     frames=rots.map((rot,i)=>({type:"shape",shape:"L",rot,fill:i%2===0?"solid":"outline",marker:"accent"}));
+     correct={type:"shape",shape:"L",rot:(rots.at(-1)+steps[4%2])%360,fill:"outline",marker:"accent"};
+     opts=[correct,{...correct,rot:(correct.rot+45)%360},{...correct,fill:"solid"},{...correct,rot:(correct.rot+180)%360}];
+     exp=`Rotation alternates +${steps[0]}°, +${steps[1]}° while fill alternates solid/outline.`;family="sequence-alternating-rotation-fill";
+   }
+   reason="Requires tracking two simultaneous rules across five frames.";
+ }else{
+   if(type===0){
+     const a0=pick(r,[0,45,90,135,180,225,270,315]),t0=pick(r,[0,45,90,135,180,225,270,315]),aStep=pick(r,[90,135]),tStep=pick(r,[135,180]);
+     frames=[{type:"shape",shape:"arrow",rot:a0,fill:"solid"},{type:"shape",shape:"triangle",rot:t0,fill:"outline"},{type:"shape",shape:"arrow",rot:(a0+aStep)%360,fill:"solid"},{type:"shape",shape:"triangle",rot:(t0+tStep)%360,fill:"outline"},{type:"shape",shape:"arrow",rot:(a0+2*aStep)%360,fill:"solid"}];
+     correct={type:"shape",shape:"triangle",rot:(t0+2*tStep)%360,fill:"outline"};
+     opts=[correct,{...correct,rot:(correct.rot+45)%360},{...correct,fill:"solid"},{type:"shape",shape:"arrow",rot:(a0+3*aStep)%360,fill:"solid"}];
+     exp=`Split odd and even frames. Arrows rotate +${aStep}° between appearances; triangles rotate +${tStep}°. Shape and fill also alternate.`;family="sequence-interleaved-two-strands";
+   }else if(type===1){
+     const base=pick(r,[0,45,90,135,180,225,270,315]),step=pick(r,[45,90,135]),shapes=pick(r,[["arrow","triangle","L"],["L","arrow","diamond"]]),fills=["solid","solid","outline"];
+     frames=[0,1,2,3,4].map(i=>({type:"shape",shape:shapes[i%3],rot:(base+i*step)%360,fill:fills[i%3],marker:shapes[i%3]==="L"?"accent":undefined}));
+     const i=5;correct={type:"shape",shape:shapes[i%3],rot:(base+i*step)%360,fill:fills[i%3],marker:shapes[i%3]==="L"?"accent":undefined};
+     opts=[correct,{...correct,rot:(correct.rot+45)%360},{...correct,fill:correct.fill==="solid"?"outline":"solid"},{...correct,shape:"square",marker:undefined}];
+     exp=`Three rules run together: a three-shape cycle, +${step}° rotation each frame, and a three-step fill cycle.`;family="sequence-three-attribute-cycle";
+   }else{
+     const base=pick(r,[0,45,90,135,180,225,270,315]),first=pick(r,[45,90]),increment=pick(r,[45,90]);
+     const incs=[first,first+increment,first+2*increment,first+3*increment,first+4*increment],rots=[base];
+     for(let i=0;i<4;i++)rots.push((rots.at(-1)+incs[i])%360);
+     frames=rots.map((rot,i)=>({type:"shape",shape:"L",rot,fill:i%2===0?"solid":"outline",marker:"accent"}));
+     correct={type:"shape",shape:"L",rot:(rots.at(-1)+incs[4])%360,fill:"outline",marker:"accent"};
+     opts=[correct,{...correct,rot:(correct.rot+45)%360},{...correct,rot:(correct.rot+90)%360},{...correct,fill:"solid"}];
+     exp=`The rotation increments increase by ${increment}° each step (${incs.join("°, ")}°) while fill alternates.`;family="sequence-growing-rotation-step";
+   }
+   reason="Requires separating interleaved strands or tracking three simultaneous/changing rules with close distractors.";
+ }
+ q.prompt="Which figure should come next in the sequence?";
+ q.display={type:"figSequence",frames};q.kind="visualSingle";q.visualOptions=shuffle(r,opts);
+ q.answer=q.visualOptions.findIndex(o=>o.shape===correct.shape&&o.rot===correct.rot&&o.fill===correct.fill&&!!o.mirror===!!correct.mirror&&String(o.marker||"")===String(correct.marker||""));
+ q.explanation=exp;
+ return withFamily(setDifficulty(q,band,reason),family);
+}
+
+function genRotationV3(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"rotation",band);
+ let target,correct,opts,reason,rot,family;
+ if(band==="easy"){
+   rot=pick(r,[45,90,135,180,225,270,315]);
+   const start=pick(r,[0,45,90,135,180,225,270,315]),shape=pick(r,["arrow","L"]);
+   target={type:"shape",shape,rot:start,fill:"solid",marker:shape==="L"?"accent":undefined,mirror:false};
+   correct={...target,rot:(start+rot)%360};
+   const optionAngles=shuffle(r,[0,45,90,135,180,225,270,315]).slice(0,4);
+   opts=optionAngles.map(a=>({...target,rot:a}));
+   if(!opts.some(o=>o.rot===correct.rot))opts[0]=correct;
+   reason="A single stated rotation with no reflection trap; only orientation needs to be updated.";
+   family="rotation-basic";
+ }else if(band==="medium"){
+   rot=pick(r,[90,135,180,225,270]);const start=pick(r,[0,45,90,135,180,225,270,315]);
+   target={type:"shape",shape:"L",rot:start,fill:"solid",marker:"accent",mirror:false};correct={...target,rot:(start+rot)%360};
+   const angles=shuffle(r,[0,45,90,135,180,225,270,315]).slice(0,5);
+   opts=angles.map(a=>({...target,rot:a,mirror:false}));
+   if(!opts.some(o=>o.rot===correct.rot))opts[0]=correct;
+   opts.push({...target,rot:correct.rot,mirror:true});
+   reason="Uses an asymmetric marked figure, non-trivial angles and a mirror distractor.";family="rotation-asymmetric-with-mirror";
+ }else{
+   rot=pick(r,[45,90,135,225,270,315]);const start=pick(r,[0,45,90,135,180,225,270,315]);
+   target={type:"shape",shape:"L",rot:start,fill:"solid",marker:"accent",mirror:false};correct={...target,rot:(start+rot)%360};
+   const angles=shuffle(r,[0,45,90,135,180,225,270,315]);
+   opts=angles.slice(0,5).map(a=>({...target,rot:a,mirror:false}));
+   if(!opts.some(o=>o.rot===correct.rot))opts[0]=correct;
+   opts.push({...target,rot:correct.rot,mirror:true},{...target,rot:(correct.rot+45)%360,mirror:true});
+   reason="Arbitrary 45°-based rotation with multiple reflection and close-angle distractors.";family="rotation-hard-close-distractors";
+ }
+ q.prompt=`The starting figure is rotated ${rot}° clockwise. Which option shows the result?`;
+ q.display={type:"singleFig",spec:target,label:"Starting figure"};q.kind="visualSingle";q.visualOptions=shuffle(r,opts);
+ q.answer=q.visualOptions.findIndex(o=>o.rot===correct.rot&&!!o.mirror===!!correct.mirror&&o.shape===correct.shape);
+ q.explanation=`Rotate every feature ${rot}° clockwise. A true rotation preserves handedness; a mirror image does not.`;
+ return withFamily(setDifficulty(q,band,reason),family);
+}
+
+function genMultiAttributeV3(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"multiAttribute",band);
+ let reason,family;
+ if(band==="easy"){
+   const base=pick(r,["arrow","triangle","L"]),others=["square","diamond","circle"].filter(x=>x!==base),other=pick(r,others);
+   const angles=shuffle(r,[0,45,90,135,180,225,270,315]).slice(0,4);
+   let specs=angles.map((rot,i)=>({type:"shape",shape:base,rot,fill:i%2===0?"solid":"outline",marker:base==="L"?"accent":undefined}));
+   specs.push({type:"shape",shape:other,rot:pick(r,[0,45,90,135,180,225,270,315]),fill:pick(r,["solid","outline"])});
+   specs=shuffle(r,specs);
+   q.prompt="Which figure does NOT follow the same underlying base-shape rule as the others?";
+   q.kind="visualSingle";q.visualOptions=specs;q.answer=specs.findIndex(x=>x.shape===other);
+   q.explanation="Rotation and fill vary, but four options keep the same base shape. The outsider changes the base shape.";
+   reason="Only one invariant ultimately matters: base shape.";family="multi-base-shape";
+ }else if(band==="medium"){
+   const type=ri(r,0,1);
+   if(type===0){
+     const shape=pick(r,["arrow","L"]),offset=pick(r,[0,45]),inverse=r()<.5;
+     let specs=[0,90,180,270,360].map(step=>{
+       const rot=(offset+step)%360,axisA=((rot-offset+360)%180)===0;
+       const solid=inverse?!axisA:axisA;
+       return {type:"shape",shape,rot,fill:solid?"solid":"outline",marker:shape==="L"?"accent":undefined};
+     });
+     const badIndex=ri(r,0,specs.length-1);
+     specs[badIndex]={...specs[badIndex],fill:specs[badIndex].fill==="solid"?"outline":"solid"};
+     specs=shuffle(r,specs);
+     q.prompt="Which figure breaks the relationship between orientation and fill?";
+     q.kind="visualSingle";q.visualOptions=specs;
+     q.answer=specs.findIndex(x=>{
+       const axisA=((x.rot-offset+360)%180)===0,solid=inverse?!axisA:axisA;
+       return x.fill!==(solid?"solid":"outline");
+     });
+     q.explanation="Four figures obey the same orientation-to-fill relationship. One reverses the required fill.";
+     family="multi-orientation-fill";
+   }else{
+     const pair=pick(r,[["arrow","triangle"],["L","diamond"]]),firstFill=pick(r,["solid","outline"]),secondFill=firstFill==="solid"?"outline":"solid";
+     let specs=[];
+     for(let i=0;i<4;i++){
+       const shape=pair[i%2],fill=shape===pair[0]?firstFill:secondFill;
+       specs.push({type:"shape",shape,rot:pick(r,[0,45,90,135,180,225,270,315]),fill,marker:shape==="L"?"accent":undefined});
+     }
+     const badShape=pick(r,pair),badFill=badShape===pair[0]?secondFill:firstFill;
+     specs.push({type:"shape",shape:badShape,rot:pick(r,[0,45,90,135,180,225,270,315]),fill:badFill,marker:badShape==="L"?"accent":undefined});
+     specs=shuffle(r,specs);
+     q.prompt="Which figure breaks the relationship between base shape and fill?";
+     q.kind="visualSingle";q.visualOptions=specs;
+     q.answer=specs.findIndex(x=>{
+       const expected=x.shape===pair[0]?firstFill:secondFill;
+       return x.fill!==expected;
+     });
+     q.explanation=`${pair[0]} and ${pair[1]} use opposite fill states consistently. One option breaks that mapping.`;
+     family="multi-shape-fill";
+   }
+   reason="Requires discovering a relationship between two attributes; one plausible option violates that relationship.";
+ }else{
+   const type=ri(r,0,1),start=pick(r,[0,45,90,135,180,225,270,315]),step=pick(r,[45,90,135]);
+   if(type===0){
+     const pair=pick(r,[["arrow","triangle"],["L","diamond"]]);
+     const frames=[0,1,2,3].map(i=>({type:"shape",shape:pair[i%2],rot:(start+i*step)%360,fill:i%2===0?"solid":"outline",marker:pair[i%2]==="L"?"accent":undefined}));
+     const correct={type:"shape",shape:pair[0],rot:(start+4*step)%360,fill:"solid",marker:pair[0]==="L"?"accent":undefined};
+     const opts=[correct,{...correct,shape:pair[1],marker:pair[1]==="L"?"accent":undefined},{...correct,rot:(correct.rot+45)%360},{...correct,fill:"outline"},{...correct,rot:(correct.rot+90)%360,fill:"outline"}];
+     q.prompt="Which figure should come next when ALL attributes are continued?";q.display={type:"figSequence",frames};q.kind="visualSingle";q.visualOptions=shuffle(r,opts);
+     q.answer=q.visualOptions.findIndex(o=>o.shape===correct.shape&&o.rot===correct.rot&&o.fill===correct.fill&&String(o.marker||"")===String(correct.marker||""));
+     q.explanation=`Shape alternates, orientation advances ${step}°, and fill alternates. All three attributes must be correct.`;
+     family="multi-three-attribute-sequence";
+   }else{
+     const axis=start%180,shape=pick(r,["arrow","L"]);
+     let specs=[];
+     for(const rot of [start,(start+45)%360,(start+90)%360,(start+135)%360,(start+180)%360,(start+225)%360]){
+       const onAxis=(rot%180)===axis;
+       specs.push({type:"shape",shape,rot,fill:onAxis?"solid":"outline",marker:shape==="L"?"accent":undefined});
+     }
+     const bad=shuffle(r,[0,1,2,3,4,5]).slice(0,2);
+     bad.forEach(i=>specs[i]={...specs[i],fill:specs[i].fill==="solid"?"outline":"solid"});
+     specs=shuffle(r,specs);
+     q.prompt="Which TWO figures break the combined orientation and fill rule?";
+     q.kind="visualMulti";q.visualOptions=specs;
+     q.answer=specs.map((x,i)=>({x,i})).filter(({x})=>{
+       const onAxis=(x.rot%180)===axis;
+       return x.fill!==(onAxis?"solid":"outline");
+     }).map(z=>z.i);
+     if(q.answer.length!==2)return genMultiAttributeV3(seed+4099,band);
+     q.maxSelect=2;
+     q.explanation="Four figures follow the same axis-to-fill rule. Two reverse it and are the outsiders.";
+     family="multi-relational-odd-two";
+   }
+   reason="Requires simultaneously checking multiple attributes and rejecting close options that satisfy only part of the rule.";
+ }
+ return withFamily(setDifficulty(q,band,reason),family);
+}
+
+/* ---------- QA3 dispatcher ---------- */
+function generateV3(subtype,seed,difficulty="medium",attempt=0){
+ const band=requestedBand(difficulty);let q;
+ if(subtype==="numSeries")q=genNumSeriesV3(seed,band);
+ else if(subtype==="numMatrix")q=genNumMatrixV3(seed,band);
+ else if(subtype==="wordProblems")q=genWordProblemV3(seed,band);
+ else if(subtype==="oddWords")q=genOddWordsV3(seed,band);
+ else if(subtype==="analogy")q=genAnalogyV3(seed,band);
+ else if(subtype==="wordRelation")q=genWordRelationV3(seed,band);
+ else if(subtype==="deduction")q=genDeductionV3(seed,band);
+ else if(subtype==="abstractOdd")q=genAbstractOddV3(seed,band);
+ else if(subtype==="abstractSequence")q=genAbstractSequenceV3(seed,band);
+ else if(subtype==="rotation")q=genRotationV3(seed,band);
+ else if(subtype==="multiAttribute")q=genMultiAttributeV3(seed,band);
+ q=calibrateDifficulty(q);q.requestedDifficulty=band;
+ if(q.difficulty!==band&&attempt<16)return generateV3(subtype,seed+104729,band,attempt+1);
+ return q;
+}
+
+/* Override the public generator after QA3 calibration. */
+generate=generateV3;
+
+/* ---------- Diversity selection ---------- */
+function familyBalancedPick(candidates,count,random,blockedFingerprints=new Set()){
+ const unique=[];
+ const seen=new Set(blockedFingerprints);
+ for(const q of shuffle(random,candidates)){
+   const fp=questionFingerprint(q);
+   if(seen.has(fp))continue;
+   seen.add(fp);unique.push(q);
+ }
+ const groups=new Map();
+ for(const q of unique){
+   const fam=questionFamily(q);
+   if(!groups.has(fam))groups.set(fam,[]);
+   groups.get(fam).push(q);
+ }
+ for(const arr of groups.values())arr.splice(0,arr.length,...shuffle(random,arr));
+ const selected=[],counts=new Map();
+ let lastFamily=null;
+ while(selected.length<count){
+   const available=[...groups.entries()].filter(([,arr])=>arr.length);
+   if(!available.length)break;
+   available.sort((a,b)=>{
+     const ca=counts.get(a[0])||0,cb=counts.get(b[0])||0;
+     if(ca!==cb)return ca-cb;
+     if(a[0]===lastFamily&&b[0]!==lastFamily)return 1;
+     if(b[0]===lastFamily&&a[0]!==lastFamily)return -1;
+     return random()<.5?-1:1;
+   });
+   const [fam,arr]=available[0],q=arr.shift();
+   selected.push(q);counts.set(fam,(counts.get(fam)||0)+1);lastFamily=fam;
+ }
+ return selected;
+}
+function bankCandidates(subtype,band){
+ return Array.from({length:PRACTICE_BANK_SIZE_PER_DIFFICULTY},(_,i)=>generate(subtype,practiceBankSeed(subtype,band,i),band));
+}
+function buildDiverseSingleSubtypeSet(subtype,bands,random){
+ const needs={easy:0,medium:0,hard:0};bands.forEach(b=>needs[b]++);
+ const chosenByBand={easy:[],medium:[],hard:[]},globalSeen=new Set();
+ for(const band of PRACTICE_BANK_BANDS){
+   chosenByBand[band]=familyBalancedPick(bankCandidates(subtype,band),needs[band],random,globalSeen);
+   chosenByBand[band].forEach(q=>globalSeen.add(questionFingerprint(q)));
+   if(chosenByBand[band].length<needs[band]){
+     // Deterministic fallback beyond the visible bank slots, only if a future
+     // bank regression accidentally reduces unique candidates.
+     for(let extra=0;chosenByBand[band].length<needs[band]&&extra<500;extra++){
+       const q=generate(subtype,practiceBankSeed(subtype,band,extra%PRACTICE_BANK_SIZE_PER_DIFFICULTY)+7000003+extra*7919,band);
+       const fp=questionFingerprint(q);if(globalSeen.has(fp))continue;
+       chosenByBand[band].push(q);globalSeen.add(fp);
+     }
+   }
+ }
+ const indexes={easy:0,medium:0,hard:0};
+ return bands.map(b=>chosenByBand[b][indexes[b]++]);
+}
+function buildDiverseCategoryMixSet(cat,bands,random){
+ const types=byCat[cat],queues={},globalSeen=new Set();
+ for(const st of types){
+   queues[st]={easy:bankCandidates(st,"easy"),medium:bankCandidates(st,"medium"),hard:bankCandidates(st,"hard")};
+ }
+ const familyCounts=new Map(),subtypeCounts=new Map(),selected=[];
+ let lastSubtype=null,lastFamily=null;
+ for(let i=0;i<bands.length;i++){
+   const band=bands[i];
+   const subtypeOrder=[...types].sort((a,b)=>{
+     const ca=subtypeCounts.get(a)||0,cb=subtypeCounts.get(b)||0;
+     if(ca!==cb)return ca-cb;
+     if(a===lastSubtype&&b!==lastSubtype)return 1;
+     if(b===lastSubtype&&a!==lastSubtype)return -1;
+     return random()<.5?-1:1;
+   });
+   let picked=null;
+   for(const st of subtypeOrder){
+     const candidates=shuffle(random,queues[st][band]).filter(q=>!globalSeen.has(questionFingerprint(q)));
+     candidates.sort((a,b)=>{
+       const fa=questionFamily(a),fb=questionFamily(b),ca=familyCounts.get(fa)||0,cb=familyCounts.get(fb)||0;
+       if(ca!==cb)return ca-cb;
+       if(fa===lastFamily&&fb!==lastFamily)return 1;
+       if(fb===lastFamily&&fa!==lastFamily)return -1;
+       return random()<.5?-1:1;
+     });
+     if(candidates.length){picked=candidates[0];break;}
+   }
+   if(!picked)throw new Error(`Unable to build unique ${cat} practice set`);
+   selected.push(picked);
+   const fp=questionFingerprint(picked),fam=questionFamily(picked);
+   globalSeen.add(fp);familyCounts.set(fam,(familyCounts.get(fam)||0)+1);
+   subtypeCounts.set(picked.subtype,(subtypeCounts.get(picked.subtype)||0)+1);
+   lastSubtype=picked.subtype;lastFamily=fam;
+ }
+ return selected;
+}
+function uniqueQuestionCount(qs){return new Set(qs.map(questionFingerprint)).size;}
+
 const byCat={
  Numerical:["numSeries","numMatrix","wordProblems"],
  Verbal:["oddWords","analogy","wordRelation","deduction"],
@@ -1391,7 +2453,7 @@ const CATEGORY_MIXES={
 };
 function categoryMixKey(cat){return "mix"+cat;}
 function isCategoryMix(st){return !!CATEGORY_MIXES[st];}
-const practiceCounts={Numerical:360,Verbal:480,Abstract:480}; // finite audited bank: 40 items × 3 difficulty bands × subtype count
+const practiceCounts={Numerical:720,Verbal:960,Abstract:960}; // finite audited bank: 80 items × 3 difficulty bands × subtype count
 const MOCK_TIER_INFO={
  easier:{label:"Easier than JOA",short:"Easier",desc:"Confidence-building: mostly Easy, some Medium, and very few Hard questions."},
  joa:{label:"Same difficulty as JOA",short:"JOA-level",desc:"Best public-evidence match to JOA difficulty. ADF does not publish official item difficulty ratings."},
@@ -1408,8 +2470,8 @@ function navButtons(mobile=false){
  return `
   <button onclick="go('home')" class="${cls('home')}">Home</button>
   <button onclick="go('practice')" class="${cls('practice')}">Category Practice</button>
-  <button onclick="go('mental')" class="${cls('mental')}">Mental Math</button>
   <button onclick="go('mocks')" class="${cls('mocks')}">Full Practice Tests</button>
+  <button onclick="go('mental')" class="${cls('mental')}">Mental Math</button>
   <button onclick="go('progress')" class="${cls('progress')}">Progress</button>
   <button onclick="go('strategy')" class="${cls('strategy')}">Strategy Guide</button>
   <button onclick="go('sources')" class="${cls('sources')}">Sources & Fidelity</button>`;
@@ -1452,24 +2514,44 @@ window.addEventListener("keydown",event=>{
 async function forceLatestOnlineVersion(){
  if(state.page!=="home")return;
 
- // IMPORTANT: this updater only refreshes service-worker/app-shell caches.
- // It deliberately does NOT clear localStorage, IndexedDB, or saved test history.
-
+ // This updater deliberately does NOT clear localStorage, IndexedDB,
+ // or the saved Practice Test history. Only app-shell/service-worker
+ // caches may be replaced when a newer online version is confirmed.
  const hit=document.getElementById("versionRefreshHit");
  if(hit?.dataset.refreshing==="1")return;
  if(hit)hit.dataset.refreshing="1";
 
  try{
-   // Ask the current registration to check its service-worker script now.
-   if("serviceWorker" in navigator){
-     const regs=await navigator.serviceWorker.getRegistrations();
-     await Promise.all(regs.map(async reg=>{
-       try{await reg.update();}catch(_){}
-     }));
+   const stamp=Date.now();
+   const response=await fetch(`./index.html?version-check=${stamp}`,{cache:"no-store"});
+   if(!response.ok)throw new Error(`HTTP ${response.status}`);
+   const source=await response.text();
+   const match=source.match(/<meta\s+name=["']app-version["']\s+content=["']([^"']+)["']/i);
+   const onlineVersion=match?.[1]||null;
+
+   if(!onlineVersion){
+     await uiAlert("The online version could not be identified. Your saved progress has not been changed.","Update check");
+     if(hit)delete hit.dataset.refreshing;
+     return;
    }
 
-   // Remove prior app-shell caches so the next navigation cannot fall back
-   // to a stale packaged copy while the device is online.
+   if(onlineVersion===APP_VERSION){
+     await uiAlert(`You already have the latest version (v${APP_VERSION}).`,"No new version found");
+     if(hit)delete hit.dataset.refreshing;
+     return;
+   }
+
+   await uiAlert(`A newer version was found (v${onlineVersion}). The trainer will now update.`,"New version found","Update");
+
+   try{
+     sessionStorage.setItem("joaTrainerUpdateNotice",JSON.stringify({from:APP_VERSION,to:onlineVersion}));
+   }catch(_){}
+
+   if("serviceWorker" in navigator){
+     const regs=await navigator.serviceWorker.getRegistrations();
+     await Promise.all(regs.map(async reg=>{try{await reg.update();}catch(_){}}));
+   }
+
    if("caches" in window){
      const keys=await caches.keys();
      await Promise.all(
@@ -1478,22 +2560,28 @@ async function forceLatestOnlineVersion(){
      );
    }
 
-   // Make a no-store request for the current online index before navigating.
-   // The unique query also prevents a browser HTTP-cache hit.
-   const stamp=Date.now();
-   try{
-     await fetch(`./index.html?force-update=${stamp}`,{cache:"no-store"});
-   }catch(_){}
+   // Prime the network copy without storing user data anywhere.
+   try{await fetch(`./index.html?force-update=${Date.now()}`,{cache:"no-store"});}catch(_){}
 
-   const url=new URL(window.location.href);
-   url.searchParams.set("force-update",String(stamp));
-   window.location.replace(url.toString());
- }catch(_){
-   // Fallback still uses a cache-busting URL.
    const url=new URL(window.location.href);
    url.searchParams.set("force-update",String(Date.now()));
    window.location.replace(url.toString());
+ }catch(_){
+   await uiAlert("The latest online version could not be checked. Please confirm you are online and try again. Your saved progress has not been changed.","Update check failed");
+   if(hit)delete hit.dataset.refreshing;
  }
+}
+
+async function showCompletedUpdateNotice(){
+ if(state.page!=="home")return;
+ let notice=null;
+ try{
+   notice=JSON.parse(sessionStorage.getItem("joaTrainerUpdateNotice")||"null");
+   sessionStorage.removeItem("joaTrainerUpdateNotice");
+ }catch(_){}
+ if(!notice)return;
+ const to=notice.to||APP_VERSION;
+ await uiAlert(`Update complete. You are now running v${to}. Your saved Practice Test history and progress were retained.`,"Trainer updated");
 }
 
 function syncVersionRefreshHit(){
@@ -1521,7 +2609,7 @@ function home(){
     <div class="stat"><b>51</b><span>official scored questions</span></div>
     <div class="stat"><b>20:00</b><span>official scored time</span></div>
     <div class="stat"><b>23.5s</b><span>average pace per item</span></div>
-    <div class="stat"><b>1,320</b><span>finite category-practice questions</span></div>
+    <div class="stat"><b>2,640</b><span>finite category-practice questions</span></div>
    </div>
   </div>
   <aside class="card hero-side">
@@ -1644,29 +2732,17 @@ function diffFor(i){
  return i%5===0?"hard":i%3===0?"easy":"medium";
 }
 function startPractice(){
- const random=rng((Date.now()>>>0) ^ Math.floor(Math.random()*0xffffffff));
+ const random=rng((Date.now()>>>0)^Math.floor(Math.random()*0xffffffff));
  const mixed=isCategoryMix(state.subtype);
- let qs=[];
+ const bands=Array.from({length:state.settings.count},(_,i)=>diffFor(i));
+ let qs;
  if(!mixed){
-   const pools={};
-   for(const band of PRACTICE_BANK_BANDS){
-     pools[band]=shuffle(random,Array.from({length:PRACTICE_BANK_SIZE_PER_DIFFICULTY},(_,i)=>generate(state.subtype,practiceBankSeed(state.subtype,band,i),band)));
-   }
-   const used={easy:0,medium:0,hard:0};
-   qs=Array.from({length:state.settings.count},(_,i)=>{const band=diffFor(i);return pools[band][used[band]++];});
+   qs=buildDiverseSingleSubtypeSet(state.subtype,bands,random);
  }else{
-   const cat=CATEGORY_MIXES[state.subtype].cat,types=byCat[cat],pools={},used={};
-   for(const st of types){
-     pools[st]={};used[st]={easy:0,medium:0,hard:0};
-     for(const band of PRACTICE_BANK_BANDS){
-       pools[st][band]=shuffle(random,Array.from({length:PRACTICE_BANK_SIZE_PER_DIFFICULTY},(_,i)=>generate(st,practiceBankSeed(st,band,i),band)));
-     }
-   }
-   const order=shuffle(random,[...types]);
-   qs=Array.from({length:state.settings.count},(_,i)=>{
-     const st=order[i%order.length],band=diffFor(i);
-     return pools[st][band][used[st][band]++];
-   });
+   qs=buildDiverseCategoryMixSet(CATEGORY_MIXES[state.subtype].cat,bands,random);
+ }
+ if(qs.length!==state.settings.count||uniqueQuestionCount(qs)!==qs.length){
+   throw new Error("Practice diversity guard failed: duplicate question detected.");
  }
  const label=mixed?CATEGORY_MIXES[state.subtype].name:SUBTYPES[state.subtype].name+" drill";
  state.practice={qs,index:0,answers:Array(qs.length).fill(null),checked:Array(qs.length).fill(false),start:Date.now(),qStart:Date.now(),times:Array(qs.length).fill(0),phase:"questions",reviewIndex:null,label};
@@ -1784,11 +2860,44 @@ function difficultyPlan(tier,r){
  return shuffle(r,[...Array(5).fill("easy"),...Array(9).fill("medium"),...Array(3).fill("hard")]);
 }
 function buildMock(id){
- const m=mocks.find(x=>x.id===Number(id));if(!m)throw new Error("Unknown practice test");const seed=m.seed,r=rng(seed),qs=[];
+ const m=mocks.find(x=>x.id===Number(id));if(!m)throw new Error("Unknown practice test");
+ const seed=m.seed,r=rng(seed),qs=[],globalSeen=new Set(),familyCounts=new Map();
  Object.entries(byCat).forEach(([cat,sts])=>{
-   const plan=difficultyPlan(m.tier,r);
-   for(let i=0;i<17;i++){const st=sts[i%sts.length],q=generate(st,seed+i*1009+(cat.charCodeAt(0)*997),plan[i]);qs.push(q);}
+   const plan=difficultyPlan(m.tier,r),subtypeCounts=new Map();let lastSubtype=null,lastFamily=null;
+   for(let i=0;i<17;i++){
+     const band=plan[i];
+     const subtypeOrder=[...sts].sort((a,b)=>{
+       const ca=subtypeCounts.get(a)||0,cb=subtypeCounts.get(b)||0;
+       if(ca!==cb)return ca-cb;
+       if(a===lastSubtype&&b!==lastSubtype)return 1;
+       if(b===lastSubtype&&a!==lastSubtype)return -1;
+       return ((seed+i+a.charCodeAt(0))%2)?-1:1;
+     });
+     let picked=null;
+     for(const st of subtypeOrder){
+       const candidates=bankCandidates(st,band)
+         .filter(q=>!globalSeen.has(questionFingerprint(q)))
+         .sort((a,b)=>{
+           const fa=questionFamily(a),fb=questionFamily(b),ca=familyCounts.get(fa)||0,cb=familyCounts.get(fb)||0;
+           if(ca!==cb)return ca-cb;
+           if(fa===lastFamily&&fb!==lastFamily)return 1;
+           if(fb===lastFamily&&fa!==lastFamily)return -1;
+           return questionFingerprint(a)<questionFingerprint(b)?-1:1;
+         });
+       if(candidates.length){
+         const offset=(seed+i*1009+st.charCodeAt(0)*997)%candidates.length;
+         picked=candidates[offset];break;
+       }
+     }
+     if(!picked)throw new Error(`Unable to build unique Practice Test ${id}`);
+     qs.push(picked);
+     const fp=questionFingerprint(picked),fam=questionFamily(picked);
+     globalSeen.add(fp);familyCounts.set(fam,(familyCounts.get(fam)||0)+1);
+     subtypeCounts.set(picked.subtype,(subtypeCounts.get(picked.subtype)||0)+1);
+     lastSubtype=picked.subtype;lastFamily=fam;
+   }
  });
+ if(qs.length!==51||globalSeen.size!==51)throw new Error(`Practice Test ${id} uniqueness guard failed`);
  return shuffle(r,qs).map((q,i)=>({...q,testNo:i+1}));
 }
 function startMock(id){
@@ -2045,7 +3154,7 @@ function sourcesPage(){
  <section class="section"><h2>Question-family fidelity map</h2><table class="fidelity-table"><thead><tr><th>Training module</th><th>Fidelity</th><th>Why</th></tr></thead><tbody>
  ${Object.entries(SUBTYPES).map(([k,v])=>`<tr><td>${v.cat} — ${v.name}</td><td><span class="badge ${v.fidelity.toLowerCase()}">${v.fidelity}</span></td><td>${v.basis}</td></tr>`).join("")}
  </tbody></table></section>
- <section class="card section" style="padding:20px"><h3>Question-bank QA</h3><p>This build uses a finite category-practice bank of <b>1,320 questions</b> (40 per difficulty band for each question subtype) plus 18 fixed 51-question practice tests. The full bank is exhaustively machine-checked before release for answer presence, selection counts, arithmetic consistency, matrix-rule ambiguity, correct-vs-incorrect visual distinguishability, clipping, reference/starting figures only where the prompt genuinely requires one, and deterministic regeneration. Semantic verbal templates are also manually reviewed. New completed full-test attempts save an exact snapshot of their 51 questions so later bank updates cannot change an old answer review.</p></section><section class="card section" style="padding:20px"><h3>Difficulty calibration</h3><p>Easy / Medium / Hard badges are now assigned by the <b>actual construction of each generated item</b>. Easy is reserved for one-rule or immediately classifiable items; Medium requires an additional inference, second attribute or two-step process; Hard is reserved for interleaved rules, dependent multi-step calculations, close logic traps, reflection-vs-rotation discrimination or similarly layered reasoning. A regression guard explicitly classifies simple A-B-A-B number alternation as Easy.</p></section><section class="card section" style="padding:20px"><h3>What this tool does not claim</h3><p>It does not claim to reproduce proprietary JOA questions, exact scoring, role cut-scores, adaptive behaviour, official item difficulty labels or an unpublished official section split. “Same difficulty as JOA” is therefore a best-match simulation tier based on the official public examples and current Australian JOA-focused descriptions, not an ADF-issued difficulty rating.</p></section>
+ <section class="card section" style="padding:20px"><h3>Question-bank QA</h3><p>This build uses a finite category-practice bank of <b>2,640 questions</b> (80 deterministic slots per difficulty band for each question subtype) plus 18 fixed 51-question practice tests. The full bank is exhaustively machine-checked before release for answer presence, selection counts, arithmetic consistency, matrix-rule ambiguity, correct-vs-incorrect visual distinguishability, clipping, reference/starting figures only where the prompt genuinely requires one, and deterministic regeneration. Semantic verbal templates are also manually reviewed. New completed full-test attempts save an exact snapshot of their 51 questions so later bank updates cannot change an old answer review.</p></section><section class="card section" style="padding:20px"><h3>Difficulty calibration</h3><p>Easy / Medium / Hard badges are assigned by the <b>actual construction of each generated item</b>. Easy remains one-rule or immediately classifiable. Medium has been recalibrated upward to favour two-rule, reverse-operation, interleaved, conversion or two-attribute reasoning. Hard now more consistently uses layered dependencies, multi-stage numerical work, conditional/logical traps, multiple simultaneous visual attributes, close reflection/rotation distractors or changing/interleaved rule systems. A regression guard still explicitly classifies simple A-B-A-B number alternation as Easy.</p></section><section class="card section" style="padding:20px"><h3>What this tool does not claim</h3><p>It does not claim to reproduce proprietary JOA questions, exact scoring, role cut-scores, adaptive behaviour, official item difficulty labels or an unpublished official section split. “Same difficulty as JOA” is therefore a best-match simulation tier based on the official public examples and current Australian JOA-focused descriptions, not an ADF-issued difficulty rating.</p></section>
  </main>`;
 }
 function render(){
@@ -2064,6 +3173,7 @@ function render(){
  if(state.page==="practice"&&!state.practice)setTimeout(bindPracticeCategoryStrip,0);
 }
 render();
+setTimeout(showCompletedUpdateNotice,0);
 </script>
 
 <script>

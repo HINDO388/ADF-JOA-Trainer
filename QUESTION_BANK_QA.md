@@ -1,111 +1,123 @@
 # ADF JOA Trainer — Question Bank QA Report
 
-**Question-bank version:** `2026-09-01-QA2`
+**Question-bank version:** `2026-09-02-QA3`
 
-This report records the verification performed on the question bank included in this PWA release.
+This report records the verification performed for the v1.9 question-bank, diversity and difficulty revision.
+
+## Fidelity basis
+
+The trainer continues to use the revised public ADF JOA guide as its controlling source for the published format: **51 scored questions in 20 minutes** across **Numerical, Verbal and Abstract reasoning**, preceded by the documented familiarisation period. High-fidelity constructions remain anchored to the public examples (number series/matrix, numerical word problem, two-statement proof and group odd-one-out). Additional practice families are independent training extensions informed by Australian JOA-focused descriptions, not copied live-test content.
 
 ## Scope checked
 
-- **1,320 Category Practice slots**
-  - 11 question subtypes
-  - 40 Easy + 40 Medium + 40 Hard slots per subtype
-- **918 Full Practice Test slots**
-  - 18 fixed practice tests × 51 questions
-- **5 familiarisation questions**
-- **Total displayed question instances exhaustively checked: 2,243**
+- **2,640 deterministic Category Practice slots**
+  - 11 subtypes
+  - 80 Easy + 80 Medium + 80 Hard slots per subtype
+- **918 fixed Full Practice Test items**
+  - 18 Practice Tests × 51
+- **5 familiarisation items**
+- **Total released instances covered:** 3,563
 
-The Category Practice bank is now finite and deterministic specifically so the complete released bank can be checked rather than relying on an unbounded date-seeded generator.
+## QA3 diversity controls
 
-## Automated checks — all passed
+- Canonical fingerprints ignore option-order shuffling, so the same underlying question cannot masquerade as a new item.
+- A hard guard prevents an exact fingerprint appearing twice inside any one Category Practice run.
+- A hard guard prevents an exact fingerprint appearing twice inside any one 51-question Practice Test.
+- Short Category Practice runs preferentially rotate construction families.
+- Mixed Numerical / Verbal / Abstract drills balance all included subtypes to within one question of each other.
+- 10-, 15-, 25- and 40-question regression runs were checked.
 
-Every released question instance was checked for:
+## Broader question range added
 
-1. **Structural validity**
-   - non-empty prompt
-   - valid difficulty band and rationale
-   - stored answer exists
-   - correct single/multiple-selection count
-   - answer is present among selectable options where applicable
+- Number Series: more interleaved, multi-operation, square-offset, changing-difference and dependency constructions.
+- Number Matrices: broader weighted/two-operation row rules.
+- Numerical Word Problems: broader rate, ratio, average, conversion, changed-base percentage, reverse-percentage, combined-rate and multi-stage scenarios.
+- Odd Words: larger category vocabularies and varied subsets rather than repeatedly shuffling a few fixed six-word sets.
+- Analogies: multiple relationship families with larger pair pools.
+- Synonym / Antonym / Neither: substantially larger semantic pools.
+- Deductive Proof: direct conditional, category membership, equality/value transfer, transitive order, exclusion, threshold, contraposition and chained implication methods.
+- Abstract: more rotation angles, relational odd-one-out rules, alternating/multi-attribute sequences and close visual distractors.
 
-2. **Number series**
-   - the stored answer follows the displayed series under the intended arithmetic/pattern family
-   - simple A-B-A-B alternation is explicitly classified Easy
+## Difficulty recalibration
 
-3. **Number matrices**
-   - the stored answer follows the repeated row/grid rule
-   - candidate matrices are rejected if a library of common simple matrix rules fits the completed rows but predicts different values for the missing cell
-   - duplicate completed rows are rejected
+- **Easy:** one principal rule or directly classifiable invariant.
+- **Medium:** more consistently requires two linked steps/rules, a reverse operation, conversion, interleaving, semantic precision or two simultaneous visual attributes.
+- **Hard:** more consistently requires layered dependencies, multi-stage numerical work, chained/contrapositive logic, close reflection/rotation traps, three simultaneous visual attributes or changing/interleaved rules.
+- Simple A-B-A-B number alternation remains explicitly classified Easy.
 
-4. **Numerical word problems**
-   - every answer is independently recalculated from the numbers and wording shown to the user
-   - rate, percentage, ratio, average, work-rate and dependent-percentage templates were checked separately
+## Automated result
 
-5. **Abstract / visual questions**
-   - stored answers satisfy the stated rotation, reflection, sequence or attribute rule
-   - a correct option is never visually identical to an incorrect option
-   - non-intentional duplicate visual choices are rejected
-   - rendered figures do not clip against their SVG bounds
-   - any prompt referring to a reference/starting figure actually displays that figure
+`{"ok":true,"bankVersion":"2026-09-02-QA3","categorySlotsChecked":2640,"fullPracticeTestsChecked":18,"totalFullTestItems":918}`
 
-6. **Full practice tests**
-   - every test contains exactly 51 questions
-   - every test contains 17 Numerical, 17 Verbal and 17 Abstract questions
-   - the intended Easy/Medium/Hard mix is maintained separately in each reasoning family
-   - question numbering is exactly 1–51
+Every checked stored correct answer was accepted by the application's own marking function.
 
-7. **Application rendering / marking**
-   - every released question can be rendered by the app without a JavaScript exception
-   - the app's own answer-check function accepts the stored correct answer for every question
+## Canonical uniqueness inside each 80-slot bank
 
-**Automated failures remaining after fixes: 0.**
+### numSeries
+- Easy: **80** unique canonical questions; **4** construction families
+- Medium: **80** unique canonical questions; **6** construction families
+- Hard: **80** unique canonical questions; **7** construction families
 
-## Manual semantic review — all passed
+### numMatrix
+- Easy: **78** unique canonical questions; **4** construction families
+- Medium: **80** unique canonical questions; **5** construction families
+- Hard: **80** unique canonical questions; **5** construction families
 
-The non-mathematical source templates were manually reviewed as well:
+### wordProblems
+- Easy: **80** unique canonical questions; **5** construction families
+- Medium: **79** unique canonical questions; **7** construction families
+- Hard: **69** unique canonical questions; **8** construction families
 
-- 15 odd-word category sets
-- 15 analogy relationships
-- 20 synonym/antonym/neither word pairs
-- all four deductive-logic template structures
-- all 33 subtype × difficulty construction families for difficulty calibration
+### oddWords
+- Easy: **80** unique canonical questions; **8** construction families
+- Medium: **80** unique canonical questions; **8** construction families
+- Hard: **80** unique canonical questions; **8** construction families
 
-Difficulty remains a training calibration rather than an official ADF item rating, but Hard is now reserved for genuinely layered/multi-rule, close-distractor, reflection, interleaved, or dependent multi-step constructions.
+### analogy
+- Easy: **80** unique canonical questions; **5** construction families
+- Medium: **80** unique canonical questions; **6** construction families
+- Hard: **80** unique canonical questions; **6** construction families
 
-## Issues found and corrected during this audit
+### wordRelation
+- Easy: **52** unique canonical questions; **18** construction families
+- Medium: **44** unique canonical questions; **18** construction families
+- Hard: **48** unique canonical questions; **18** construction families
 
-### 1. Missing reference figure in reflection question
-The reported question asked which figures could not be produced by rotating "the same original figure" without actually showing an original/reference figure.
+### deduction
+- Easy: **80** unique canonical questions; **3** construction families
+- Medium: **80** unique canonical questions; **5** construction families
+- Hard: **61** unique canonical questions; **5** construction families
 
-**Fix:** Medium and Hard reflection questions now display a labelled **Reference figure** above the options and explicitly ask which option(s) are mirror images rather than rotations.
+### abstractOdd
+- Easy: **72** unique canonical questions; **2** construction families
+- Medium: **43** unique canonical questions; **2** construction families
+- Hard: **75** unique canonical questions; **2** construction families
 
-### 2. Duplicate-looking options in the old hard reflection construction
-The earlier hard construction reused the same four 90° orientations, which could produce repeated-looking choices.
+### abstractSequence
+- Easy: **40** unique canonical questions; **2** construction families
+- Medium: **44** unique canonical questions; **3** construction families
+- Hard: **64** unique canonical questions; **3** construction families
 
-**QA2 state:** Hard reflection-based odd-one-out items use six options: four true rotations and two reflections. There is no separate reference figure; the four rotationally equivalent items define the majority class.
+### rotation
+- Easy: **78** unique canonical questions; **1** construction families
+- Medium: **75** unique canonical questions; **1** construction families
+- Hard: **80** unique canonical questions; **1** construction families
 
-### 3. Ambiguous number matrices
-The audit found some generated matrices where two plausible simple rules both fitted the completed rows but predicted different missing values.
+### multiAttribute
+- Easy: **80** unique canonical questions; **1** construction families
+- Medium: **65** unique canonical questions; **2** construction families
+- Hard: **64** unique canonical questions; **2** construction families
 
-**Fix:** A matrix-clarity gate now tests generated matrices against a broad library of common simple rules and rejects/regenerates any item with competing predicted answers.
+## Practice/Test regression checks
 
-### 4. Visually repetitive multi-attribute items
-Some older multi-attribute constructions used rotationally symmetric shapes in ways that made different encoded orientations look identical.
+- Every subtype: Medium and Hard runs of 10, 15, 25 and 40 questions.
+- No exact duplicate within any tested run.
+- Short runs use as many distinct construction families as the subtype's available methodology allows.
+- Mixed-category 10/15/25/40 runs include every subtype and keep subtype counts within one question.
+- All 18 Full Practice Tests contain exactly 51 unique questions and exactly 17 Numerical, 17 Verbal and 17 Abstract items.
 
-**Fix:** Those constructions now use shapes/attribute combinations whose relevant changes are visibly distinguishable.
+## Interpretation
 
-### 5. Saved answer-review stability
-Previously, historical tests stored the answers but regenerated the question set when reopened. A later bank revision could therefore make an old answer review differ from the test actually taken.
+For a long 25- or 40-question drill, broad reasoning themes may legitimately recur because the purpose is repeated exposure to the underlying skill. The system now prevents exact repetition and places the strongest diversity pressure on short 10- and 15-question sets, where variety is most valuable.
 
-**Fix:** Every newly completed full test now saves an exact snapshot of all 51 questions alongside the answers. Pre-QA legacy results retain their score/timing but are not silently reconstructed against the revised bank.
-
-
-
-## QA2 post-calibration re-audit
-
-After removing the unnecessary master/reference figure from the Medium and Hard
-Figure Odd-One-Out variants, the complete finite release bank was instantiated
-again and structurally/regression checked.
-
-Audit result: `{"ok":true,"checked":2243,"bankVersion":"2026-09-01-QA2"}`
-
-No QA2 regression failures remained.
+The bank remains independently generated practice material and does not reproduce proprietary or recalled live JOA questions.
