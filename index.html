@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.13">
+<meta name="app-version" content="1.14">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -1056,7 +1056,7 @@ body.ui-modal-open{overflow:hidden}
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.13</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.14</span></div>
 
 <script>
 /* ===========================================================
@@ -1070,7 +1070,7 @@ body.ui-modal-open{overflow:hidden}
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.13";
+const APP_VERSION = "1.14";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -3791,6 +3791,7 @@ function syncVersionRefreshHit(){
 
 let mainNavMode=null;
 let mainNavOrientation=window.innerWidth>=window.innerHeight?"landscape":"portrait";
+const mainNavModesByOrientation={portrait:null,landscape:null};
 
 function mainNavClass(){
   return mainNavMode&&mainNavMode!=="normal"?`nav-${mainNavMode}`:"";
@@ -3850,35 +3851,71 @@ function calculateMainNavMode(){
   topbar.classList.remove("nav-tight");
   return "hamburger";
 }
+function storeMainNavMode(mode){
+  mainNavMode=mode;
+  mainNavModesByOrientation[mainNavOrientation]=mode;
+}
 function adaptMainNav(force=false){
   /*
-    Once a layout is chosen it stays locked across normal page changes.
-    That prevents the top bar briefly expanding and then contracting every
-    time render() replaces the page content.
+    Each orientation chooses its layout once and keeps it.
+    Returning to landscape after visiting portrait therefore restores
+    the exact original landscape sizing rather than recalculating it.
   */
-  if(mainNavMode!==null&&!force){
+  const cached=mainNavModesByOrientation[mainNavOrientation];
+
+  if(!force&&mainNavMode!==null){
     applyMainNavMode();
     return;
   }
+  if(!force&&cached!==null){
+    mainNavMode=cached;
+    applyMainNavMode();
+    return;
+  }
+
   closeMobileMenu();
-  mainNavMode=calculateMainNavMode();
+  storeMainNavMode(calculateMainNavMode());
   applyMainNavMode();
 }
-function reflowMainNavForOrientation(){
-  const orientation=window.innerWidth>=window.innerHeight?"landscape":"portrait";
+function applyMainNavOrientation(orientation){
   if(orientation===mainNavOrientation)return;
+
   mainNavOrientation=orientation;
+  closeMobileMenu();
+
+  const cached=mainNavModesByOrientation[orientation];
+  if(cached!==null){
+    mainNavMode=cached;
+    applyMainNavMode();
+    return;
+  }
+
+  /*
+    First visit to a new orientation: calculate once after the viewport
+    settles, then cache that choice for future returns to this orientation.
+  */
   mainNavMode=null;
-  setTimeout(()=>adaptMainNav(true),80);
+  setTimeout(()=>adaptMainNav(true),140);
+}
+function currentMainNavOrientation(){
+  return window.innerWidth>=window.innerHeight?"landscape":"portrait";
 }
 
-/* Ignore ordinary resize/chrome changes; only orientation changes can recalculate. */
-window.addEventListener("resize",reflowMainNavForOrientation,{passive:true});
-window.addEventListener("orientationchange",()=>{
-  mainNavMode=null;
-  mainNavOrientation=window.innerWidth>=window.innerHeight?"landscape":"portrait";
-  setTimeout(()=>adaptMainNav(true),120);
-},{passive:true});
+let mainNavOrientationTimer=null;
+function scheduleMainNavOrientationCheck(){
+  clearTimeout(mainNavOrientationTimer);
+  mainNavOrientationTimer=setTimeout(()=>{
+    applyMainNavOrientation(currentMainNavOrientation());
+  },140);
+}
+
+/*
+  iPadOS can fire several resize/orientation events while rotating.
+  Debouncing them prevents a transient intermediate width from becoming
+  the saved landscape layout.
+*/
+window.addEventListener("resize",scheduleMainNavOrientationCheck,{passive:true});
+window.addEventListener("orientationchange",scheduleMainNavOrientationCheck,{passive:true});
 
 function getStats(){
  const attempts=progress.attempts||[];
