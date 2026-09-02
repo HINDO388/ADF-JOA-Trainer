@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.18">
+<meta name="app-version" content="1.19">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -1358,12 +1358,70 @@ body{
   cursor:pointer;
 }
 
+
+/* v1.19 Medium + Hard generated worked examples */
+.worked-example-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.worked-choice-list{
+  display:grid;
+  gap:7px;
+  margin:12px 0 14px;
+}
+.worked-choice-row{
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  padding:9px 11px;
+  border:1px solid #d5e1e8;
+  border-radius:9px;
+  background:#fff;
+}
+.worked-choice-row .letter{
+  flex:0 0 28px;
+  width:28px;
+  height:28px;
+  border-radius:7px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#e5f0f6;
+  color:#174b6b;
+  font-weight:900;
+}
+.worked-answer-entry{
+  margin:12px 0 14px;
+  padding:11px 13px;
+  border:1px dashed #b9cad4;
+  border-radius:9px;
+  color:#668092;
+  background:#fafcfd;
+  font-weight:800;
+}
+
+
+/* Larger invisible tap target for the hamburger / close control. */
+.mobile-menu-toggle{
+  position:relative;
+  isolation:isolate;
+}
+.mobile-menu-toggle::before{
+  content:"";
+  position:absolute;
+  inset:-8px;
+  z-index:-1;
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.18</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.19</span></div>
 
 <script>
 /* ===========================================================
@@ -1377,7 +1435,7 @@ body{
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.18";
+const APP_VERSION = "1.19";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -3982,7 +4040,7 @@ function currentPageNav(){
  const drawerClass=mainNavDrawerClass();
  return `<div class="topbar ${navClass}">
   <div class="brand"><span class="brand-word">ADF</span><span class="brand-word">JOA</span><span class="brand-word">Trainer</span></div>
-  <button class="mobile-menu-toggle" type="button" aria-label="Open main menu" aria-expanded="false" onclick="toggleMobileMenu(this)">
+  <button class="mobile-menu-toggle" type="button" aria-label="Open main menu" aria-expanded="false" ontouchstart="mobileMenuToggleTouch(event,this)" onclick="mobileMenuToggleClick(event,this)">
    <span class="mobile-menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
   </button>
   <div class="topnav">${navButtons()}</div>
@@ -3990,6 +4048,36 @@ function currentPageNav(){
  <div id="mobileNavBackdrop" class="mobile-nav-backdrop" onclick="closeMobileMenu()"></div>
  <nav id="mobileNavDrawer" class="mobile-nav-drawer ${drawerClass}" aria-label="Main menu">${navButtons(true)}</nav>`;
 }
+
+let mobileMenuTouchHandledAt=0;
+function mobileMenuActivate(button){
+ const drawer=document.getElementById("mobileNavDrawer");
+ if(drawer?.classList.contains("open")){
+   closeMobileMenu();
+ }else{
+   toggleMobileMenu(button);
+ }
+}
+function mobileMenuToggleTouch(event,button){
+ /*
+   iOS occasionally drops the later synthetic click when the page is
+   scroll-locked. Handle the control on touchstart itself instead.
+ */
+ event.preventDefault();
+ event.stopPropagation();
+ mobileMenuTouchHandledAt=Date.now();
+ mobileMenuActivate(button);
+}
+function mobileMenuToggleClick(event,button){
+ /* Ignore the synthetic click that follows a touchstart we already handled. */
+ if(Date.now()-mobileMenuTouchHandledAt<700){
+   event.preventDefault();
+   event.stopPropagation();
+   return;
+ }
+ mobileMenuActivate(button);
+}
+
 let mobileMenuLockedScrollY=0;
 
 function positionMobileNavDrawer(){
@@ -4067,9 +4155,7 @@ window.addEventListener("keydown",event=>{
 async function forceLatestOnlineVersion(){
  if(state.page!=="home")return;
 
- // This updater deliberately does NOT clear localStorage, IndexedDB,
- // or the saved Practice Test history. Only app-shell/service-worker
- // caches may be replaced when a newer online version is confirmed.
+ // Saved Practice Test history lives in localStorage and is never touched here.
  const hit=document.getElementById("versionRefreshHit");
  if(hit?.dataset.refreshing==="1")return;
  if(hit)hit.dataset.refreshing="1";
@@ -4094,33 +4180,36 @@ async function forceLatestOnlineVersion(){
      return;
    }
 
+   /*
+     Validate that the fetched online document is a complete trainer shell
+     before navigating away from the currently working build.
+   */
+   if(!source.includes('id="app"')||!source.includes("ADF JOA Trainer")||source.length<50000){
+     throw new Error("Online app shell did not pass validation");
+   }
+
    await uiAlert(`A newer version was found (v${onlineVersion}). The trainer will now update.`,"New version found","Update");
 
    try{
      sessionStorage.setItem("joaTrainerUpdateNotice",JSON.stringify({from:APP_VERSION,to:onlineVersion}));
+     sessionStorage.setItem("joaTrainerExpectedVersion",onlineVersion);
    }catch(_){}
 
+   /*
+     Ask the registration to update, but DO NOT delete the active app cache
+     before navigation. The new service worker deletes obsolete caches only
+     after its own install has completed successfully.
+   */
    if("serviceWorker" in navigator){
      const regs=await navigator.serviceWorker.getRegistrations();
      await Promise.all(regs.map(async reg=>{try{await reg.update();}catch(_){}}));
    }
 
-   if("caches" in window){
-     const keys=await caches.keys();
-     await Promise.all(
-       keys.filter(key=>key.startsWith("adf-joa-trainer-pwa-"))
-           .map(key=>caches.delete(key))
-     );
-   }
-
-   // Prime the network copy without storing user data anywhere.
-   try{await fetch(`./index.html?force-update=${Date.now()}`,{cache:"no-store"});}catch(_){}
-
    const url=new URL(window.location.href);
    url.searchParams.set("force-update",String(Date.now()));
    window.location.replace(url.toString());
  }catch(_){
-   await uiAlert("The latest online version could not be checked. Please confirm you are online and try again. Your saved progress has not been changed.","Update check failed");
+   await uiAlert("The latest online version could not be checked or validated. Please confirm you are online and try again. Your saved progress has not been changed.","Update check failed");
    if(hit)delete hit.dataset.refreshing;
  }
 }
@@ -4330,26 +4419,55 @@ function openCat(cat){state.cat=cat;state.subtype=byCat[cat][0];state.page="prac
 function openHelp(st){state.cat=SUBTYPES[st].cat;state.subtype=st;state.page="practice";state.practice=null;render();setTimeout(()=>document.getElementById("helpDetails")?.setAttribute("open",""),50)}
 
 
-function renderWorkedExampleVisual(e){
- let html="";
- if(e.display)html+=`<div class="worked-visual">${renderDisplay(e.display)}</div>`;
- if(Array.isArray(e.visualOptions)&&e.visualOptions.length){
-   html+=`<div class="worked-visual worked-visual-options">${e.visualOptions.map((o,i)=>`<div class="worked-visual-choice"><div class="fig">${figSvg(o,92,70)}</div><b>${LETTERS[i]}</b></div>`).join("")}</div>`;
+function workedExampleAnswer(q){
+ if(q.kind==="numeric")return String(q.answer);
+ if(q.kind==="single")return String(q.answer);
+ if(q.kind==="multi")return q.answer.join(" and ");
+ if(q.kind==="visualSingle")return `${LETTERS[q.answer]}${q.visualOptions?.[q.answer]?.label?` — ${q.visualOptions[q.answer].label}`:""}`;
+ if(q.kind==="visualMulti")return q.answer.map(i=>LETTERS[i]).join(" and ");
+ return String(q.answer??"");
+}
+function workedExampleQuestionHtml(q){
+ let html=`<div class="worked-question">${q.prompt}</div>`;
+ if(q.display)html+=`<div class="worked-visual">${renderDisplay(q.display)}</div>`;
+
+ if(q.kind==="single"||q.kind==="multi"){
+   html+=`<div class="worked-choice-list">${q.options.map((o,i)=>`<div class="worked-choice-row"><span class="letter">${LETTERS[i]}</span><span>${o}</span></div>`).join("")}</div>`;
+ }else if(q.kind==="visualSingle"||q.kind==="visualMulti"){
+   html+=`<div class="worked-visual worked-visual-options">${q.visualOptions.map((o,i)=>`<div class="worked-visual-choice"><div class="fig">${figSvg(o,92,70)}</div><b>${LETTERS[i]}</b></div>`).join("")}</div>`;
+ }else if(q.kind==="numeric"){
+   html+=`<div class="worked-answer-entry">Numeric response</div>`;
  }
  return html;
 }
+function workedExampleMethodSteps(st,q){
+ const guide=SUBTYPES[st]?.help||[];
+ const steps=[];
+ if(guide[0])steps.push(`<b>Set-up:</b> ${guide[0]}`);
+ if(guide[1])steps.push(`<b>Speed method:</b> ${guide[1]}`);
+ steps.push(`<b>Apply it here:</b> ${q.explanation}`);
+ steps.push(`<b>Why this is ${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}:</b> ${q.difficultyReason}`);
+ return steps;
+}
+function representativeWorkedQuestion(st,band,avoidFamily=null){
+ const qs=bankCandidates(st,band);
+ let q=qs.find(x=>questionFamily(x)!==avoidFamily);
+ if(!q)q=qs[0];
+ return q;
+}
 function workedExamplesBox(st){
- const examples=WORKED[st]||[];
- if(!examples.length) return "";
- return `<details class="workedbox"><summary>Worked Examples (${examples.length})</summary>
-   <p class="worked-intro">These are deliberately slower than test pace. The aim is to make the decision process explicit; once the method becomes automatic, you compress the same steps mentally.</p>
-   <div class="worked-examples">${examples.map((e,i)=>`<div class="worked-example">
-     <span class="tip-chip">Worked example ${i+1}</span>
-     <h4>${e.title}</h4>
-     <div class="worked-question">${e.q}</div>
-     ${renderWorkedExampleVisual(e)}
-     <ol class="worked-steps">${e.steps.map(x=>`<li>${x}</li>`).join("")}</ol>
-     <div class="worked-answer">Answer: ${e.a}</div>
+ if(!SUBTYPES[st])return "";
+ const medium=representativeWorkedQuestion(st,"medium");
+ const hard=representativeWorkedQuestion(st,"hard",questionFamily(medium));
+ const examples=[medium,hard];
+ return `<details class="workedbox"><summary>Worked Examples (2)</summary>
+   <p class="worked-intro">These are deliberately more demanding examples: one <b>Medium</b> and one <b>Hard</b>. Work through the method slowly here, then compress the same process mentally during timed practice.</p>
+   <div class="worked-examples">${examples.map((q,i)=>`<div class="worked-example">
+     <div class="worked-example-head"><span class="tip-chip">Worked example ${i+1}</span><span class="badge diff-${q.difficulty}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span></div>
+     <h4>${SUBTYPES[st].name} — ${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</h4>
+     ${workedExampleQuestionHtml(q)}
+     <ol class="worked-steps">${workedExampleMethodSteps(st,q).map(x=>`<li>${x}</li>`).join("")}</ol>
+     <div class="worked-answer">Answer: ${workedExampleAnswer(q)}</div>
    </div>`).join("")}</div>
  </details>`;
 }
@@ -4892,6 +5010,38 @@ if ("serviceWorker" in navigator && (location.protocol === "https:" || location.
     });
   });
 }
+</script>
+
+
+<script>
+(function(){
+  function bootLooksHealthy(){
+    var app=document.getElementById("app");
+    return !!(app && app.querySelector(".topbar") && app.textContent.trim().length>80);
+  }
+  window.addEventListener("load",function(){
+    setTimeout(function(){
+      if(bootLooksHealthy()){
+        try{sessionStorage.removeItem("joaTrainerBootRecoveryAttempt");}catch(_){}
+        return;
+      }
+      var attempt=0;
+      try{attempt=Number(sessionStorage.getItem("joaTrainerBootRecoveryAttempt")||0);}catch(_){}
+      if(attempt<1){
+        try{sessionStorage.setItem("joaTrainerBootRecoveryAttempt","1");}catch(_){}
+        var url=new URL(window.location.href);
+        url.searchParams.set("boot-recovery",String(Date.now()));
+        window.location.replace(url.toString());
+        return;
+      }
+      /* Never leave the user with an unexplained blank white app. */
+      var app=document.getElementById("app");
+      if(app){
+        app.innerHTML='<main style="max-width:720px;margin:40px auto;padding:24px;font:16px system-ui;color:#123b55"><h2>Trainer did not finish loading</h2><p>Please close and reopen the web app, or tap the version number on Home to check for the latest build. Your saved Practice Test history has not been deleted.</p></main>';
+      }
+    },1200);
+  });
+})();
 </script>
 
 </body>

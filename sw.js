@@ -1,4 +1,4 @@
-const CACHE_NAME = "adf-joa-trainer-pwa-v24";
+const CACHE_NAME = "adf-joa-trainer-pwa-v25";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -39,8 +39,23 @@ self.addEventListener("fetch", event => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Network-first: when online, pick up the newest trainer automatically.
-  // Offline: fall back to the last successfully cached copy.
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request, { cache: "no-store" })
+        .then(response => {
+          if (response && response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put("./index.html", copy));
+          }
+          return response;
+        })
+        .catch(async () => {
+          return (await caches.match("./index.html")) || (await caches.match("./"));
+        })
+    );
+    return;
+  }
+
   event.respondWith(
     fetch(request)
       .then(response => {
@@ -51,14 +66,7 @@ self.addEventListener("fetch", event => {
         return response;
       })
       .catch(async () => {
-        const cached = await caches.match(request);
-        if (cached) return cached;
-
-        if (request.mode === "navigate") {
-          return (await caches.match("./index.html")) || (await caches.match("./"));
-        }
-
-        return Response.error();
+        return (await caches.match(request)) || Response.error();
       })
   );
 });
