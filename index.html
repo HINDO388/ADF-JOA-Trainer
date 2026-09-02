@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.19">
+<meta name="app-version" content="1.20">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -1421,7 +1421,7 @@ body{
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.19</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.20</span></div>
 
 <script>
 /* ===========================================================
@@ -1435,7 +1435,7 @@ body{
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.19";
+const APP_VERSION = "1.20";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -1922,7 +1922,7 @@ Object.assign(WORKED,{
 });
 
 
-const QUESTION_BANK_VERSION="2026-09-02-QA4";
+const QUESTION_BANK_VERSION="2026-09-02-QA5";
 const PRACTICE_BANK_SIZE_PER_DIFFICULTY=80;
 const PRACTICE_BANK_BANDS=["easy","medium","hard"];
 const PRACTICE_BANK_SUBTYPES=["numSeries","numValue","wordProblems","numMatrix","wordRelation","sentenceCompletion","oddWords","accuracyPrecision","analogy","deduction","seatingArrangements","familyTrees","abstractSequence","abstractMatrix","abstractAnalogy","abstractOdd"];
@@ -2256,8 +2256,8 @@ function genDeduction(seed,difficulty="medium"){
 function figSvg(spec,w=118,h=82){
   const cx=w/2,cy=h/2;
   if(spec.type==="dots"){
-    let dots="";const n=spec.dots||3,rad=18;
-    for(let i=0;i<n;i++){const ang=(-Math.PI/2)+(i*2*Math.PI/n),x=cx+Math.cos(ang)*rad,y=cy+Math.sin(ang)*rad;dots+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.3" fill="${spec.dotFill==="outline"?"white":"#111"}" stroke="#111" stroke-width="1.5"/>`;}
+    let dots="";const n=spec.dots||3,rad=18,phase=((spec.rot||0)*Math.PI/180);
+    for(let i=0;i<n;i++){const ang=(-Math.PI/2)+phase+(i*2*Math.PI/n),x=cx+Math.cos(ang)*rad,y=cy+Math.sin(ang)*rad;dots+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.3" fill="${spec.dotFill==="outline"?"white":"#111"}" stroke="#111" stroke-width="1.5"/>`;}
     return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true"><circle cx="${cx}" cy="${cy}" r="31" fill="white" stroke="#222" stroke-width="1.5"/>${dots}</svg>`;
   }
   if(spec.type==="block"){
@@ -2493,7 +2493,11 @@ function genNumSeriesV3(seed,difficulty="medium"){
      const a=ri(r,4,10),d=ri(r,2,4),inc=ri(r,1,2);seq=[a];let diff=d,stepInc=inc;
      for(let i=0;i<5;i++){seq.push(seq.at(-1)+diff);diff+=stepInc;stepInc+=inc;}
      ans=seq.at(-1)+diff;seq=seq.slice(0,6);
-     rule=`differences grow by an increasing amount (+${inc}, +${2*inc}, +${3*inc}...)`;
+     const firstDiffs=seq.slice(1).map((v,i)=>v-seq[i]);
+     const secondDiffs=firstDiffs.slice(1).map((v,i)=>v-firstDiffs[i]);
+     const nextSecondDiff=secondDiffs.at(-1)+inc;
+     const nextFirstDiff=firstDiffs.at(-1)+nextSecondDiff;
+     rule=`first differences are ${firstDiffs.map(x=>"+"+x).join(", ")}. Those differences themselves increase by ${secondDiffs.map(x=>"+"+x).join(", ")}, so the next increase is +${nextSecondDiff}; the next first difference is +${nextFirstDiff}`;
      family="series-third-level-differences";reason="Requires recognising a pattern in how the differences themselves change.";
    }else if(type===5){
      const a=ri(r,2,7),m=2,k1=ri(r,1,4),k2=ri(r,2,5);seq=[a];
@@ -3014,8 +3018,12 @@ function genAbstractOddV3(seed,difficulty="medium"){
    if(type===0){
      const dots=pick(r,[2,3,4,5,6]),possible=[2,3,4,5,6,7].filter(n=>n!==dots),wrongCount=pick(r,possible);
      const outsiderFillDots=pick(r,possible.filter(n=>n!==wrongCount));
-     let specs=[...Array(4)].map(()=>({type:"dots",dots,dotFill:"solid"}));
-     specs.push({type:"dots",dots:wrongCount,dotFill:"solid"},{type:"dots",dots:outsiderFillDots,dotFill:"outline"});
+     const phases=shuffle(r,[0,15,30,45,60,75,90,105]);
+     let specs=[...Array(4)].map((_,i)=>({type:"dots",dots,dotFill:"solid",rot:phases[i]}));
+     specs.push(
+       {type:"dots",dots:wrongCount,dotFill:"solid",rot:phases[4]},
+       {type:"dots",dots:outsiderFillDots,dotFill:"outline",rot:phases[5]}
+     );
      specs=shuffle(r,specs);
      q.prompt="Which TWO figures do not belong with the others?";q.kind="visualMulti";q.visualOptions=specs;
      q.answer=specs.map((x,i)=>({x,i})).filter(z=>z.x.dots!==dots||z.x.dotFill!=="solid").map(z=>z.i);q.maxSelect=2;
@@ -3044,7 +3052,7 @@ function genAbstractOddV3(seed,difficulty="medium"){
      family="abstractodd-rotation-v-reflection-one";
    }else{
      const offset=pick(r,[0,45]),solidAxis=pick(r,[0,90]);
-     let specs=[0,90,180,270,360].map((step,i)=>{
+     let specs=[0,45,90,135,180].map((step,i)=>{
        const rot=(offset+step)%360;
        const shouldSolid=((rot-solidAxis+360)%180)===0;
        return {type:"shape",shape:"arrow",rot,fill:shouldSolid?"solid":"outline"};
@@ -3754,7 +3762,16 @@ function genAbstractMatrixV4(seed,difficulty="medium"){
    const counts=[[a,b,a+b],[c,d,c+d],[e,f,e+f]];
    for(let row=0;row<3;row++)for(let col=0;col<3;col++)cells.push({type:"dots",dots:counts[row][col],dotFill:row%2===0?"solid":"outline"});
    correct=cells[7];cells[7]=null;
-   opts=[correct,{...correct,dots:Math.max(1,correct.dots-1)},{...correct,dots:correct.dots+1},{...correct,dotFill:correct.dotFill==="solid"?"outline":"solid"}];
+   const countDistractors=[...new Set([correct.dots-2,correct.dots-1,correct.dots+1,correct.dots+2])]
+     .filter(n=>n>=1&&n!==correct.dots)
+     .slice(0,2);
+   while(countDistractors.length<2)countDistractors.push(correct.dots+countDistractors.length+2);
+   opts=[
+     correct,
+     {...correct,dots:countDistractors[0]},
+     {...correct,dots:countDistractors[1]},
+     {...correct,dotFill:correct.dotFill==="solid"?"outline":"solid"}
+   ];
    exp="In each row, the third panel contains the combined number of dots from the first two panels. The fill state is constant within the row.";family="abstract-matrix-count-combine";
  }else{
    const step=pick(r,[90,180]),shapes=["arrow","L","triangle"];
@@ -3791,7 +3808,13 @@ function genAbstractAnalogyV4(seed,difficulty="medium"){
    const shapeA=pick(r,["triangle","square","circle","diamond","arrow","L"]),shapeC=pick(r,["triangle","square","circle","diamond","arrow","L"]),ra=pick(r,angles),rc=pick(r,angles),fillA=pick(r,["solid","outline"]);
    a={type:"shape",shape:shapeA,rot:ra,fill:fillA,marker:shapeA==="L"?"accent":undefined};b={...a,fill:fillA==="solid"?"outline":"solid"};
    c={type:"shape",shape:shapeC,rot:rc,fill:fillA,marker:shapeC==="L"?"accent":undefined};correct={...c,fill:fillA==="solid"?"outline":"solid"};
-   opts=[correct,{...correct,fill:fillA},{...correct,rot:(correct.rot+45)%360},{...correct,shape:shapeA,marker:shapeA==="L"?"accent":undefined}];
+   const wrongShape=pick(r,["triangle","square","circle","diamond","arrow","L"].filter(s=>s!==shapeC));
+   opts=[
+     correct,
+     {...correct,fill:fillA},
+     {...correct,rot:(correct.rot+45)%360},
+     {...correct,shape:wrongShape,marker:wrongShape==="L"?"accent":undefined}
+   ];
    exp="The transformation toggles fill while preserving shape and orientation.";family="abstract-analogy-fill";
  }else if(type===3){
    const start=pick(r,angles),cstart=pick(r,angles),fill=pick(r,["solid","outline"]);
