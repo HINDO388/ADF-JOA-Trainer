@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.14">
+<meta name="app-version" content="1.15">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -1051,12 +1051,69 @@ body.ui-modal-open{overflow:hidden}
   .worked-visual .visual-analogy-cell svg{max-width:62px;height:auto}
 }
 
+
+/* v1.15 hamburger menu behaves as a true modal layer */
+html.mobile-menu-open{
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+body.mobile-menu-open{
+  position:fixed;
+  width:100%;
+  left:0;
+  right:0;
+  overflow:hidden;
+  overscroll-behavior:none;
+  touch-action:none;
+}
+
+.mobile-nav-backdrop.open{
+  display:block;
+  touch-action:none;
+  overscroll-behavior:none;
+}
+
+/*
+  The drawer is constrained between the header and the device safe-area.
+  If the list is taller than the available landscape height, only the
+  drawer scrolls — never the page behind it.
+*/
+.mobile-nav-drawer{
+  bottom:calc(8px + env(safe-area-inset-bottom));
+  max-height:none;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  touch-action:pan-y;
+  scrollbar-gutter:stable;
+}
+.mobile-nav-drawer.open{
+  display:block;
+}
+.mobile-nav-drawer button{
+  touch-action:manipulation;
+}
+
+/* Short iPhone landscape: reclaim a little vertical space. */
+@media(max-height:520px){
+  .mobile-nav-drawer{
+    top:calc(54px + env(safe-area-inset-top));
+    bottom:calc(6px + env(safe-area-inset-bottom));
+    padding:5px;
+  }
+  .mobile-nav-drawer button{
+    min-height:43px;
+    padding:8px 12px;
+  }
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.14</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.15</span></div>
 
 <script>
 /* ===========================================================
@@ -1070,7 +1127,7 @@ body.ui-modal-open{overflow:hidden}
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.14";
+const APP_VERSION = "1.15";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -3683,24 +3740,61 @@ function currentPageNav(){
  <div id="mobileNavBackdrop" class="mobile-nav-backdrop" onclick="closeMobileMenu()"></div>
  <nav id="mobileNavDrawer" class="mobile-nav-drawer ${drawerClass}" aria-label="Main menu">${navButtons(true)}</nav>`;
 }
+let mobileMenuLockedScrollY=0;
+
+function lockMobileMenuBackground(){
+ if(document.body.classList.contains("mobile-menu-open"))return;
+ mobileMenuLockedScrollY=window.scrollY||window.pageYOffset||0;
+ document.documentElement.classList.add("mobile-menu-open");
+ document.body.classList.add("mobile-menu-open");
+ document.body.style.top=`-${mobileMenuLockedScrollY}px`;
+}
+function unlockMobileMenuBackground(){
+ if(!document.body.classList.contains("mobile-menu-open"))return;
+ document.documentElement.classList.remove("mobile-menu-open");
+ document.body.classList.remove("mobile-menu-open");
+ document.body.style.top="";
+ window.scrollTo(0,mobileMenuLockedScrollY);
+}
 function toggleMobileMenu(button){
  const drawer=document.getElementById("mobileNavDrawer");
  const backdrop=document.getElementById("mobileNavBackdrop");
  if(!drawer||!backdrop)return;
+
  const opening=!drawer.classList.contains("open");
  drawer.classList.toggle("open",opening);
  backdrop.classList.toggle("open",opening);
+
+ if(opening){
+   lockMobileMenuBackground();
+   drawer.scrollTop=0;
+ }else{
+   unlockMobileMenuBackground();
+ }
+
  button?.setAttribute("aria-expanded",opening?"true":"false");
  button?.setAttribute("aria-label",opening?"Close main menu":"Open main menu");
 }
 function closeMobileMenu(){
+ const wasOpen=document.getElementById("mobileNavDrawer")?.classList.contains("open");
  document.getElementById("mobileNavDrawer")?.classList.remove("open");
  document.getElementById("mobileNavBackdrop")?.classList.remove("open");
  const button=document.querySelector(".mobile-menu-toggle");
  button?.setAttribute("aria-expanded","false");
  button?.setAttribute("aria-label","Open main menu");
+ if(wasOpen||document.body.classList.contains("mobile-menu-open"))unlockMobileMenuBackground();
 }
 function go(page){closeMobileMenu();state.page=page;state.practice=null;state.test=null;render();window.scrollTo(0,0);}
+
+
+function guardOpenMobileMenuScroll(event){
+ const drawer=document.getElementById("mobileNavDrawer");
+ if(!drawer?.classList.contains("open"))return;
+ if(drawer.contains(event.target))return;
+ event.preventDefault();
+}
+document.addEventListener("touchmove",guardOpenMobileMenuScroll,{passive:false});
+document.addEventListener("wheel",guardOpenMobileMenuScroll,{passive:false});
 
 window.addEventListener("keydown",event=>{
  if(event.key==="Escape")closeMobileMenu();
