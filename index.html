@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.5">
+<meta name="app-version" content="1.6">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -577,12 +577,124 @@ body.ui-modal-open{overflow:hidden}
   .mental-key-face{min-height:56px;margin:4px;padding:11px 7px}
 }
 
+
+/* v1.6 iPhone-width hamburger navigation */
+.mobile-menu-toggle,
+.mobile-nav-drawer,
+.mobile-nav-backdrop{display:none}
+
+.mobile-menu-toggle{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  border:0;
+  border-radius:9px;
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  padding:0;
+  align-items:center;
+  justify-content:center;
+}
+.mobile-menu-toggle:active{background:rgba(255,255,255,.16)}
+.mobile-menu-icon{
+  width:21px;
+  height:16px;
+  position:relative;
+  display:block;
+}
+.mobile-menu-icon span{
+  position:absolute;
+  left:0;
+  width:21px;
+  height:2px;
+  border-radius:2px;
+  background:#fff;
+  transition:transform .16s ease,opacity .16s ease,top .16s ease;
+}
+.mobile-menu-icon span:nth-child(1){top:0}
+.mobile-menu-icon span:nth-child(2){top:7px}
+.mobile-menu-icon span:nth-child(3){top:14px}
+.mobile-menu-toggle[aria-expanded="true"] .mobile-menu-icon span:nth-child(1){top:7px;transform:rotate(45deg)}
+.mobile-menu-toggle[aria-expanded="true"] .mobile-menu-icon span:nth-child(2){opacity:0}
+.mobile-menu-toggle[aria-expanded="true"] .mobile-menu-icon span:nth-child(3){top:7px;transform:rotate(-45deg)}
+
+.mobile-nav-drawer{
+  position:fixed;
+  z-index:42;
+  left:calc(10px + env(safe-area-inset-left));
+  right:calc(10px + env(safe-area-inset-right));
+  top:calc(64px + env(safe-area-inset-top));
+  background:#fff;
+  border:1px solid #b9ccd8;
+  border-radius:14px;
+  box-shadow:0 18px 48px rgba(3,30,49,.32);
+  overflow:hidden;
+  padding:7px;
+}
+.mobile-nav-drawer.open{display:block}
+.mobile-nav-drawer button{
+  width:100%;
+  min-height:48px;
+  border:0;
+  border-radius:9px;
+  background:transparent;
+  color:#173f59;
+  text-align:left;
+  padding:10px 13px;
+  font-weight:800;
+}
+.mobile-nav-drawer button+button{margin-top:2px}
+.mobile-nav-drawer button.active{
+  background:#e3f0f7;
+  color:#124e78;
+}
+.mobile-nav-drawer button:active{background:#d5e9f4}
+
+.mobile-nav-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:41;
+  background:rgba(3,25,40,.34);
+}
+.mobile-nav-backdrop.open{display:block}
+
+@media(max-width:640px){
+  .topbar{
+    padding:calc(8px + env(safe-area-inset-top))
+            calc(10px + env(safe-area-inset-right))
+            8px
+            calc(10px + env(safe-area-inset-left));
+    flex-direction:row;
+    align-items:center;
+    gap:9px;
+  }
+  .mobile-menu-toggle{display:flex}
+  .topbar>.topnav{display:none!important}
+  .brand{
+    min-width:0;
+    font-size:17px;
+    padding-left:0;
+    gap:.25em;
+  }
+  .brand:before{
+    margin-right:5px;
+    width:9px;
+    height:9px;
+    flex-basis:9px;
+  }
+}
+
+@media(max-width:360px){
+  .brand{font-size:16px}
+  .mobile-menu-toggle{width:42px;height:42px;flex-basis:42px}
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version">v1.5</div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version">v1.6</div>
 
 <script>
 /* ===========================================================
@@ -596,7 +708,7 @@ body.ui-modal-open{overflow:hidden}
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.5";
+const APP_VERSION = "1.6";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -1202,18 +1314,51 @@ let mockId=1;
   for(let set=1;set<=6;set++)mocks.push({id:mockId++,tier,set,seed:8675309+ti*900001+set*104729});
 });
 
-function currentPageNav(){
- return `<div class="topbar"><div class="brand"><span class="brand-word">ADF</span><span class="brand-word">JOA</span><span class="brand-word">Trainer</span></div><div class="topnav">
-  <button onclick="go('home')" class="${state.page==='home'?'active':''}">Home</button>
-  <button onclick="go('practice')" class="${state.page==='practice'?'active':''}">Category Practice</button>
-  <button onclick="go('mental')" class="${state.page==='mental'?'active':''}">Mental Math</button>
-  <button onclick="go('mocks')" class="${state.page==='mocks'?'active':''}">Full Practice Tests</button>
-  <button onclick="go('progress')" class="${state.page==='progress'?'active':''}">Progress</button>
-  <button onclick="go('strategy')" class="${state.page==='strategy'?'active':''}">Strategy Guide</button>
-  <button onclick="go('sources')" class="${state.page==='sources'?'active':''}">Sources & Fidelity</button>
- </div></div>`;
+function navButtons(mobile=false){
+ const cls=page=>state.page===page?"active":"";
+ return `
+  <button onclick="go('home')" class="${cls('home')}">Home</button>
+  <button onclick="go('practice')" class="${cls('practice')}">Category Practice</button>
+  <button onclick="go('mental')" class="${cls('mental')}">Mental Math</button>
+  <button onclick="go('mocks')" class="${cls('mocks')}">Full Practice Tests</button>
+  <button onclick="go('progress')" class="${cls('progress')}">Progress</button>
+  <button onclick="go('strategy')" class="${cls('strategy')}">Strategy Guide</button>
+  <button onclick="go('sources')" class="${cls('sources')}">Sources & Fidelity</button>`;
 }
-function go(page){state.page=page;state.practice=null;state.test=null;render();window.scrollTo(0,0);}
+function currentPageNav(){
+ return `<div class="topbar">
+  <button class="mobile-menu-toggle" type="button" aria-label="Open main menu" aria-expanded="false" onclick="toggleMobileMenu(this)">
+   <span class="mobile-menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+  </button>
+  <div class="brand"><span class="brand-word">ADF</span><span class="brand-word">JOA</span><span class="brand-word">Trainer</span></div>
+  <div class="topnav">${navButtons()}</div>
+ </div>
+ <div id="mobileNavBackdrop" class="mobile-nav-backdrop" onclick="closeMobileMenu()"></div>
+ <nav id="mobileNavDrawer" class="mobile-nav-drawer" aria-label="Main menu">${navButtons(true)}</nav>`;
+}
+function toggleMobileMenu(button){
+ const drawer=document.getElementById("mobileNavDrawer");
+ const backdrop=document.getElementById("mobileNavBackdrop");
+ if(!drawer||!backdrop)return;
+ const opening=!drawer.classList.contains("open");
+ drawer.classList.toggle("open",opening);
+ backdrop.classList.toggle("open",opening);
+ button?.setAttribute("aria-expanded",opening?"true":"false");
+ button?.setAttribute("aria-label",opening?"Close main menu":"Open main menu");
+}
+function closeMobileMenu(){
+ document.getElementById("mobileNavDrawer")?.classList.remove("open");
+ document.getElementById("mobileNavBackdrop")?.classList.remove("open");
+ const button=document.querySelector(".mobile-menu-toggle");
+ button?.setAttribute("aria-expanded","false");
+ button?.setAttribute("aria-label","Open main menu");
+}
+function go(page){closeMobileMenu();state.page=page;state.practice=null;state.test=null;render();window.scrollTo(0,0);}
+
+window.addEventListener("keydown",event=>{
+ if(event.key==="Escape")closeMobileMenu();
+});
+
 function getStats(){
  const attempts=progress.attempts||[];
  const correct=attempts.reduce((n,a)=>n+(a.correct||0),0),questions=attempts.length*51;
