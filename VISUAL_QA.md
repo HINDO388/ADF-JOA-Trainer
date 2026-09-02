@@ -1,42 +1,38 @@
 # ADF JOA Trainer — Visual / Responsive QA
 
-**Release:** v1.17
+**Release:** v1.18
 
-The final saved HTML was exercised in headless Chromium across representative phone, tablet and desktop viewport sizes. This supplements real-device iOS safe-area testing.
+This pass specifically targets the iPad navigation inconsistency reported after v1.17, while also rechecking the principal phone/tablet/desktop responsive states.
 
 ## Viewports checked
-- iphone_portrait: 390×844
-- iphone_landscape: 844×390
-- ipad_portrait: 820×1180
-- ipad_landscape: 1180×820
-- desktop_1440: 1440×900
-- desktop_1920: 1920×1080
 
-## Sections checked at every viewport
-- Home
-- Category Practice
-- Full Practice Tests
-- Mental Math
-- Progress
-- Strategy Guide
-- Sources & Fidelity
+- iPhone portrait: 390×844
+- iPhone landscape: 844×390
+- iPad Pro-style portrait: 1024×1366
+- iPad Pro-style landscape: 1366×1024
+- Smaller iPad portrait: 820×1180
+- Smaller iPad landscape: 1180×820
+- Desktop: 1440×900
+- Large desktop: 1920×1080
 
-## Additional states checked
-- Hamburger open: header clearance, full-screen backdrop, close-button opacity, background scroll lock, internal drawer scrolling and last-item reachability
-- Category Practice with Help and Worked Examples expanded
-- All Full Practice Test difficulty groups expanded
-- Mental Math times-table picker
-- Category Practice drill modal
-- Active 51-question Full Practice Test shell
+## v1.18 regression targets
 
-## Result
-**PASS — no tested page-level overflow, navigation wrapping, menu clipping, backdrop coverage, modal-boundary or drawer-scroll failures detected.**
+- iPad landscape uses full-size navigation typography: **19px brand / 16px menu**, with one row.
+- iPad portrait uses the hamburger rather than shrinking seven menu labels to 13–14px.
+- Portrait → landscape → portrait/landscape orientation changes restore the same deterministic layout.
+- Phone layouts continue to use the hamburger.
+- Home version text is present and the hidden refresh click handler is active in every tested orientation.
+- Main sections were checked for page-level horizontal overflow at every viewport.
 
-## v1.17 fixes targeted by this pass
-- Drawer top is derived from the actual header bottom instead of a fixed estimate.
-- The previous fixed-body iOS scroll lock was removed.
-- The menu backdrop explicitly covers the whole viewport.
-- The drawer stays content-sized and becomes internally scrollable only when needed.
-- Narrow-screen tables, modal actions and visual-option cards have additional overflow protection.
+## Automated result
 
-The two supplied iPhone screenshots were used as the regression target for the hamburger issues.
+**PASS — no failures were found in the tested matrix.**
+
+The dedicated iPad rotation test confirmed:
+- initial landscape: full-size tablet-landscape navigation;
+- portrait: hamburger;
+- return to landscape: the same full-size tablet-landscape navigation with 16px menu text.
+
+## Note
+
+Headless Chromium cannot perfectly reproduce Safari/iPadOS font rasterisation, so the blur report is addressed structurally as well: the 13px/14px tablet compression path is removed and font-size/padding transitions are disabled. The tablet portrait layout now uses the hamburger instead of rendering the full menu at a reduced scale.

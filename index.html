@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.17">
+<meta name="app-version" content="1.18">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -1233,12 +1233,137 @@ h1,h2,h3,h4,.source-card p,.worked-question,.worked-answer,.notice,.smallnote{ov
   .fig svg{max-width:100%;height:auto}
 }
 
+
+/* ===========================================================
+   v1.18 iPad navigation + version-stamp consistency
+   =========================================================== */
+
+/*
+  Do not animate font-size/padding when a navigation mode changes.
+  This removes the soft/interpolated text effect during orientation
+  changes and keeps the chosen layout visually crisp.
+*/
+.topbar>.topnav button{
+  transition:none !important;
+}
+
+/*
+  iPad landscape target:
+  keep the full-size IMG-1-style typography (19px brand / 16px menu)
+  and gain the required horizontal room by trimming spacing only.
+  Text is NOT shrunk to the old compact/tight 14px/13px sizes.
+*/
+.topbar.nav-tablet-landscape{
+  gap:14px;
+  padding-left:calc(18px + env(safe-area-inset-left));
+  padding-right:calc(18px + env(safe-area-inset-right));
+}
+.topbar.nav-tablet-landscape .brand{
+  font-size:19px;
+  gap:.28em;
+}
+.topbar.nav-tablet-landscape .brand:before{
+  width:10px;
+  height:10px;
+  flex-basis:10px;
+  margin-right:8px;
+}
+.topbar.nav-tablet-landscape>.topnav{
+  gap:2px;
+}
+.topbar.nav-tablet-landscape>.topnav button{
+  padding:9px 9px;
+  font-size:16px;
+  min-height:44px;
+}
+
+/*
+  Portrait tablet fallback:
+  never squeeze the entire seven-item menu into tiny text.
+  The hamburger is the readable presentation in tablet portrait.
+  This CSS is also a failsafe if iPadOS misses an orientation event.
+*/
+@media (orientation:portrait) and (min-width:641px) and (max-width:1200px){
+  .topbar>.topnav{
+    display:none !important;
+  }
+  .topbar .mobile-menu-toggle{
+    display:flex !important;
+    order:2;
+    margin-left:auto;
+  }
+  .topbar .brand{
+    margin-right:auto;
+    font-size:19px !important;
+  }
+}
+
+/*
+  Landscape tablet failsafe: preserve full-size text even if a stale
+  compact/tight class somehow survives an iPadOS viewport transition.
+*/
+@media (orientation:landscape) and (min-width:1000px) and (max-width:1400px){
+  .topbar:not(.nav-hamburger){
+    gap:14px !important;
+    padding-left:calc(18px + env(safe-area-inset-left)) !important;
+    padding-right:calc(18px + env(safe-area-inset-right)) !important;
+  }
+  .topbar:not(.nav-hamburger) .brand{
+    font-size:19px !important;
+  }
+  .topbar:not(.nav-hamburger)>.topnav{
+    display:flex !important;
+    gap:2px !important;
+  }
+  .topbar:not(.nav-hamburger)>.topnav button{
+    font-size:16px !important;
+    padding:9px 9px !important;
+    min-height:44px !important;
+  }
+}
+
+/*
+  Make the page a simple vertical flex layout so the existing version
+  stamp can sit at the bottom of a short page instead of just below a
+  full-viewport .shell. This keeps it visible in iPad portrait while
+  preserving normal document flow on longer pages.
+*/
+html,body{
+  min-height:100%;
+}
+body{
+  min-height:100vh;
+  min-height:100dvh;
+  display:flex;
+  flex-direction:column;
+}
+.shell{
+  min-height:0 !important;
+  flex:1 0 auto;
+  width:100%;
+}
+#uiModalRoot{
+  flex:0 0 auto;
+}
+.version-stamp{
+  flex:0 0 auto;
+  width:100%;
+  display:block !important;
+  visibility:visible !important;
+}
+
+/* Keep the invisible Home refresh hit-area fully functional in either orientation. */
+.version-refresh-hit.home-refresh-enabled{
+  pointer-events:auto !important;
+  cursor:pointer;
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.17</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.18</span></div>
 
 <script>
 /* ===========================================================
@@ -1252,7 +1377,7 @@ h1,h2,h3,h4,.source-card p,.worked-question,.worked-answer,.notice,.smallnote{ov
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.17";
+const APP_VERSION = "1.18";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -4049,7 +4174,7 @@ function applyMainNavMode(){
   const drawer=document.getElementById("mobileNavDrawer");
   if(!topbar)return;
 
-  topbar.classList.remove("nav-compact","nav-tight","nav-hamburger");
+  topbar.classList.remove("nav-compact","nav-tight","nav-tablet-landscape","nav-hamburger");
   drawer?.classList.remove("adaptive-hamburger");
 
   if(mainNavMode&&mainNavMode!=="normal")topbar.classList.add(`nav-${mainNavMode}`);
@@ -4061,27 +4186,38 @@ function calculateMainNavMode(){
   const drawer=document.getElementById("mobileNavDrawer");
   if(!topbar||!nav)return mainNavMode||"normal";
 
-  topbar.classList.remove("nav-compact","nav-tight","nav-hamburger");
+  topbar.classList.remove("nav-compact","nav-tight","nav-tablet-landscape","nav-hamburger");
   drawer?.classList.remove("adaptive-hamburger");
 
+  const portrait=window.innerHeight>window.innerWidth;
+
+  /* iPhone / narrow handset */
   if(window.innerWidth<=640)return "hamburger";
+
+  /* Tablet portrait: favour legibility over squeezing seven labels into one row. */
+  if(portrait&&window.innerWidth<=1200)return "hamburger";
+
+  /*
+    Tablet landscape target. This is intentionally deterministic rather
+    than measurement-sensitive, so the same iPad always returns to the
+    same full-size visual treatment after rotating.
+  */
+  if(!portrait&&window.innerWidth>=1000&&window.innerWidth<=1400){
+    return "tablet-landscape";
+  }
+
+  /* Normal desktop treatment whenever it fits. */
   if(navFitsSingleRow(topbar,nav))return "normal";
 
-  topbar.classList.add("nav-compact");
-  if(navFitsSingleRow(topbar,nav)){
-    topbar.classList.remove("nav-compact");
-    return "compact";
-  }
-
-  topbar.classList.remove("nav-compact");
-  topbar.classList.add("nav-tight");
-  if(navFitsSingleRow(topbar,nav)){
-    topbar.classList.remove("nav-tight");
-    return "tight";
-  }
-
-  topbar.classList.remove("nav-tight");
-  return "hamburger";
+  /*
+    For an unusually narrow desktop window, try the tablet-landscape
+    spacing while retaining 16px menu text. If that still does not fit,
+    switch to hamburger rather than shrinking the text below 16px.
+  */
+  topbar.classList.add("nav-tablet-landscape");
+  const fitsTablet=navFitsSingleRow(topbar,nav);
+  topbar.classList.remove("nav-tablet-landscape");
+  return fitsTablet?"tablet-landscape":"hamburger";
 }
 function storeMainNavMode(mode){
   mainNavMode=mode;
