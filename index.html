@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.6">
+<meta name="app-version" content="1.7">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -689,12 +689,39 @@ body.ui-modal-open{overflow:hidden}
   .mobile-menu-toggle{width:42px;height:42px;flex-basis:42px}
 }
 
+
+/* v1.7 mobile menu placement + invisible Home-only version refresh target */
+@media(max-width:640px){
+  .topbar .brand{margin-right:auto}
+  .mobile-menu-toggle{order:2;margin-left:auto}
+  .topbar>.topnav{order:3}
+  .mobile-nav-drawer{
+    left:auto;
+    right:calc(10px + env(safe-area-inset-right));
+    width:min(330px,calc(100vw - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)));
+  }
+}
+
+/* No visual change: only the version text plus a small invisible margin
+   becomes tappable, and only while Home is the active page. */
+.version-refresh-hit{
+  position:relative;
+  display:inline-block;
+  pointer-events:none;
+}
+.version-refresh-hit.home-refresh-enabled{pointer-events:auto}
+.version-refresh-hit.home-refresh-enabled::before{
+  content:"";
+  position:absolute;
+  inset:-12px -20px;
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version">v1.6</div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.7</span></div>
 
 <script>
 /* ===========================================================
@@ -708,7 +735,7 @@ body.ui-modal-open{overflow:hidden}
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.6";
+const APP_VERSION = "1.7";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -1327,10 +1354,10 @@ function navButtons(mobile=false){
 }
 function currentPageNav(){
  return `<div class="topbar">
+  <div class="brand"><span class="brand-word">ADF</span><span class="brand-word">JOA</span><span class="brand-word">Trainer</span></div>
   <button class="mobile-menu-toggle" type="button" aria-label="Open main menu" aria-expanded="false" onclick="toggleMobileMenu(this)">
    <span class="mobile-menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
   </button>
-  <div class="brand"><span class="brand-word">ADF</span><span class="brand-word">JOA</span><span class="brand-word">Trainer</span></div>
   <div class="topnav">${navButtons()}</div>
  </div>
  <div id="mobileNavBackdrop" class="mobile-nav-backdrop" onclick="closeMobileMenu()"></div>
@@ -1358,6 +1385,59 @@ function go(page){closeMobileMenu();state.page=page;state.practice=null;state.te
 window.addEventListener("keydown",event=>{
  if(event.key==="Escape")closeMobileMenu();
 });
+
+
+async function forceLatestOnlineVersion(){
+ if(state.page!=="home")return;
+
+ const hit=document.getElementById("versionRefreshHit");
+ if(hit?.dataset.refreshing==="1")return;
+ if(hit)hit.dataset.refreshing="1";
+
+ try{
+   // Ask the current registration to check its service-worker script now.
+   if("serviceWorker" in navigator){
+     const regs=await navigator.serviceWorker.getRegistrations();
+     await Promise.all(regs.map(async reg=>{
+       try{await reg.update();}catch(_){}
+     }));
+   }
+
+   // Remove prior app-shell caches so the next navigation cannot fall back
+   // to a stale packaged copy while the device is online.
+   if("caches" in window){
+     const keys=await caches.keys();
+     await Promise.all(
+       keys.filter(key=>key.startsWith("adf-joa-trainer-pwa-"))
+           .map(key=>caches.delete(key))
+     );
+   }
+
+   // Make a no-store request for the current online index before navigating.
+   // The unique query also prevents a browser HTTP-cache hit.
+   const stamp=Date.now();
+   try{
+     await fetch(`./index.html?force-update=${stamp}`,{cache:"no-store"});
+   }catch(_){}
+
+   const url=new URL(window.location.href);
+   url.searchParams.set("force-update",String(stamp));
+   window.location.replace(url.toString());
+ }catch(_){
+   // Fallback still uses a cache-busting URL.
+   const url=new URL(window.location.href);
+   url.searchParams.set("force-update",String(Date.now()));
+   window.location.replace(url.toString());
+ }
+}
+
+function syncVersionRefreshHit(){
+ const hit=document.getElementById("versionRefreshHit");
+ if(!hit)return;
+ hit.classList.toggle("home-refresh-enabled",state.page==="home");
+ hit.onclick=state.page==="home"?forceLatestOnlineVersion:null;
+ if(state.page!=="home")delete hit.dataset.refreshing;
+}
 
 function getStats(){
  const attempts=progress.attempts||[];
@@ -1896,6 +1976,7 @@ function render(){
  else if(state.page==="strategy")app.innerHTML=strategyPage();
  else if(state.page==="sources")app.innerHTML=sourcesPage();
  document.body.classList.toggle("drill-open",(state.page==="practice"&&!!state.practice)||(state.page==="mental"&&!!state.mental));
+ syncVersionRefreshHit();
 }
 render();
 </script>
