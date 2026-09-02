@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.20">
+<meta name="app-version" content="1.21">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -1416,12 +1416,23 @@ body{
   z-index:-1;
 }
 
+
+/* v1.21 active-test-style Full Practice Test answer review */
+.full-review{margin-top:24px;scroll-margin-top:18px}.full-review-title{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.review-test-body{display:grid;grid-template-columns:230px minmax(0,1fr);border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;box-shadow:var(--shadow)}
+.review-test-side{padding:18px 16px;background:#f4f8fa;border-right:1px solid var(--line)}.review-status-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:10px 0 14px}
+.review-status-grid button,.review-mobile-status button{border:1px solid transparent;font-weight:900;color:#17394f}.review-status-grid button{height:32px;border-radius:7px;padding:0}
+.review-correct{background:#cfeadd!important;border-color:#86c8a8!important;color:#15583f!important}.review-incorrect{background:#f5d7da!important;border-color:#df9aa1!important;color:#8e2530!important}.review-unanswered{background:#f8e8ad!important;border-color:#dcc36b!important;color:#725a05!important}
+.review-status-grid button.current,.review-mobile-status button.current{outline:3px solid var(--sky-deep);outline-offset:1px}.review-legend{display:grid;gap:7px;font-size:11px;color:var(--muted)}.review-legend span{display:flex;gap:7px;align-items:center}.review-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.review-main{padding:22px;min-width:0}.review-question-meta{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}.review-question-time{padding:7px 10px;border:1px solid var(--line);background:#f5f9fb;border-radius:9px;font-size:12px;font-weight:850;color:#365a70}.review-feedback{margin-top:16px}.review-nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.review-mobile-status-wrap{display:none}
+@media(max-width:760px){.review-test-body{display:block;border-radius:0 0 14px 14px}.review-test-side{display:none}.review-main{padding:15px}.review-mobile-status-wrap{display:block;border:1px solid var(--line);border-bottom:0;border-radius:14px 14px 0 0;background:#f4f8fa;padding:10px;overflow:hidden}.review-mobile-status{display:flex;gap:6px;overflow-x:auto;padding:3px 2px 7px;-webkit-overflow-scrolling:touch}.review-mobile-status button{flex:0 0 38px;height:38px;border-radius:8px;padding:0}}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.20</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.21</span></div>
 
 <script>
 /* ===========================================================
@@ -1435,7 +1446,7 @@ body{
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.20";
+const APP_VERSION = "1.21";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -1922,7 +1933,7 @@ Object.assign(WORKED,{
 });
 
 
-const QUESTION_BANK_VERSION="2026-09-02-QA5";
+const QUESTION_BANK_VERSION="2026-09-02-QA6";
 const PRACTICE_BANK_SIZE_PER_DIFFICULTY=80;
 const PRACTICE_BANK_BANDS=["easy","medium","hard"];
 const PRACTICE_BANK_SUBTYPES=["numSeries","numValue","wordProblems","numMatrix","wordRelation","sentenceCompletion","oddWords","accuracyPrecision","analogy","deduction","seatingArrangements","familyTrees","abstractSequence","abstractMatrix","abstractAnalogy","abstractOdd"];
@@ -3051,22 +3062,21 @@ function genAbstractOddV3(seed,difficulty="medium"){
      q.explanation="Five figures are rotations of the same asymmetric marked shape. One reverses handedness and is therefore a reflection.";
      family="abstractodd-rotation-v-reflection-one";
    }else{
-     const offset=pick(r,[0,45]),solidAxis=pick(r,[0,90]);
-     let specs=[0,45,90,135,180].map((step,i)=>{
+     const offset=pick(r,[0,45]);
+     const expectedFill=rot=>(((rot-offset+360)%90)===0?"solid":"outline");
+     let specs=[0,45,90,135,180].map(step=>{
        const rot=(offset+step)%360;
-       const shouldSolid=((rot-solidAxis+360)%180)===0;
-       return {type:"shape",shape:"arrow",rot,fill:shouldSolid?"solid":"outline"};
+       return {type:"shape",shape:"arrow",rot,fill:expectedFill(rot)};
      });
-     const badIndex=ri(r,0,specs.length-1);
-     specs[badIndex]={...specs[badIndex],fill:specs[badIndex].fill==="solid"?"outline":"solid"};
+     const solidIndexes=specs.map((x,i)=>expectedFill(x.rot)==="solid"?i:-1).filter(i=>i>=0);
+     const badIndex=pick(r,solidIndexes);
+     specs[badIndex]={...specs[badIndex],fill:"outline"};
      specs=shuffle(r,specs);
      q.prompt="Which ONE figure does not belong with the others?";
      q.kind="visualSingle";q.visualOptions=specs;
-     q.answer=specs.findIndex(x=>{
-       const shouldSolid=((x.rot-solidAxis+360)%180)===0;
-       return x.fill!==(shouldSolid?"solid":"outline");
-     });
-     q.explanation="The valid figures follow a consistent orientation-to-fill relationship. One figure reverses the required fill for its axis.";
+     q.answer=specs.findIndex(x=>x.fill!==expectedFill(x.rot));
+     q.explanation="Relative to the starting axis, quarter-turn orientations are solid and diagonal orientations are outline. One figure reverses that visible orientation-to-fill relationship.";
+     q.ruleMeta={kind:"orientation-fill",offset,period:90,minNormalEachFill:2};
      family="abstractodd-orientation-fill";
    }
    reason="Requires recognising a relational invariant rather than a simple count difference, with several close visual alternatives.";
@@ -3082,23 +3092,23 @@ function genAbstractOddV3(seed,difficulty="medium"){
      q.explanation="Five figures are true rotations of one asymmetric marked shape. Two reverse handedness and are reflections.";
      family="abstractodd-rotation-v-reflection-two";
    }else{
-     const start=pick(r,[0,45,90,135]),axisA=start%180,shape=pick(r,["arrow","L"]);
+     const start=pick(r,[0,45,90,135]),shape=pick(r,["arrow","L"]);
+     const expectedFill=rot=>(((rot-start+360)%90)===0?"solid":"outline");
      let specs=[];
      for(const rot of [start,(start+45)%360,(start+90)%360,(start+135)%360,(start+180)%360,(start+225)%360,(start+270)%360]){
-       const onAxis=(rot%180)===axisA;
-       specs.push({type:"shape",shape,rot,fill:onAxis?"solid":"outline",marker:shape==="L"?"accent":undefined});
+       specs.push({type:"shape",shape,rot,fill:expectedFill(rot),marker:shape==="L"?"accent":undefined});
      }
-     const bad=shuffle(r,[0,1,2,3,4,5,6]).slice(0,2);
+     const solidIndexes=specs.map((x,i)=>expectedFill(x.rot)==="solid"?i:-1).filter(i=>i>=0);
+     const outlineIndexes=specs.map((x,i)=>expectedFill(x.rot)==="outline"?i:-1).filter(i=>i>=0);
+     const bad=[pick(r,solidIndexes),pick(r,outlineIndexes)];
      bad.forEach(i=>specs[i]={...specs[i],fill:specs[i].fill==="solid"?"outline":"solid"});
      specs=shuffle(r,specs);
      q.prompt="Which TWO figures do not belong with the others?";q.kind="visualMulti";q.visualOptions=specs;
-     q.answer=specs.map((x,i)=>({x,i})).filter(({x})=>{
-       const onAxis=(x.rot%180)===axisA;
-       return x.fill!==(onAxis?"solid":"outline");
-     }).map(z=>z.i);
+     q.answer=specs.map((x,i)=>({x,i})).filter(({x})=>x.fill!==expectedFill(x.rot)).map(z=>z.i);
      if(q.answer.length!==2)return genAbstractOddV3(seed+4099,band);
      q.maxSelect=2;
-     q.explanation="Five figures obey the same orientation-to-fill relationship. Two violate it and are the outsiders.";
+     q.explanation="Quarter-turn positions relative to the starting axis use one fill state and diagonal positions use the other. Five figures demonstrate that relationship; two reverse it.";
+     q.ruleMeta={kind:"orientation-fill",offset:start,period:90,minNormalEachFill:2};
      family="abstractodd-two-relational-outsiders";
    }
    reason="Requires tracking a relationship across seven close options and identifying two separate violations.";
@@ -3799,7 +3809,7 @@ function genAbstractAnalogyV4(seed,difficulty="medium"){
    opts=[correct,{...correct,dots:Math.max(1,m)},{...correct,dots:m+2},{...correct,dotFill:fill2==="solid"?"outline":"solid"}];
    exp="The first transformation adds one component while preserving fill. Apply +1 to the third panel.";family="abstract-analogy-count";
  }else if(type===1){
-   const shape=pick(r,["arrow","L","triangle"]),rot=pick(r,[30,45,60,90,120,135,180]),start=pick(r,angles),cstart=pick(r,angles);
+   const shape=pick(r,["arrow","L"]),rot=pick(r,[30,45,60,90,120,135,180]),start=pick(r,angles),cstart=pick(r,angles);
    a={type:"shape",shape,rot:start,fill:"solid",marker:shape==="L"?"accent":undefined};b={...a,rot:(start+rot)%360};
    c={type:"shape",shape,rot:cstart,fill:"outline",marker:shape==="L"?"accent":undefined};correct={...c,rot:(cstart+rot)%360};
    opts=[correct,{...correct,rot:(correct.rot+30)%360},{...correct,fill:"solid"},{...correct,mirror:true}];
@@ -3927,6 +3937,63 @@ function generateV4(subtype,seed,difficulty="medium",attempt=0){
  return q;
 }
 generate=generateV4;
+
+
+/* ===========================================================
+   Question Bank QA6 — visible equivalence + broad Word Problems
+   =========================================================== */
+function angleMod(v,m){
+ const x=((Number(v)||0)%m+m)%m;
+ return Math.round(x*1000)/1000;
+}
+function visualAppearanceKey(spec){
+ if(!spec)return "null";
+ if(spec.type==="dots"){
+   const n=spec.dots||3,period=360/Math.max(1,n);
+   return `dots|${n}|${spec.dotFill||"solid"}|${angleMod(spec.rot||0,period)}`;
+ }
+ if(spec.type==="block")return `block|${spec.shade||""}|${spec.studs||3}`;
+ if(spec.type==="nested")return `nested|${spec.outer}|${spec.inner}|${angleMod(spec.rot||0,360)}`;
+ if(spec.type!=="shape")return JSON.stringify(stableCanonical(spec));
+ let shape=spec.shape||"arrow",rot=Number(spec.rot)||0,mirror=!!spec.mirror;
+ const fill=spec.fill||"solid",marker=spec.marker||"";
+ if(shape==="circle")return `shape|circle|${fill}|${marker}|0|0`;
+ if(["square","diamond","cross"].includes(shape)){mirror=false;rot=angleMod(rot,90);}
+ else if(["rectangle","oval"].includes(shape)){mirror=false;rot=angleMod(rot,180);}
+ else if(shape==="hexagon"){mirror=false;rot=angleMod(rot,60);}
+ else if(["triangle","trapezoid","pentagon"].includes(shape)){mirror=false;rot=angleMod(rot,360);}
+ else if(shape==="arrow"){if(mirror){rot+=180;mirror=false;}rot=angleMod(rot,360);}
+ else rot=angleMod(rot,360);
+ return `shape|${shape}|${fill}|${marker}|${rot}|${mirror?1:0}`;
+}
+function visualOptionsDistinctByAppearance(q){
+ if(!Array.isArray(q.visualOptions))return true;
+ const keys=q.visualOptions.map(visualAppearanceKey);
+ return new Set(keys).size===keys.length;
+}
+function relationalVisualEvidenceValid(q){
+ if(!q?.ruleMeta||q.ruleMeta.kind!=="orientation-fill")return true;
+ const answers=new Set(Array.isArray(q.answer)?q.answer:[q.answer]);
+ const normal=q.visualOptions.filter((_,i)=>!answers.has(i));
+ const expected=x=>(((Number(x.rot)-q.ruleMeta.offset+3600)%q.ruleMeta.period)===0?"solid":"outline");
+ if(normal.some(x=>x.fill!==expected(x)))return false;
+ const solid=normal.filter(x=>x.fill==="solid").length,outline=normal.filter(x=>x.fill==="outline").length,min=q.ruleMeta.minNormalEachFill||1;
+ return solid>=min&&outline>=min;
+}
+function genWordProblemV5(seed,difficulty="medium"){
+ return Math.abs(Number(seed)||0)%3===0?genWordProblemV4(seed,difficulty):genWordProblemV3(seed,difficulty);
+}
+const _generateV4QA6=generateV4;
+function generateV5(subtype,seed,difficulty="medium",attempt=0){
+ const band=requestedBand(difficulty);let q;
+ if(subtype==="wordProblems"){
+   q=genWordProblemV5(seed,band);q=calibrateDifficulty(q);q.requestedDifficulty=band;
+ }else q=_generateV4QA6(subtype,seed,band,attempt);
+ const invalid=q.difficulty!==band||!visualOptionsDistinctByAppearance(q)||!relationalVisualEvidenceValid(q);
+ if(invalid&&attempt<40)return generateV5(subtype,seed+104729+attempt*7919,band,attempt+1);
+ return q;
+}
+generate=generateV5;
 
 
 /* ---------- Diversity selection ---------- */
@@ -4698,56 +4765,69 @@ function mockCard(m){
 }
 function startWarmup(){
  const st=["numMatrix","abstractOdd","deduction","numSeries","wordProblems"],qs=st.map((x,i)=>generate(x,987123+i*443,"easy"));
- state.test={id:"Warm-up",tier:null,questions:qs,index:0,answers:Array(5).fill(null),flags:Array(5).fill(false),started:Date.now(),duration:600,interval:null,warmup:true,submitted:false};state.page="test";render();startTimer();
+ state.test={id:"Warm-up",tier:null,questions:qs,index:0,answers:Array(5).fill(null),flags:Array(5).fill(false),questionTimes:Array(5).fill(0),qEnteredAt:Date.now(),started:Date.now(),duration:600,interval:null,warmup:true,submitted:false};state.page="test";render();startTimer();
 }
 function difficultyPlan(tier,r){
  if(tier==="easier")return shuffle(r,[...Array(11).fill("easy"),...Array(5).fill("medium"),"hard"]);
  if(tier==="harder")return shuffle(r,[...Array(2).fill("easy"),...Array(7).fill("medium"),...Array(8).fill("hard")]);
  return shuffle(r,[...Array(5).fill("easy"),...Array(9).fill("medium"),...Array(3).fill("hard")]);
 }
+const FULL_TEST_WORD_GROUPS=[
+ {id:"speed-distance-time",families:["word-rate-time","word-time-unit-conversion","word-two-leg-time"]},
+ {id:"percentages",families:["word-simple-percent","word-total-then-percent","word-percent-increase","word-dependent-percent-medium","word-dependent-percent-hard","word-reverse-percent","word-successive-percent-change","word-reverse-percent-friendly","word-percent-plus-fixed","word-reverse-percent-hard"]},
+ {id:"ratios",families:["word-simple-ratio","word-ratio-share","word-ratio-then-change","word-ratio-transfer"]},
+ {id:"averages-rates",families:["word-output-rate","word-equal-share","word-reverse-average","word-changing-workforce","word-combined-rates","word-weighted-average"]},
+ {id:"combinations-unit-cost",families:["word-unit-cost","word-combinations","word-combinations-hard"]}
+];
+function fullTestSubtypeSchedule(cat,id,r){
+ const sts=byCat[cat],out=[];
+ if(cat==="Numerical"){
+   const counts={numSeries:4,numValue:4,wordProblems:5,numMatrix:4};
+   Object.entries(counts).forEach(([st,n])=>{for(let i=0;i<n;i++)out.push(st)});
+ }else{
+   const base=Math.floor(17/sts.length),extra=17-base*sts.length;
+   sts.forEach(st=>{for(let i=0;i<base;i++)out.push(st)});
+   for(let i=0;i<extra;i++)out.push(sts[(id-1+i)%sts.length]);
+ }
+ return shuffle(r,out);
+}
+function expandedMockCandidates(st,band){
+ const base=bankCandidates(st,band),extras=[];
+ for(let i=0;i<180;i++)extras.push(generate(st,practiceBankSeed(st,band,i%PRACTICE_BANK_SIZE_PER_DIFFICULTY)+9000001+i*3571,band));
+ const seen=new Set(),out=[];
+ for(const q of [...base,...extras]){const fp=questionFingerprint(q);if(seen.has(fp))continue;seen.add(fp);out.push(q)}
+ return out;
+}
+function pickMockQuestion({st,band,requiredFamilies,globalSeen,familyCounts,lastFamily,seed,slot}){
+ let candidates=expandedMockCandidates(st,band).filter(q=>!globalSeen.has(questionFingerprint(q))).filter(q=>visualOptionsDistinctByAppearance(q)&&relationalVisualEvidenceValid(q));
+ if(requiredFamilies?.length)candidates=candidates.filter(q=>requiredFamilies.includes(questionFamily(q)));
+ if(!candidates.length)return null;
+ candidates.sort((a,b)=>{const fa=questionFamily(a),fb=questionFamily(b),ca=familyCounts.get(fa)||0,cb=familyCounts.get(fb)||0;if(ca!==cb)return ca-cb;if(fa===lastFamily&&fb!==lastFamily)return 1;if(fb===lastFamily&&fa!==lastFamily)return -1;return questionFingerprint(a)<questionFingerprint(b)?-1:1});
+ return candidates[(seed+slot*1009+st.charCodeAt(0)*997)%candidates.length];
+}
 function buildMock(id){
  const m=mocks.find(x=>x.id===Number(id));if(!m)throw new Error("Unknown practice test");
  const seed=m.seed,r=rng(seed),qs=[],globalSeen=new Set(),familyCounts=new Map();
- Object.entries(byCat).forEach(([cat,sts])=>{
-   const plan=difficultyPlan(m.tier,r),subtypeCounts=new Map();let lastSubtype=null,lastFamily=null;
+ for(const cat of ["Numerical","Verbal","Abstract"]){
+   const plan=difficultyPlan(m.tier,r),schedule=fullTestSubtypeSchedule(cat,id,r);let lastFamily=null,wordSlot=0;
    for(let i=0;i<17;i++){
-     const band=plan[i];
-     const subtypeOrder=[...sts].sort((a,b)=>{
-       const ca=subtypeCounts.get(a)||0,cb=subtypeCounts.get(b)||0;
-       if(ca!==cb)return ca-cb;
-       if(a===lastSubtype&&b!==lastSubtype)return 1;
-       if(b===lastSubtype&&a!==lastSubtype)return -1;
-       return ((seed+i+a.charCodeAt(0))%2)?-1:1;
-     });
-     let picked=null;
-     for(const st of subtypeOrder){
-       const candidates=bankCandidates(st,band)
-         .filter(q=>!globalSeen.has(questionFingerprint(q)))
-         .sort((a,b)=>{
-           const fa=questionFamily(a),fb=questionFamily(b),ca=familyCounts.get(fa)||0,cb=familyCounts.get(fb)||0;
-           if(ca!==cb)return ca-cb;
-           if(fa===lastFamily&&fb!==lastFamily)return 1;
-           if(fb===lastFamily&&fa!==lastFamily)return -1;
-           return questionFingerprint(a)<questionFingerprint(b)?-1:1;
-         });
-       if(candidates.length){
-         const offset=(seed+i*1009+st.charCodeAt(0)*997)%candidates.length;
-         picked=candidates[offset];break;
-       }
+     const st=schedule[i],band=plan[i];let requiredFamilies=null;
+     if(st==="wordProblems")requiredFamilies=FULL_TEST_WORD_GROUPS[wordSlot++].families;
+     let picked=pickMockQuestion({st,band,requiredFamilies,globalSeen,familyCounts,lastFamily,seed,slot:qs.length});
+     if(!picked&&st==="wordProblems"&&requiredFamilies){
+       const fallbacks=band==="easy"?["medium","hard"]:band==="medium"?["easy","hard"]:["medium","easy"];
+       for(const fallbackBand of fallbacks){picked=pickMockQuestion({st,band:fallbackBand,requiredFamilies,globalSeen,familyCounts,lastFamily,seed,slot:qs.length});if(picked)break;}
      }
-     if(!picked)throw new Error(`Unable to build unique Practice Test ${id}`);
-     qs.push(picked);
-     const fp=questionFingerprint(picked),fam=questionFamily(picked);
-     globalSeen.add(fp);familyCounts.set(fam,(familyCounts.get(fam)||0)+1);
-     subtypeCounts.set(picked.subtype,(subtypeCounts.get(picked.subtype)||0)+1);
-     lastSubtype=picked.subtype;lastFamily=fam;
+     if(!picked)picked=pickMockQuestion({st,band,requiredFamilies:null,globalSeen,familyCounts,lastFamily,seed,slot:qs.length});
+     if(!picked)throw new Error(`Unable to build unique Practice Test ${id} (${cat}/${st}/${band})`);
+     qs.push(picked);const fp=questionFingerprint(picked),fam=questionFamily(picked);globalSeen.add(fp);familyCounts.set(fam,(familyCounts.get(fam)||0)+1);lastFamily=fam;
    }
- });
+ }
  if(qs.length!==51||globalSeen.size!==51)throw new Error(`Practice Test ${id} uniqueness guard failed`);
  return shuffle(r,qs).map((q,i)=>({...q,testNo:i+1}));
 }
 function startMock(id){
- const m=mocks.find(x=>x.id===Number(id)),qs=buildMock(id);state.test={id:m.id,tier:m.tier,questions:qs,index:0,answers:Array(51).fill(null),flags:Array(51).fill(false),started:Date.now(),duration:1200,interval:null,warmup:false,submitted:false};state.page="test";render();startTimer();
+ const m=mocks.find(x=>x.id===Number(id)),qs=buildMock(id);state.test={id:m.id,tier:m.tier,questions:qs,index:0,answers:Array(51).fill(null),flags:Array(51).fill(false),questionTimes:Array(51).fill(0),qEnteredAt:Date.now(),started:Date.now(),duration:1200,interval:null,warmup:false,submitted:false};state.page="test";render();startTimer();
 }
 function startTimer(){
  clearInterval(state.test?.interval);
@@ -4777,12 +4857,16 @@ function selectTest(i){
  else t.answers[t.index]=(q.kind==="single"?q.options[i]:i);
  render();startTimer();
 }
-function jumpQ(i){state.test.index=i;render();startTimer()}
-function prevQ(){if(state.test.index>0){state.test.index--;render();startTimer()}}
-function nextQ(){if(state.test.index<state.test.questions.length-1){state.test.index++;render();startTimer()}else confirmSubmit()}
+function recordCurrentTestQuestionTime(){
+ const t=state.test;if(!t||!Array.isArray(t.questionTimes))return;const now=Date.now();if(t.qEnteredAt)t.questionTimes[t.index]+=(now-t.qEnteredAt)/1000;t.qEnteredAt=now;
+}
+function enterTestQuestion(i){const t=state.test;if(!t)return;recordCurrentTestQuestionTime();t.index=i;t.qEnteredAt=Date.now();render();startTimer()}
+function jumpQ(i){if(i!==state.test.index)enterTestQuestion(i)}
+function prevQ(){if(state.test.index>0)enterTestQuestion(state.test.index-1)}
+function nextQ(){if(state.test.index<state.test.questions.length-1)enterTestQuestion(state.test.index+1);else confirmSubmit()}
 function toggleFlag(){state.test.flags[state.test.index]=!state.test.flags[state.test.index];render();startTimer()}
 async function exitTest(){
- const t=state.test;if(!t)return;const label=t.warmup?"familiarisation":"practice test";
+ const t=state.test;if(!t)return;recordCurrentTestQuestionTime();const label=t.warmup?"familiarisation":"practice test";
  const ok=await uiConfirm(`Your answers and progress in this unfinished ${label} will be lost.`,"Exit test?","Exit",true);if(!ok)return;
  clearInterval(t.interval);state.test=null;state.page="mocks";render();window.scrollTo(0,0);
 }
@@ -4795,13 +4879,10 @@ function calculateBreakdown(questions,answers){
  const by={};questions.forEach((q,i)=>{by[q.category]??={total:0,correct:0,attempted:0};const a=answers[i],attempted=a!==null&&a!==undefined&&(!Array.isArray(a)||a.length>0);by[q.category].total++;by[q.category].correct+=isCorrect(q,a)?1:0;by[q.category].attempted+=attempted?1:0;});return by;
 }
 function submitTest(auto){
- const t=state.test;if(!t||t.submitted)return;t.submitted=true;clearInterval(t.interval);
- const correct=t.questions.filter((q,i)=>isCorrect(q,t.answers[i])).length,attempted=t.answers.filter(x=>x!==null&&x!==undefined&&(!Array.isArray(x)||x.length>0)).length,elapsed=Math.min(t.duration,Math.floor((Date.now()-t.started)/1000)),by=calculateBreakdown(t.questions,t.answers);
- state.review={id:t.id,tier:t.tier,questions:t.questions,answers:t.answers,flags:t.flags,correct,attempted,by,auto,warmup:t.warmup,elapsed,date:new Date().toISOString()};
- if(!t.warmup){
-   const attemptId=`${Date.now()}-${Math.floor(Math.random()*1000000)}`;
-   progress.attempts.unshift({attemptId,testId:t.id,tier:t.tier,date:state.review.date,elapsed,correct,attempted,answers:t.answers,flags:t.flags,auto:!!auto,questionBankVersion:QUESTION_BANK_VERSION,questions:t.questions});saveProgress();state.review.savedAttemptId=attemptId;
- }
+ const t=state.test;if(!t||t.submitted)return;recordCurrentTestQuestionTime();t.submitted=true;clearInterval(t.interval);
+ const correct=t.questions.filter((q,i)=>isCorrect(q,t.answers[i])).length,attempted=t.answers.filter(x=>x!==null&&x!==undefined&&(!Array.isArray(x)||x.length>0)).length,elapsed=Math.min(t.duration,Math.floor((Date.now()-t.started)/1000)),by=calculateBreakdown(t.questions,t.answers),questionTimes=Array.isArray(t.questionTimes)?t.questionTimes.map(x=>Math.max(0,Number(x)||0)):Array(t.questions.length).fill(null);
+ state.review={id:t.id,tier:t.tier,questions:t.questions,answers:t.answers,flags:t.flags,questionTimes,reviewOpen:false,reviewIndex:0,correct,attempted,by,auto,warmup:t.warmup,elapsed,date:new Date().toISOString()};
+ if(!t.warmup){const attemptId=`${Date.now()}-${Math.floor(Math.random()*1000000)}`;progress.attempts.unshift({attemptId,testId:t.id,tier:t.tier,date:state.review.date,elapsed,correct,attempted,answers:t.answers,flags:t.flags,questionTimes,auto:!!auto,questionBankVersion:QUESTION_BANK_VERSION,questions:t.questions});saveProgress();state.review.savedAttemptId=attemptId;}
  state.test=null;state.page="results";render();window.scrollTo(0,0);
 }
 function formatAttemptDate(iso){
@@ -4811,7 +4892,7 @@ async function openSavedAttempt(attemptId){
  const a=(progress.attempts||[]).find(x=>x.attemptId===attemptId);if(!a)return;
  if(!Array.isArray(a.questions)||a.questions.length!==51){await uiAlert("This result was saved before the fully audited question bank was introduced. Its score and timing are preserved, but an exact per-question review cannot be reconstructed safely because the question bank has since changed. Please retake the test for a fully preserved answer review.","Legacy result");return;}
  const qs=a.questions,by=calculateBreakdown(qs,a.answers);
- state.review={id:a.testId,tier:a.tier,questions:qs,answers:a.answers,flags:a.flags||Array(qs.length).fill(false),correct:a.correct,attempted:a.attempted,by,auto:a.auto,warmup:false,elapsed:a.elapsed,date:a.date,savedAttemptId:a.attemptId,fromHistory:true};state.page="results";render();window.scrollTo(0,0);setTimeout(showReview,0);
+ state.review={id:a.testId,tier:a.tier,questions:qs,answers:a.answers,flags:a.flags||Array(qs.length).fill(false),questionTimes:Array.isArray(a.questionTimes)?a.questionTimes:Array(qs.length).fill(null),reviewOpen:true,reviewIndex:0,correct:a.correct,attempted:a.attempted,by,auto:a.auto,warmup:false,elapsed:a.elapsed,date:a.date,savedAttemptId:a.attemptId,fromHistory:true};state.page="results";render();window.scrollTo(0,0);setTimeout(()=>document.getElementById("reviewZone")?.scrollIntoView({behavior:"smooth",block:"start"}),50);
 }
 async function deleteAttempt(attemptId){const ok=await uiConfirm("This saved full-test attempt and its answer review will be permanently deleted.","Delete result?","Delete",true);if(!ok)return;progress.attempts=progress.attempts.filter(x=>x.attemptId!==attemptId);saveProgress();render();}
 async function deleteAllAttempts(){if(!(progress.attempts||[]).length)return;const ok=await uiConfirm("Every saved full practice-test result and answer review will be permanently deleted.","Delete all history?","Delete all",true);if(!ok)return;progress.attempts=[];saveProgress();render();}
@@ -4827,19 +4908,21 @@ function historyItem(a){
  return `<div class="card history-item"><div class="history-top"><div><div class="history-title">Practice Test ${a.testId} <span class="tier-pill ${a.tier}">${info.label}</span></div><div class="history-meta">${formatAttemptDate(a.date)}${a.auto?" · time expired":" · submitted manually"}</div></div><div class="history-score">${a.correct}/51</div></div><div class="history-stats"><span>Attempted ${a.attempted}/51</span><span>Accuracy on attempted ${acc}%</span><span>Time ${Math.floor(a.elapsed/60)}:${String(a.elapsed%60).padStart(2,"0")}</span></div><div class="history-actions"><button class="btn small" onclick="openSavedAttempt('${a.attemptId}')">${Array.isArray(a.questions)?"Open answer review":"Legacy result info"}</button><button class="btn small danger-btn" onclick="deleteAttempt('${a.attemptId}')">Delete this result</button></div></div>`;
 }
 
+function reviewAnswerState(r,i){const a=r.answers[i],unanswered=a===null||a===undefined||(Array.isArray(a)&&a.length===0);if(unanswered)return "unanswered";return isCorrect(r.questions[i],a)?"correct":"incorrect"}
+function reviewStatusClass(r,i){return `review-${reviewAnswerState(r,i)}${r.reviewIndex===i?" current":""}`}
+function formatFullReviewTime(r,i){const t=Array.isArray(r.questionTimes)?r.questionTimes[i]:null;if(t===null||t===undefined||t==="")return "Not recorded";return Number.isFinite(Number(t))?formatPracticeSeconds(Number(t)):"Not recorded"}
+function renderFullTestAnswerReview(){
+ const r=state.review;if(!r||!r.reviewOpen)return "";const i=Math.max(0,Math.min(r.questions.length-1,r.reviewIndex||0)),q=r.questions[i],ans=r.answers[i],status=reviewAnswerState(r,i),good=status==="correct",statusLabel=status==="correct"?"Correct":status==="incorrect"?"Incorrect":"Unanswered",statusColor=status==="correct"?"var(--good)":status==="incorrect"?"var(--bad)":"#8a6900";
+ const buttons=r.questions.map((_,n)=>`<button class="${reviewStatusClass(r,n)}" onclick="setFullReviewQuestion(${n})">${n+1}</button>`).join("");
+ return `<section id="fullAnswerReview" class="full-review"><div class="full-review-title"><div><div class="kicker">Answer review</div><h2>Practice Test ${r.id}</h2></div><button class="btn ghost small" onclick="hideFullReview()">Hide review</button></div><div class="review-mobile-status-wrap"><div class="smallnote" style="font-weight:900;margin-bottom:5px">Question Status</div><div class="review-mobile-status">${buttons}</div></div><div class="review-test-body"><aside class="review-test-side"><b style="font-size:12px">Question Status</b><div class="review-status-grid">${buttons}</div><div class="review-legend"><span><i style="background:#cfeadd;border:1px solid #86c8a8"></i> Correct</span><span><i style="background:#f5d7da;border:1px solid #df9aa1"></i> Incorrect</span><span><i style="background:#f8e8ad;border:1px solid #dcc36b"></i> Unanswered</span></div></aside><main class="review-main"><div class="review-question-meta"><div class="qmeta"><div class="left"><span class="badge">${i+1}</span><span class="badge">${q.category}</span><span class="badge diff-${q.difficulty}" title="${q.difficultyReason||""}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span>${r.flags?.[i]?'<span class="badge">Flagged</span>':""}</div></div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="review-question-time">Time spent: ${formatFullReviewTime(r,i)}</span><b style="color:${statusColor}">${statusLabel}</b></div></div><div class="test-question">${renderQuestion(q,ans,true,"review")}</div><div class="feedback ${good?"good":"bad"} review-feedback"><b>${statusLabel}</b>${q.explanation}<div class="difficulty-audit"><b>Difficulty rationale:</b> ${q.difficultyReason}</div></div><div class="review-nav"><button class="btn secondary" onclick="setFullReviewQuestion(${i-1})" ${i===0?"disabled":""}>‹ Previous Question</button><button class="btn" onclick="setFullReviewQuestion(${i+1})" ${i===r.questions.length-1?"disabled":""}>Next Question ›</button></div></main></div></section>`;
+}
+function setFullReviewQuestion(i){const r=state.review;if(!r||i<0||i>=r.questions.length)return;r.reviewIndex=i;const zone=document.getElementById("reviewZone");if(zone)zone.innerHTML=renderFullTestAnswerReview()}
+function hideFullReview(){if(!state.review)return;state.review.reviewOpen=false;const zone=document.getElementById("reviewZone");if(zone)zone.innerHTML=""}
 function resultsPage(){
  const r=state.review; const accuracy=r.attempted?Math.round(r.correct/r.attempted*100):0;
- return `${currentPageNav()}<main class="container"><div class="card result-card"><div class="kicker">${r.warmup?"Familiarisation complete":`Practice Test ${r.id} · ${MOCK_TIER_INFO[r.tier]?.label||"Full test"}`}</div><h2>${r.correct}/${r.questions.length} correct</h2>${!r.warmup&&r.date?`<div class="smallnote">${r.fromHistory?"Saved attempt":"Saved to Progress"} · ${formatAttemptDate(r.date)}</div>`:""}
- <div class="result-grid"><div class="result-stat"><b>${r.correct}</b><span>Correct</span></div><div class="result-stat"><b>${r.attempted}</b><span>Attempted</span></div><div class="result-stat"><b>${accuracy}%</b><span>Accuracy on attempted</span></div><div class="result-stat"><b>${Math.floor(r.elapsed/60)}:${String(r.elapsed%60).padStart(2,"0")}</b><span>Elapsed</span></div></div>
- ${r.warmup?'<div class="notice blue">The real scored JOA follows the official familiarisation period. You can now start a full 20-minute practice test.</div>':`<div class="notice"><b>Interpret cautiously:</b> this trainer does not know ADF occupational cut-scores and does not issue a pass/fail prediction. Use the result to diagnose speed, accuracy and weak question families.</div>
- <table class="breakdown"><thead><tr><th>Family</th><th>Correct</th><th>Attempted</th><th>Accuracy attempted</th></tr></thead><tbody>${Object.entries(r.by).map(([k,v])=>`<tr><td>${k}</td><td>${v.correct}/${v.total}</td><td>${v.attempted}/${v.total}</td><td>${v.attempted?Math.round(v.correct/v.attempted*100):0}%</td></tr>`).join("")}</tbody></table>`}
- <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn" onclick="showReview()">Review answers</button><button class="btn secondary" onclick="go('mocks')">Back to practice tests</button></div></div><div id="reviewZone"></div></main>`;
+ return `${currentPageNav()}<main class="container"><div class="card result-card"><div class="kicker">${r.warmup?"Familiarisation complete":`Practice Test ${r.id} · ${MOCK_TIER_INFO[r.tier]?.label||"Full test"}`}</div><h2>${r.correct}/${r.questions.length} correct</h2>${!r.warmup&&r.date?`<div class="smallnote">${r.fromHistory?"Saved attempt":"Saved to Progress"} · ${formatAttemptDate(r.date)}</div>`:""}<div class="result-grid"><div class="result-stat"><b>${r.correct}</b><span>Correct</span></div><div class="result-stat"><b>${r.attempted}</b><span>Attempted</span></div><div class="result-stat"><b>${accuracy}%</b><span>Accuracy on attempted</span></div><div class="result-stat"><b>${Math.floor(r.elapsed/60)}:${String(r.elapsed%60).padStart(2,"0")}</b><span>Elapsed</span></div></div>${r.warmup?'<div class="notice blue">The real scored JOA follows the official familiarisation period. You can now start a full 20-minute practice test.</div>':`<div class="notice"><b>Interpret cautiously:</b> this trainer does not know ADF occupational cut-scores and does not issue a pass/fail prediction. Use the result to diagnose speed, accuracy and weak question families.</div><table class="breakdown"><thead><tr><th>Family</th><th>Correct</th><th>Attempted</th><th>Accuracy attempted</th></tr></thead><tbody>${Object.entries(r.by).map(([k,v])=>`<tr><td>${k}</td><td>${v.correct}/${v.total}</td><td>${v.attempted}/${v.total}</td><td>${v.attempted?Math.round(v.correct/v.attempted*100):0}%</td></tr>`).join("")}</tbody></table>`}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn" onclick="showReview()">Review answers</button><button class="btn secondary" onclick="go('mocks')">Back to practice tests</button></div></div><div id="reviewZone">${r.reviewOpen?renderFullTestAnswerReview():""}</div></main>`;
 }
-function showReview(){
- const z=document.getElementById("reviewZone"),r=state.review;
- z.innerHTML=`<h2 style="margin-top:24px">Answer Review</h2>${r.questions.map((q,i)=>`<div class="review-item"><div class="qmeta"><div class="left"><span class="badge">${i+1}</span><span class="badge">${q.category}</span><span class="badge diff-${q.difficulty}" title="${q.difficultyReason||''}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span></div><b style="color:${isCorrect(q,r.answers[i])?'var(--good)':'var(--bad)'}">${isCorrect(q,r.answers[i])?'Correct':'Incorrect / unanswered'}</b></div>${renderQuestion(q,r.answers[i],true,"review")}<div class="feedback ${isCorrect(q,r.answers[i])?'good':'bad'}">${q.explanation}<div class="difficulty-audit"><b>Difficulty rationale:</b> ${q.difficultyReason}</div></div></div>`).join("")}`;
- z.scrollIntoView({behavior:"smooth"});
-}
+function showReview(){const r=state.review;if(!r)return;r.reviewOpen=true;if(!Number.isInteger(r.reviewIndex))r.reviewIndex=0;const zone=document.getElementById("reviewZone");if(zone)zone.innerHTML=renderFullTestAnswerReview();setTimeout(()=>document.getElementById("fullAnswerReview")?.scrollIntoView({behavior:"smooth",block:"start"}),30)}
 
 
 const MENTAL_OPS={add:{label:"Addition",symbol:"+"},sub:{label:"Subtraction",symbol:"−"},mul:{label:"Multiplication",symbol:"×"},div:{label:"Division",symbol:"÷"}};
