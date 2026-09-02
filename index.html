@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.15">
+<meta name="app-version" content="1.16">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -1108,12 +1108,61 @@ body.mobile-menu-open{
   }
 }
 
+
+/* v1.16 hamburger close control + content-sized drawer */
+
+/*
+  Lift the top bar above the backdrop only while the menu is open,
+  then recreate the same dimming over the bar itself. The active
+  close/cross button sits above that local dim layer, so it remains
+  fully bright and clearly interactive while the rest of the header
+  stays visually de-emphasised.
+*/
+body.mobile-menu-open .topbar{
+  z-index:43;
+}
+body.mobile-menu-open .topbar::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:rgba(3,25,40,.34);
+}
+body.mobile-menu-open .mobile-menu-toggle{
+  position:relative;
+  z-index:2;
+  opacity:1;
+}
+
+/*
+  Content-sized by default. The box only grows as tall as its menu
+  items + padding, but can never exceed the available viewport height.
+*/
+.mobile-nav-drawer{
+  bottom:auto !important;
+  height:auto;
+  max-height:calc(100dvh - 80px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  box-sizing:border-box;
+  overflow-y:auto;
+  overflow-x:hidden;
+}
+
+/* Short iPhone landscape: keep the same content-hugging behaviour,
+   with a tighter maximum height so the drawer remains fully reachable. */
+@media(max-height:520px){
+  .mobile-nav-drawer{
+    bottom:auto !important;
+    max-height:calc(100dvh - 60px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.15</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.16</span></div>
 
 <script>
 /* ===========================================================
@@ -1127,7 +1176,7 @@ body.mobile-menu-open{
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.15";
+const APP_VERSION = "1.16";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
