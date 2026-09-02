@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.12">
+<meta name="app-version" content="1.13">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -1000,12 +1000,63 @@ body.ui-modal-open{overflow:hidden}
   }
 }
 
+
+/* v1.13 worked-example visual questions */
+.worked-visual{
+  margin:12px 0 14px;
+  padding:13px;
+  border:1px solid #d6e3ea;
+  border-radius:11px;
+  background:#f8fbfc;
+  overflow:hidden;
+}
+.worked-visual .svg-seq,
+.worked-visual .visual-analogy{
+  justify-content:center;
+}
+.worked-visual-options{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(92px,1fr));
+  gap:9px;
+  margin-top:11px;
+}
+.worked-visual-choice{
+  min-height:92px;
+  padding:8px 5px;
+  border:1px solid #cbd9e1;
+  border-radius:10px;
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+}
+.worked-visual-choice .fig{
+  min-height:68px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.worked-visual-choice b{
+  font-size:12px;
+  color:#476273;
+}
+@media(max-width:520px){
+  .worked-visual{padding:9px}
+  .worked-visual-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .worked-visual .svg-seq{gap:5px}
+  .worked-visual .svg-frame svg{max-width:62px;height:auto}
+  .worked-visual .visual-matrix-cell svg{max-width:64px;height:auto}
+  .worked-visual .visual-analogy-cell svg{max-width:62px;height:auto}
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.12</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.13</span></div>
 
 <script>
 /* ===========================================================
@@ -1019,7 +1070,7 @@ body.ui-modal-open{overflow:hidden}
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.12";
+const APP_VERSION = "1.13";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -1351,20 +1402,157 @@ Object.assign(WORKED,{
     {title:"Example 2 — Keep generations level",q:"Ava is the daughter of Mia. Mia and Zoe are sisters. What is Zoe to Ava?",steps:["Mia and Zoe sit on the same generation as sisters.","Ava is one generation below Mia.","A parent's sister is an aunt."],a:"Aunt"}
   ],
   abstractSequence:[
-    {title:"Example 1 — Track one object at a time",q:"Several arrows move around a square over successive frames.",steps:["Pick one distinctive arrow and ignore the others temporarily.","Track its position frame by frame.","Determine the movement rule, then repeat for a second arrow.","Use each confirmed rule to eliminate options."],a:"The option satisfying every tracked movement"},
-    {title:"Example 2 — Two independent rules",q:"A shape rotates each frame while its fill alternates solid / outline.",steps:["Rule 1: track orientation only.","Rule 2: track fill only.","Do not merge them into one complicated story.","The next option must satisfy both rules."],a:"The option with both the correct orientation and fill"}
+    {
+      title:"Example 1 — Track rotation and fill separately",
+      q:"Which figure should come next?",
+      display:{type:"figSequence",frames:[
+        {type:"shape",shape:"arrow",rot:0,fill:"solid"},
+        {type:"shape",shape:"arrow",rot:90,fill:"outline"},
+        {type:"shape",shape:"arrow",rot:180,fill:"solid"},
+        {type:"shape",shape:"arrow",rot:270,fill:"outline"}
+      ]},
+      visualOptions:[
+        {type:"shape",shape:"arrow",rot:0,fill:"solid"},
+        {type:"shape",shape:"arrow",rot:90,fill:"solid"},
+        {type:"shape",shape:"arrow",rot:0,fill:"outline"},
+        {type:"shape",shape:"arrow",rot:180,fill:"outline"}
+      ],
+      steps:["Track orientation first: the arrow rotates 90° clockwise every frame.","Track fill separately: solid, outline, solid, outline.","The next frame must satisfy both rules: back to the upward orientation and solid fill."],
+      a:"A — upward solid arrow"
+    },
+    {
+      title:"Example 2 — Split alternating positions",
+      q:"Which figure should come next?",
+      display:{type:"figSequence",frames:[
+        {type:"shape",shape:"arrow",rot:0,fill:"solid"},
+        {type:"shape",shape:"triangle",rot:0,fill:"outline"},
+        {type:"shape",shape:"arrow",rot:90,fill:"solid"},
+        {type:"shape",shape:"triangle",rot:180,fill:"outline"},
+        {type:"shape",shape:"arrow",rot:180,fill:"solid"}
+      ]},
+      visualOptions:[
+        {type:"shape",shape:"triangle",rot:0,fill:"outline"},
+        {type:"shape",shape:"triangle",rot:90,fill:"outline"},
+        {type:"shape",shape:"triangle",rot:180,fill:"solid"},
+        {type:"shape",shape:"arrow",rot:270,fill:"solid"}
+      ],
+      steps:["Split odd and even frames instead of forcing one rule across every panel.","The arrow strand rotates +90° between appearances.","The triangle strand rotates +180° between appearances while staying outline.","Continue the triangle strand from 0° → 180° → 0°."],
+      a:"A — outline triangle at 0°"
+    }
   ],
   abstractMatrix:[
-    {title:"Example 1 — Rotation across rows",q:"In each row, the same shape turns 90° clockwise from left to right.",steps:["Inspect a complete row first.","Confirm the same direction and step in a second row.","Apply the identical rotation to the row with the missing cell."],a:"The shape at the next 90° clockwise orientation"},
-    {title:"Example 2 — Combination down a column",q:"In each column, the bottom panel combines the shape counts from the two panels above.",steps:["Count the components in the top two cells.","Check that their combined count matches the bottom cell in a complete column.","Use the same combination rule in the incomplete column."],a:"The option with the combined component count"}
+    {
+      title:"Example 1 — Rotation across rows",
+      q:"Which figure belongs in the missing matrix cell?",
+      display:{type:"visualMatrix",cells:[
+        {type:"shape",shape:"L",rot:0,fill:"solid",marker:"accent"},
+        {type:"shape",shape:"L",rot:90,fill:"solid",marker:"accent"},
+        {type:"shape",shape:"L",rot:180,fill:"solid",marker:"accent"},
+        {type:"shape",shape:"L",rot:90,fill:"solid",marker:"accent"},
+        {type:"shape",shape:"L",rot:180,fill:"solid",marker:"accent"},
+        {type:"shape",shape:"L",rot:270,fill:"solid",marker:"accent"},
+        {type:"shape",shape:"L",rot:180,fill:"solid",marker:"accent"},
+        {type:"shape",shape:"L",rot:270,fill:"solid",marker:"accent"},
+        null
+      ]},
+      visualOptions:[
+        {type:"shape",shape:"L",rot:0,fill:"solid",marker:"accent"},
+        {type:"shape",shape:"L",rot:90,fill:"solid",marker:"accent"},
+        {type:"shape",shape:"L",rot:180,fill:"solid",marker:"accent"},
+        {type:"shape",shape:"L",rot:270,fill:"solid",marker:"accent"}
+      ],
+      steps:["Inspect a complete row first.","Each move to the right rotates the same marked L-shape 90° clockwise.","The second row confirms exactly the same rule.","Continue the third row: 180° → 270° → 0°."],
+      a:"A — the 0° orientation"
+    },
+    {
+      title:"Example 2 — Combine counts down each column",
+      q:"Which figure belongs in the missing matrix cell?",
+      display:{type:"visualMatrix",cells:[
+        {type:"dots",dots:1,dotFill:"solid"},
+        {type:"dots",dots:2,dotFill:"solid"},
+        {type:"dots",dots:1,dotFill:"solid"},
+        {type:"dots",dots:2,dotFill:"solid"},
+        {type:"dots",dots:1,dotFill:"solid"},
+        {type:"dots",dots:3,dotFill:"solid"},
+        {type:"dots",dots:3,dotFill:"solid"},
+        {type:"dots",dots:3,dotFill:"solid"},
+        null
+      ]},
+      visualOptions:[
+        {type:"dots",dots:2,dotFill:"solid"},
+        {type:"dots",dots:3,dotFill:"solid"},
+        {type:"dots",dots:4,dotFill:"solid"},
+        {type:"dots",dots:5,dotFill:"solid"}
+      ],
+      steps:["Check complete columns rather than judging the whole matrix visually.","In column 1, 1 dot + 2 dots = 3 dots at the bottom.","Column 2 confirms the same combination rule: 2 + 1 = 3.","Column 3 therefore needs 1 + 3 = 4 dots."],
+      a:"C — four dots"
+    }
   ],
   abstractAnalogy:[
-    {title:"Example 1 — Count transformation",q:"First panel has 3 parallel lines; second has 4. Third has 2. What should the fourth have?",steps:["Identify the first-pair transformation before looking at answers.","The number of lines increases by one.","Apply +1 to the third panel's two lines."],a:"3 lines"},
-    {title:"Example 2 — Two rules",q:"In the first pair a marked shape rotates 90° and changes from solid to outline.",steps:["Rule 1: rotate the distinctive feature 90° in the same direction.","Rule 2: toggle the fill state.","Apply both changes to the third panel.","Eliminate any option satisfying only one rule."],a:"The option with both transformations"}
+    {
+      title:"Example 1 — Count transformation",
+      q:"Apply the same transformation to the third panel.",
+      display:{type:"visualAnalogy",
+        a:{type:"dots",dots:3,dotFill:"solid"},
+        b:{type:"dots",dots:4,dotFill:"solid"},
+        c:{type:"dots",dots:2,dotFill:"solid"}
+      },
+      visualOptions:[
+        {type:"dots",dots:1,dotFill:"solid"},
+        {type:"dots",dots:2,dotFill:"solid"},
+        {type:"dots",dots:3,dotFill:"solid"},
+        {type:"dots",dots:4,dotFill:"solid"}
+      ],
+      steps:["Describe the first pair before looking at the options.","The transformation is +1 to the number of dots.","Apply exactly the same change to the third panel: 2 becomes 3.","Do not invent a second rule when one rule fully explains the pair."],
+      a:"C — three dots"
+    },
+    {
+      title:"Example 2 — Two transformations together",
+      q:"Apply the first-pair transformation to the third panel.",
+      display:{type:"visualAnalogy",
+        a:{type:"shape",shape:"arrow",rot:0,fill:"solid"},
+        b:{type:"shape",shape:"arrow",rot:90,fill:"outline"},
+        c:{type:"shape",shape:"triangle",rot:180,fill:"solid"}
+      },
+      visualOptions:[
+        {type:"shape",shape:"triangle",rot:270,fill:"outline"},
+        {type:"shape",shape:"triangle",rot:270,fill:"solid"},
+        {type:"shape",shape:"triangle",rot:90,fill:"outline"},
+        {type:"shape",shape:"arrow",rot:270,fill:"outline"}
+      ],
+      steps:["From the first to second panel, the figure rotates 90° clockwise.","The fill also changes from solid to outline.","Apply both transformations to the third panel while keeping its triangle shape unchanged.","An option satisfying only rotation or only fill is incomplete."],
+      a:"A — triangle rotated 90° clockwise and changed to outline"
+    }
   ],
   abstractOdd:[
-    {title:"Example 1 — Symmetry",q:"Five shapes have both vertical and horizontal symmetry; one has only one or no such axis.",steps:["Ignore superficial size differences.","Check vertical symmetry, then horizontal symmetry.","The outsider fails the common symmetry condition."],a:"The shape that lacks the shared symmetry"},
-    {title:"Example 2 — Compare structural counts",q:"Five panels contain four different symbol types; one panel contains five different types.",steps:["For busy panels, count distinct types rather than total symbols.","Apply the same counting rule to every panel.","One panel has a different type-count."],a:"The panel with five distinct symbol types"}
+    {
+      title:"Example 1 — Rotation versus reflection",
+      q:"Which ONE figure does not belong with the others?",
+      visualOptions:[
+        {type:"shape",shape:"L",rot:0,fill:"solid",marker:"accent",mirror:false},
+        {type:"shape",shape:"L",rot:90,fill:"solid",marker:"accent",mirror:false},
+        {type:"shape",shape:"L",rot:180,fill:"solid",marker:"accent",mirror:false},
+        {type:"shape",shape:"L",rot:270,fill:"solid",marker:"accent",mirror:false},
+        {type:"shape",shape:"L",rot:45,fill:"solid",marker:"accent",mirror:false},
+        {type:"shape",shape:"L",rot:135,fill:"solid",marker:"accent",mirror:true}
+      ],
+      steps:["Ignore the absolute angle and compare handedness.","A, B, C, D and E can all be produced by rotating the same asymmetric marked L-shape.","F reverses the handedness: it is a mirror image, not another rotation."],
+      a:"F"
+    },
+    {
+      title:"Example 2 — Structural count",
+      q:"Which ONE figure does not belong with the others?",
+      visualOptions:[
+        {type:"dots",dots:4,dotFill:"solid"},
+        {type:"dots",dots:4,dotFill:"solid"},
+        {type:"dots",dots:4,dotFill:"solid"},
+        {type:"dots",dots:5,dotFill:"solid"},
+        {type:"dots",dots:4,dotFill:"solid"},
+        {type:"dots",dots:4,dotFill:"solid"}
+      ],
+      steps:["Inventory a simple measurable feature before judging overall appearance.","Five panels contain four filled dots.","One panel contains five dots.","The count difference alone identifies the outsider."],
+      a:"D"
+    }
   ]
 });
 
@@ -3483,7 +3671,9 @@ function navButtons(mobile=false){
   <button onclick="go('sources')" class="${cls('sources')}">Sources & Fidelity</button>`;
 }
 function currentPageNav(){
- return `<div class="topbar">
+ const navClass=mainNavClass();
+ const drawerClass=mainNavDrawerClass();
+ return `<div class="topbar ${navClass}">
   <div class="brand"><span class="brand-word">ADF</span><span class="brand-word">JOA</span><span class="brand-word">Trainer</span></div>
   <button class="mobile-menu-toggle" type="button" aria-label="Open main menu" aria-expanded="false" onclick="toggleMobileMenu(this)">
    <span class="mobile-menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -3491,7 +3681,7 @@ function currentPageNav(){
   <div class="topnav">${navButtons()}</div>
  </div>
  <div id="mobileNavBackdrop" class="mobile-nav-backdrop" onclick="closeMobileMenu()"></div>
- <nav id="mobileNavDrawer" class="mobile-nav-drawer" aria-label="Main menu">${navButtons(true)}</nav>`;
+ <nav id="mobileNavDrawer" class="mobile-nav-drawer ${drawerClass}" aria-label="Main menu">${navButtons(true)}</nav>`;
 }
 function toggleMobileMenu(button){
  const drawer=document.getElementById("mobileNavDrawer");
@@ -3599,6 +3789,15 @@ function syncVersionRefreshHit(){
 }
 
 
+let mainNavMode=null;
+let mainNavOrientation=window.innerWidth>=window.innerHeight?"landscape":"portrait";
+
+function mainNavClass(){
+  return mainNavMode&&mainNavMode!=="normal"?`nav-${mainNavMode}`:"";
+}
+function mainNavDrawerClass(){
+  return mainNavMode==="hamburger"?"adaptive-hamburger":"";
+}
 function navFitsSingleRow(topbar,nav){
   if(!topbar||!nav)return true;
   const brand=topbar.querySelector(".brand");
@@ -3612,46 +3811,73 @@ function navFitsSingleRow(topbar,nav){
 
   return nav.scrollWidth<=available+1;
 }
-
-function adaptMainNav(){
+function applyMainNavMode(){
   const topbar=document.querySelector(".topbar");
-  const nav=topbar?.querySelector(":scope > .topnav");
   const drawer=document.getElementById("mobileNavDrawer");
-  if(!topbar||!nav)return;
+  if(!topbar)return;
 
   topbar.classList.remove("nav-compact","nav-tight","nav-hamburger");
   drawer?.classList.remove("adaptive-hamburger");
-  closeMobileMenu();
 
-  /* Preserve the immediate phone hamburger used by the existing design. */
-  if(window.innerWidth<=640){
-    topbar.classList.add("nav-hamburger");
-    drawer?.classList.add("adaptive-hamburger");
-    return;
-  }
+  if(mainNavMode&&mainNavMode!=="normal")topbar.classList.add(`nav-${mainNavMode}`);
+  if(mainNavMode==="hamburger")drawer?.classList.add("adaptive-hamburger");
+}
+function calculateMainNavMode(){
+  const topbar=document.querySelector(".topbar");
+  const nav=topbar?.querySelector(":scope > .topnav");
+  const drawer=document.getElementById("mobileNavDrawer");
+  if(!topbar||!nav)return mainNavMode||"normal";
 
-  if(navFitsSingleRow(topbar,nav))return;
+  topbar.classList.remove("nav-compact","nav-tight","nav-hamburger");
+  drawer?.classList.remove("adaptive-hamburger");
+
+  if(window.innerWidth<=640)return "hamburger";
+  if(navFitsSingleRow(topbar,nav))return "normal";
 
   topbar.classList.add("nav-compact");
-  if(navFitsSingleRow(topbar,nav))return;
+  if(navFitsSingleRow(topbar,nav)){
+    topbar.classList.remove("nav-compact");
+    return "compact";
+  }
 
   topbar.classList.remove("nav-compact");
   topbar.classList.add("nav-tight");
-  if(navFitsSingleRow(topbar,nav))return;
+  if(navFitsSingleRow(topbar,nav)){
+    topbar.classList.remove("nav-tight");
+    return "tight";
+  }
 
-  /*
-    Do not shrink further than 13px. If that readable threshold does not fit,
-    use the same hamburger interaction as iPhone.
-  */
   topbar.classList.remove("nav-tight");
-  topbar.classList.add("nav-hamburger");
-  drawer?.classList.add("adaptive-hamburger");
+  return "hamburger";
+}
+function adaptMainNav(force=false){
+  /*
+    Once a layout is chosen it stays locked across normal page changes.
+    That prevents the top bar briefly expanding and then contracting every
+    time render() replaces the page content.
+  */
+  if(mainNavMode!==null&&!force){
+    applyMainNavMode();
+    return;
+  }
+  closeMobileMenu();
+  mainNavMode=calculateMainNavMode();
+  applyMainNavMode();
+}
+function reflowMainNavForOrientation(){
+  const orientation=window.innerWidth>=window.innerHeight?"landscape":"portrait";
+  if(orientation===mainNavOrientation)return;
+  mainNavOrientation=orientation;
+  mainNavMode=null;
+  setTimeout(()=>adaptMainNav(true),80);
 }
 
-let mainNavResizeTimer=null;
-window.addEventListener("resize",()=>{
-  clearTimeout(mainNavResizeTimer);
-  mainNavResizeTimer=setTimeout(adaptMainNav,60);
+/* Ignore ordinary resize/chrome changes; only orientation changes can recalculate. */
+window.addEventListener("resize",reflowMainNavForOrientation,{passive:true});
+window.addEventListener("orientationchange",()=>{
+  mainNavMode=null;
+  mainNavOrientation=window.innerWidth>=window.innerHeight?"landscape":"portrait";
+  setTimeout(()=>adaptMainNav(true),120);
 },{passive:true});
 
 function getStats(){
@@ -3699,6 +3925,14 @@ function openCat(cat){state.cat=cat;state.subtype=byCat[cat][0];state.page="prac
 function openHelp(st){state.cat=SUBTYPES[st].cat;state.subtype=st;state.page="practice";state.practice=null;render();setTimeout(()=>document.getElementById("helpDetails")?.setAttribute("open",""),50)}
 
 
+function renderWorkedExampleVisual(e){
+ let html="";
+ if(e.display)html+=`<div class="worked-visual">${renderDisplay(e.display)}</div>`;
+ if(Array.isArray(e.visualOptions)&&e.visualOptions.length){
+   html+=`<div class="worked-visual worked-visual-options">${e.visualOptions.map((o,i)=>`<div class="worked-visual-choice"><div class="fig">${figSvg(o,92,70)}</div><b>${LETTERS[i]}</b></div>`).join("")}</div>`;
+ }
+ return html;
+}
 function workedExamplesBox(st){
  const examples=WORKED[st]||[];
  if(!examples.length) return "";
@@ -3708,6 +3942,7 @@ function workedExamplesBox(st){
      <span class="tip-chip">Worked example ${i+1}</span>
      <h4>${e.title}</h4>
      <div class="worked-question">${e.q}</div>
+     ${renderWorkedExampleVisual(e)}
      <ol class="worked-steps">${e.steps.map(x=>`<li>${x}</li>`).join("")}</ol>
      <div class="worked-answer">Answer: ${e.a}</div>
    </div>`).join("")}</div>
