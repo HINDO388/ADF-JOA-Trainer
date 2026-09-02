@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.21">
+<meta name="app-version" content="1.22">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -1432,7 +1432,7 @@ body{
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.21</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.22</span></div>
 
 <script>
 /* ===========================================================
@@ -1446,7 +1446,7 @@ body{
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.21";
+const APP_VERSION = "1.22";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -1933,7 +1933,7 @@ Object.assign(WORKED,{
 });
 
 
-const QUESTION_BANK_VERSION="2026-09-02-QA6";
+const QUESTION_BANK_VERSION="2026-09-02-QA7";
 const PRACTICE_BANK_SIZE_PER_DIFFICULTY=80;
 const PRACTICE_BANK_BANDS=["easy","medium","hard"];
 const PRACTICE_BANK_SUBTYPES=["numSeries","numValue","wordProblems","numMatrix","wordRelation","sentenceCompletion","oddWords","accuracyPrecision","analogy","deduction","seatingArrangements","familyTrees","abstractSequence","abstractMatrix","abstractAnalogy","abstractOdd"];
@@ -3873,12 +3873,12 @@ function genAbstractOddV4(seed,difficulty="medium"){
  }
 
  const pairs=[
-   {outer:"square",inner:"triangle",bad:"triangle"},
-   {outer:"diamond",inner:"triangle",bad:"triangle"},
-   {outer:"pentagon",inner:"square",bad:"square"},
-   {outer:"hexagon",inner:"pentagon",bad:"pentagon"},
+   {outer:"square",inner:"triangle",bad:"circle"},
+   {outer:"diamond",inner:"triangle",bad:"oval"},
+   {outer:"pentagon",inner:"square",bad:"triangle"},
+   {outer:"hexagon",inner:"pentagon",bad:"square"},
    {outer:"hexagon",inner:"square",bad:"triangle"},
-   {outer:"pentagon",inner:"triangle",bad:"triangle"}
+   {outer:"pentagon",inner:"triangle",bad:"circle"}
  ];
  const pair=pick(r,pairs),angles=shuffle(r,[0,15,30,45,60,75,90,105,120,135,150,165]).slice(0,5);
  let specs=angles.slice(0,4).map(rot=>({type:"nested",outer:pair.outer,inner:pair.inner,rot}));
@@ -3887,8 +3887,9 @@ function genAbstractOddV4(seed,difficulty="medium"){
  q.prompt="Which ONE panel does not follow the same relationship between the outer and inner shapes?";
  q.kind="visualSingle";q.visualOptions=specs;
  q.answer=specs.findIndex(x=>x.outer===pair.bad&&x.inner===pair.inner);
- q.explanation="In the normal panels the outer shape has more edges than the inner shape. One panel breaks that edge-count relationship.";
- return withFamily(setDifficulty(q,band,band==="hard"?"Requires comparing a relation between nested shapes while rotation is irrelevant.":"Requires comparing inner-versus-outer edge counts rather than one isolated shape."),"abstractodd-nested-edges");
+ q.explanation="In the normal panels the outer shape has more straight sides than the inner shape. One panel breaks that relationship.";
+ q.ruleMeta={kind:"nested-edge-count",normalOuter:pair.outer,inner:pair.inner,badOuter:pair.bad};
+ return withFamily(setDifficulty(q,band,band==="hard"?"Requires comparing the straight-side relationship between two nested shapes while ignoring rotation.":"Requires comparing inner-versus-outer straight-side counts rather than one isolated shape."),"abstractodd-nested-edges");
 }
 
 /* Extend fig rendering with shapes used by the ADF-Mentors-informed modules. */
@@ -3898,9 +3899,8 @@ figSvg=function(spec,w=118,h=82){
  if(spec?.type==="nested"){
    const outer={type:"shape",shape:spec.outer,rot:spec.rot||0,fill:"outline"};
    const outerSvg=figSvg({...outer},w,h);
-   // Overlay a smaller inner-shape SVG by extracting its inner group.
-   const inner=figSvg({type:"shape",shape:spec.inner,rot:spec.rot||0,fill:"outline"},Math.round(w*.62),Math.round(h*.62));
-   return `<div style="position:relative;width:${w}px;height:${h}px">${outerSvg}<div style="position:absolute;inset:16% 19%;display:flex;align-items:center;justify-content:center">${inner}</div></div>`;
+   const inner=figSvg({type:"shape",shape:spec.inner,rot:spec.rot||0,fill:"outline"},w,h);
+   return `<div class="nested-figure" style="position:relative;width:${w}px;height:${h}px">${outerSvg}<div class="nested-inner" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transform:scale(.52);transform-origin:center">${inner}</div></div>`;
  }
  if(spec?.type==="shape"&&["oval","trapezoid","parallelogram","pentagon","rectangle","hexagon","cross"].includes(spec.shape)){
    const rot=spec.rot||0,fill=spec.fill==="outline"?"white":"#1c2830";
@@ -3994,6 +3994,65 @@ function generateV5(subtype,seed,difficulty="medium",attempt=0){
  return q;
 }
 generate=generateV5;
+
+
+/* ===========================================================
+   QA7: explicit nested-shape validity + fuller numerical domains
+   =========================================================== */
+function straightSideCount(shape){
+ return ({circle:0,oval:0,triangle:3,square:4,diamond:4,rectangle:4,trapezoid:4,parallelogram:4,pentagon:5,hexagon:6,L:6,cross:12})[shape] ?? null;
+}
+function nestedEdgeEvidenceValid(q){
+ if(q?.ruleMeta?.kind!=="nested-edge-count")return true;
+ const answers=new Set(Array.isArray(q.answer)?q.answer:[q.answer]);
+ for(let i=0;i<q.visualOptions.length;i++){
+   const x=q.visualOptions[i];
+   if(x.type!=="nested"||x.outer===x.inner)return false;
+   const outer=straightSideCount(x.outer),inner=straightSideCount(x.inner);
+   if(outer===null||inner===null)return false;
+   const shouldBeNormal=outer>inner;
+   if(answers.has(i)?shouldBeNormal:!shouldBeNormal)return false;
+ }
+ return true;
+}
+function genSimpleAverageV6(seed){
+ const r=rng(seed),q=qbase(seed,"wordProblems","easy");
+ const n=pick(r,[3,4,5]),avg=pick(r,[8,10,12,14,16,18]),spread=pick(r,[2,3,4]);
+ let vals=[];
+ if(n===3)vals=[avg-spread,avg,avg+spread];
+ else if(n===4)vals=[avg-spread,avg-spread,avg+spread,avg+spread];
+ else vals=[avg-2*spread,avg-spread,avg,avg+spread,avg+2*spread];
+ q.prompt=`The readings are ${vals.join(", ")}. What is their average?`;
+ q.kind="single";q.answer=avg;q.options=uniqOptions(avg,[avg-spread,avg+spread,avg+2],r);
+ q.explanation=`Add the ${n} readings to get ${vals.reduce((a,b)=>a+b,0)}, then divide by ${n}: average = ${avg}.`;
+ return withFamily(setDifficulty(q,"easy","A direct arithmetic mean: add the values and divide by how many values there are."),"word-simple-average");
+}
+function genTwoStageOutputV6(seed){
+ const r=rng(seed),q=qbase(seed,"wordProblems","medium");
+ const staff=pick(r,[3,4,5]),rate=pick(r,[6,8,10]),h1=pick(r,[1,2]),extra=pick(r,[1,2,3]),h2=pick(r,[1,2]);
+ const first=staff*rate*h1,second=(staff+extra)*rate*h2,ans=first+second;
+ q.prompt=`${staff} staff process ${rate} forms each per hour for ${h1} hour${h1===1?"":"s"}. Then ${extra} more staff join for ${h2} further hour${h2===1?"":"s"}. How many forms are processed altogether?`;
+ q.kind="single";q.answer=ans;q.options=uniqOptions(ans,[first+staff*rate*h2,second,ans-rate*extra],r);
+ q.explanation=`First stage: ${staff} × ${rate} × ${h1} = ${first}. Second stage: ${staff+extra} × ${rate} × ${h2} = ${second}. Total = ${ans}.`;
+ return withFamily(setDifficulty(q,"medium","Requires calculating two work-rate stages with a changed workforce, then combining them."),"word-two-stage-output");
+}
+function genWordProblemV6(seed,difficulty="medium"){
+ const band=requestedBand(difficulty),sel=Math.abs(Number(seed)||0)%7;
+ if(band==="easy"&&sel===0)return genSimpleAverageV6(seed);
+ if(band==="medium"&&sel===0)return genTwoStageOutputV6(seed);
+ return genWordProblemV5(seed,band);
+}
+const _generateV5QA7=generateV5;
+function generateV6(subtype,seed,difficulty="medium",attempt=0){
+ const band=requestedBand(difficulty);let q;
+ if(subtype==="wordProblems"){
+   q=genWordProblemV6(seed,band);q=calibrateDifficulty(q);q.requestedDifficulty=band;
+ }else q=_generateV5QA7(subtype,seed,band,attempt);
+ const invalid=q.difficulty!==band || !visualOptionsDistinctByAppearance(q) || !relationalVisualEvidenceValid(q) || !nestedEdgeEvidenceValid(q);
+ if(invalid&&attempt<48)return generateV6(subtype,seed+130363+attempt*8191,band,attempt+1);
+ return q;
+}
+generate=generateV6;
 
 
 /* ---------- Diversity selection ---------- */
@@ -4773,16 +4832,19 @@ function difficultyPlan(tier,r){
  return shuffle(r,[...Array(5).fill("easy"),...Array(9).fill("medium"),...Array(3).fill("hard")]);
 }
 const FULL_TEST_WORD_GROUPS=[
- {id:"speed-distance-time",families:["word-rate-time","word-time-unit-conversion","word-two-leg-time"]},
- {id:"percentages",families:["word-simple-percent","word-total-then-percent","word-percent-increase","word-dependent-percent-medium","word-dependent-percent-hard","word-reverse-percent","word-successive-percent-change","word-reverse-percent-friendly","word-percent-plus-fixed","word-reverse-percent-hard"]},
- {id:"ratios",families:["word-simple-ratio","word-ratio-share","word-ratio-then-change","word-ratio-transfer"]},
- {id:"averages-rates",families:["word-output-rate","word-equal-share","word-reverse-average","word-changing-workforce","word-combined-rates","word-weighted-average"]},
- {id:"combinations-unit-cost",families:["word-unit-cost","word-combinations","word-combinations-hard"]}
+ {id:"speed-distance-time",byBand:{easy:["word-rate-time"],medium:["word-time-unit-conversion"],hard:["word-two-leg-time"]}},
+ {id:"percentages",byBand:{easy:["word-simple-percent"],medium:["word-percent-increase","word-dependent-percent-medium","word-total-then-percent"],hard:["word-reverse-percent","word-successive-percent-change","word-dependent-percent-hard"]}},
+ {id:"ratios",byBand:{easy:["word-simple-ratio"],medium:["word-ratio-share","word-ratio-then-change"],hard:["word-ratio-transfer"]}},
+ {id:"averages",byBand:{easy:["word-simple-average"],medium:["word-reverse-average"],hard:["word-weighted-average"]}},
+ {id:"work-rates",byBand:{easy:["word-output-rate"],medium:["word-two-stage-output"],hard:["word-changing-workforce","word-combined-rates"]}},
+ {id:"combinations-unit-cost",byBand:{easy:["word-unit-cost"],medium:["word-combinations"],hard:["word-combinations-hard"]}}
 ];
+function fullTestWordBand(tier){return tier==="easier"?"easy":tier==="harder"?"hard":"medium"}
+function fullTestWordFamilies(group,band){return group.byBand[band]||[]}
 function fullTestSubtypeSchedule(cat,id,r){
  const sts=byCat[cat],out=[];
  if(cat==="Numerical"){
-   const counts={numSeries:4,numValue:4,wordProblems:5,numMatrix:4};
+   const counts={numSeries:4,numValue:3,wordProblems:6,numMatrix:4};
    Object.entries(counts).forEach(([st,n])=>{for(let i=0;i<n;i++)out.push(st)});
  }else{
    const base=Math.floor(17/sts.length),extra=17-base*sts.length;
@@ -4793,17 +4855,34 @@ function fullTestSubtypeSchedule(cat,id,r){
 }
 function expandedMockCandidates(st,band){
  const base=bankCandidates(st,band),extras=[];
- for(let i=0;i<180;i++)extras.push(generate(st,practiceBankSeed(st,band,i%PRACTICE_BANK_SIZE_PER_DIFFICULTY)+9000001+i*3571,band));
+ for(let i=0;i<240;i++)extras.push(generate(st,practiceBankSeed(st,band,i%PRACTICE_BANK_SIZE_PER_DIFFICULTY)+11000003+i*3571,band));
  const seen=new Set(),out=[];
  for(const q of [...base,...extras]){const fp=questionFingerprint(q);if(seen.has(fp))continue;seen.add(fp);out.push(q)}
  return out;
 }
 function pickMockQuestion({st,band,requiredFamilies,globalSeen,familyCounts,lastFamily,seed,slot}){
- let candidates=expandedMockCandidates(st,band).filter(q=>!globalSeen.has(questionFingerprint(q))).filter(q=>visualOptionsDistinctByAppearance(q)&&relationalVisualEvidenceValid(q));
+ let candidates=expandedMockCandidates(st,band)
+  .filter(q=>!globalSeen.has(questionFingerprint(q)))
+  .filter(q=>visualOptionsDistinctByAppearance(q)&&relationalVisualEvidenceValid(q)&&nestedEdgeEvidenceValid(q));
  if(requiredFamilies?.length)candidates=candidates.filter(q=>requiredFamilies.includes(questionFamily(q)));
  if(!candidates.length)return null;
  candidates.sort((a,b)=>{const fa=questionFamily(a),fb=questionFamily(b),ca=familyCounts.get(fa)||0,cb=familyCounts.get(fb)||0;if(ca!==cb)return ca-cb;if(fa===lastFamily&&fb!==lastFamily)return 1;if(fb===lastFamily&&fa!==lastFamily)return -1;return questionFingerprint(a)<questionFingerprint(b)?-1:1});
  return candidates[(seed+slot*1009+st.charCodeAt(0)*997)%candidates.length];
+}
+function fullTestCoverageSummary(qs){
+ const subtypes=[...new Set(qs.map(q=>q.subtype))],word=qs.filter(q=>q.subtype==="wordProblems"),wordFamilies=word.map(questionFamily),groups={};
+ const wordBandCounts={easy:0,medium:0,hard:0};word.forEach(q=>wordBandCounts[q.difficulty]=(wordBandCounts[q.difficulty]||0)+1);
+ for(const g of FULL_TEST_WORD_GROUPS){groups[g.id]=word.some(q=>Object.values(g.byBand).flat().includes(questionFamily(q)))}
+ return {subtypes,wordFamilies,groups,wordBandCounts,counts:{numSeries:qs.filter(q=>q.subtype==="numSeries").length,numValue:qs.filter(q=>q.subtype==="numValue").length,wordProblems:word.length,numMatrix:qs.filter(q=>q.subtype==="numMatrix").length}};
+}
+function validateFullTestCoverage(qs,id){
+ if(qs.length!==51||uniqueQuestionCount(qs)!==51)throw new Error(`Practice Test ${id}: 51-question uniqueness guard failed`);
+ for(const cat of ["Numerical","Verbal","Abstract"])if(qs.filter(q=>q.category===cat).length!==17)throw new Error(`Practice Test ${id}: ${cat} is not 17 questions`);
+ for(const st of PRACTICE_BANK_SUBTYPES)if(!qs.some(q=>q.subtype===st))throw new Error(`Practice Test ${id}: missing subtype ${st}`);
+ const s=fullTestCoverageSummary(qs),expected={numSeries:4,numValue:3,wordProblems:6,numMatrix:4};
+ for(const [k,v] of Object.entries(expected))if(s.counts[k]!==v)throw new Error(`Practice Test ${id}: ${k} count ${s.counts[k]} != ${v}`);
+ for(const [g,ok] of Object.entries(s.groups))if(!ok)throw new Error(`Practice Test ${id}: missing required Word Problem domain ${g}`);
+ return s;
 }
 function buildMock(id){
  const m=mocks.find(x=>x.id===Number(id));if(!m)throw new Error("Unknown practice test");
@@ -4811,20 +4890,16 @@ function buildMock(id){
  for(const cat of ["Numerical","Verbal","Abstract"]){
    const plan=difficultyPlan(m.tier,r),schedule=fullTestSubtypeSchedule(cat,id,r);let lastFamily=null,wordSlot=0;
    for(let i=0;i<17;i++){
-     const st=schedule[i],band=plan[i];let requiredFamilies=null;
-     if(st==="wordProblems")requiredFamilies=FULL_TEST_WORD_GROUPS[wordSlot++].families;
-     let picked=pickMockQuestion({st,band,requiredFamilies,globalSeen,familyCounts,lastFamily,seed,slot:qs.length});
-     if(!picked&&st==="wordProblems"&&requiredFamilies){
-       const fallbacks=band==="easy"?["medium","hard"]:band==="medium"?["easy","hard"]:["medium","easy"];
-       for(const fallbackBand of fallbacks){picked=pickMockQuestion({st,band:fallbackBand,requiredFamilies,globalSeen,familyCounts,lastFamily,seed,slot:qs.length});if(picked)break;}
+     const st=schedule[i];let band=plan[i],requiredFamilies=null;
+     if(st==="wordProblems"){
+       const group=FULL_TEST_WORD_GROUPS[wordSlot++];band=fullTestWordBand(m.tier);requiredFamilies=fullTestWordFamilies(group,band);
      }
-     if(!picked)picked=pickMockQuestion({st,band,requiredFamilies:null,globalSeen,familyCounts,lastFamily,seed,slot:qs.length});
-     if(!picked)throw new Error(`Unable to build unique Practice Test ${id} (${cat}/${st}/${band})`);
+     const picked=pickMockQuestion({st,band,requiredFamilies,globalSeen,familyCounts,lastFamily,seed,slot:qs.length});
+     if(!picked)throw new Error(`Practice Test ${id}: no valid ${st}/${band} question for required family ${requiredFamilies||"any"}`);
      qs.push(picked);const fp=questionFingerprint(picked),fam=questionFamily(picked);globalSeen.add(fp);familyCounts.set(fam,(familyCounts.get(fam)||0)+1);lastFamily=fam;
    }
  }
- if(qs.length!==51||globalSeen.size!==51)throw new Error(`Practice Test ${id} uniqueness guard failed`);
- return shuffle(r,qs).map((q,i)=>({...q,testNo:i+1}));
+ const out=shuffle(r,qs).map((q,i)=>({...q,testNo:i+1}));validateFullTestCoverage(out,id);return out;
 }
 function startMock(id){
  const m=mocks.find(x=>x.id===Number(id)),qs=buildMock(id);state.test={id:m.id,tier:m.tier,questions:qs,index:0,answers:Array(51).fill(null),flags:Array(51).fill(false),questionTimes:Array(51).fill(0),qEnteredAt:Date.now(),started:Date.now(),duration:1200,interval:null,warmup:false,submitted:false};state.page="test";render();startTimer();

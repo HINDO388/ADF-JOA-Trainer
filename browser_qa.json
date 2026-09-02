@@ -1,5 +1,44 @@
 {
   "issues": [],
-  "abstractQuestions": 960,
-  "renderedOptions": 4153
+  "report": {
+    "nestedOptionsChecked": 415,
+    "test7": [
+      {
+        "n": 8,
+        "d": "medium",
+        "f": "word-combinations",
+        "p": "A kit can be configured with 3 case types, 4 battery choices, 2 label styles and either one of 4 optional accessories or no accessory. How many different configurations are possible?"
+      },
+      {
+        "n": 12,
+        "d": "medium",
+        "f": "word-time-unit-conversion",
+        "p": "A vehicle maintains 60 km/h for 45 minutes. How far does it travel?"
+      },
+      {
+        "n": 14,
+        "d": "medium",
+        "f": "word-reverse-average",
+        "p": "The average of 7 test scores is 23. 6 scores are 26, 9, 12, 26, 24, 30. What is the remaining score?"
+      },
+      {
+        "n": 31,
+        "d": "medium",
+        "f": "word-two-stage-output",
+        "p": "4 staff process 10 forms each per hour for 1 hour. Then 2 more staff join for 2 further hours. How many forms are processed altogether?"
+      },
+      {
+        "n": 32,
+        "d": "medium",
+        "f": "word-percent-increase",
+        "p": "A stock level of 80 units is increased by 15%. What is the new stock level?"
+      },
+      {
+        "n": 36,
+        "d": "medium",
+        "f": "word-ratio-share",
+        "p": "Two equipment types are stocked in the ratio 4:2. There are 42 items altogether. How many belong to the first type?"
+      }
+    ]
+  }
 }
