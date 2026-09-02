@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.11">
+<meta name="app-version" content="1.12">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -911,12 +911,101 @@ body.ui-modal-open{overflow:hidden}
   .visual-analogy-cell{width:86px;height:72px}
 }
 
+
+/* v1.12 adaptive single-row primary navigation */
+.topbar{
+  flex-wrap:nowrap;
+}
+.topbar>.brand{
+  flex:0 0 auto;
+}
+.topbar>.topnav{
+  flex:1 1 auto;
+  flex-wrap:nowrap;
+  white-space:nowrap;
+  overflow:visible;
+}
+.topbar>.topnav button{
+  flex:0 0 auto;
+  white-space:nowrap;
+  transition:padding .12s ease,font-size .12s ease,gap .12s ease;
+}
+
+/* First compression step: intended mainly for iPad landscape / smaller laptops. */
+.topbar.nav-compact{
+  gap:12px;
+  padding-left:calc(16px + env(safe-area-inset-left));
+  padding-right:calc(16px + env(safe-area-inset-right));
+}
+.topbar.nav-compact .brand{
+  font-size:18px;
+}
+.topbar.nav-compact>.topnav{
+  gap:3px;
+}
+.topbar.nav-compact>.topnav button{
+  padding:8px 8px;
+  font-size:14px;
+}
+
+/* Final readable compression step before switching to hamburger. */
+.topbar.nav-tight{
+  gap:9px;
+  padding-left:calc(12px + env(safe-area-inset-left));
+  padding-right:calc(12px + env(safe-area-inset-right));
+}
+.topbar.nav-tight .brand{
+  font-size:17px;
+  gap:.22em;
+}
+.topbar.nav-tight .brand:before{
+  margin-right:5px;
+  width:9px;
+  height:9px;
+  flex-basis:9px;
+}
+.topbar.nav-tight>.topnav{
+  gap:1px;
+}
+.topbar.nav-tight>.topnav button{
+  padding:7px 5px;
+  font-size:13px;
+  min-height:42px;
+}
+
+/* JS can invoke hamburger at any width once the readable compact layout no longer fits. */
+.topbar.nav-hamburger .brand{
+  margin-right:auto;
+}
+.topbar.nav-hamburger .mobile-menu-toggle{
+  display:flex !important;
+  order:2;
+  margin-left:auto;
+}
+.topbar.nav-hamburger>.topnav{
+  display:none !important;
+}
+.mobile-nav-drawer.adaptive-hamburger{
+  left:auto;
+  right:calc(10px + env(safe-area-inset-right));
+  width:min(330px,calc(100vw - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)));
+}
+
+/* At phone widths the existing hamburger behaviour remains immediate. */
+@media(max-width:640px){
+  .topbar.nav-compact,
+  .topbar.nav-tight{
+    padding-left:calc(10px + env(safe-area-inset-left));
+    padding-right:calc(10px + env(safe-area-inset-right));
+  }
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.11</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.12</span></div>
 
 <script>
 /* ===========================================================
@@ -930,7 +1019,7 @@ body.ui-modal-open{overflow:hidden}
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.11";
+const APP_VERSION = "1.12";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -3509,6 +3598,62 @@ function syncVersionRefreshHit(){
  if(state.page!=="home")delete hit.dataset.refreshing;
 }
 
+
+function navFitsSingleRow(topbar,nav){
+  if(!topbar||!nav)return true;
+  const brand=topbar.querySelector(".brand");
+  if(!brand)return true;
+
+  const style=getComputedStyle(topbar);
+  const gap=parseFloat(style.columnGap||style.gap||0)||0;
+  const padLeft=parseFloat(style.paddingLeft)||0;
+  const padRight=parseFloat(style.paddingRight)||0;
+  const available=topbar.clientWidth-padLeft-padRight-brand.getBoundingClientRect().width-gap;
+
+  return nav.scrollWidth<=available+1;
+}
+
+function adaptMainNav(){
+  const topbar=document.querySelector(".topbar");
+  const nav=topbar?.querySelector(":scope > .topnav");
+  const drawer=document.getElementById("mobileNavDrawer");
+  if(!topbar||!nav)return;
+
+  topbar.classList.remove("nav-compact","nav-tight","nav-hamburger");
+  drawer?.classList.remove("adaptive-hamburger");
+  closeMobileMenu();
+
+  /* Preserve the immediate phone hamburger used by the existing design. */
+  if(window.innerWidth<=640){
+    topbar.classList.add("nav-hamburger");
+    drawer?.classList.add("adaptive-hamburger");
+    return;
+  }
+
+  if(navFitsSingleRow(topbar,nav))return;
+
+  topbar.classList.add("nav-compact");
+  if(navFitsSingleRow(topbar,nav))return;
+
+  topbar.classList.remove("nav-compact");
+  topbar.classList.add("nav-tight");
+  if(navFitsSingleRow(topbar,nav))return;
+
+  /*
+    Do not shrink further than 13px. If that readable threshold does not fit,
+    use the same hamburger interaction as iPhone.
+  */
+  topbar.classList.remove("nav-tight");
+  topbar.classList.add("nav-hamburger");
+  drawer?.classList.add("adaptive-hamburger");
+}
+
+let mainNavResizeTimer=null;
+window.addEventListener("resize",()=>{
+  clearTimeout(mainNavResizeTimer);
+  mainNavResizeTimer=setTimeout(adaptMainNav,60);
+},{passive:true});
+
 function getStats(){
  const attempts=progress.attempts||[];
  const correct=attempts.reduce((n,a)=>n+(a.correct||0),0),questions=attempts.length*51;
@@ -4092,6 +4237,7 @@ function render(){
  else if(state.page==="sources")app.innerHTML=sourcesPage();
  document.body.classList.toggle("drill-open",(state.page==="practice"&&!!state.practice)||(state.page==="mental"&&!!state.mental));
  syncVersionRefreshHit();
+ setTimeout(adaptMainNav,0);
  if(state.page==="practice"&&!state.practice)setTimeout(bindPracticeCategoryStrip,0);
 }
 render();
