@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.10">
+<meta name="app-version" content="1.11">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -849,12 +849,74 @@ body.ui-modal-open{overflow:hidden}
   }
 }
 
+
+/* ===========================================================
+   v1.11 new JOA question-family displays
+   =========================================================== */
+.comparison-table{
+  width:min(760px,100%);
+  border-collapse:collapse;
+  margin:14px 0 18px;
+  font-size:13px;
+}
+.comparison-table td{
+  border:1px solid var(--line);
+  padding:9px 11px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  background:#fff;
+}
+.comparison-table td:first-child{width:50%}
+.visual-matrix{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(74px,100px));
+  gap:5px;
+  margin:14px 0 18px;
+  width:max-content;
+  max-width:100%;
+}
+.visual-matrix-cell{
+  width:100px;height:82px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid #b8c8d2;border-radius:6px;background:#fff;
+}
+.visual-matrix-cell.missing{font-size:34px;font-weight:950;color:#203f53}
+.visual-analogy{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:14px 0 18px;
+}
+.visual-analogy-cell{
+  width:108px;height:84px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid #b8c8d2;border-radius:7px;background:#fff;
+}
+.visual-analogy-word{font-size:12px;font-weight:850;color:var(--muted)}
+.logic-statements{
+  margin:12px 0 16px;
+  padding:12px 14px;
+  background:#f7fafc;
+  border:1px solid var(--line);
+  border-radius:9px;
+  line-height:1.65;
+}
+.logic-statements b{color:#183f58}
+@media(max-width:600px){
+  .comparison-table{font-size:11px}
+  .comparison-table td{padding:8px 6px}
+  .visual-matrix{grid-template-columns:repeat(3,minmax(68px,88px))}
+  .visual-matrix-cell{width:88px;height:76px}
+  .visual-analogy{gap:6px}
+  .visual-analogy-cell{width:86px;height:72px}
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.10</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.11</span></div>
 
 <script>
 /* ===========================================================
@@ -868,7 +930,7 @@ body.ui-modal-open{overflow:hidden}
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.10";
+const APP_VERSION = "1.11";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -951,6 +1013,156 @@ const SUBTYPES = {
     ], traps:["Stopping after finding only one of two rules","Letting one salient feature hide a count rule","Overcomplicating a simple alternating pattern"]}
 };
 
+/* ===========================================================
+   v1.11 — ADF Mentors screenshot-set integration (secondary source)
+   The user supplied a 30-screenshot capture of the ADF Mentors JOA Online Test
+   training module. Its taxonomy/tactics are treated as a reputable secondary
+   source, below the official ADF guide in the fidelity hierarchy.
+   =========================================================== */
+Object.assign(SUBTYPES,{
+  numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official ADF examples + ADF Mentors secondary-source series guidance",
+    help:[
+      "Start with the simplest visible step, but do not stop at first differences. If the increments themselves change consistently, write those increments underneath the series.",
+      "Use a fixed scan: constant +/− → ×/÷ → changing differences → alternating operations → two interleaved strands.",
+      "A missing value can be at the end or in the middle. Check that the rule explains every shown value on both sides of the blank.",
+      "When the pattern is not obvious in a few seconds, jot only the differences. A pattern in +6, +7, +8, +9 is often easier to see than the original numbers.",
+      "Treat simple A-B-A-B alternation as a simple rule; do not over-grade or over-complicate it."
+    ],traps:["Looking only at the original numbers and never at the increments","Forcing one rule that does not explain every term","Missing alternating or interleaved strands","Spending too long once no rule is emerging"]},
+
+  numValue:{cat:"Numerical",name:"Number Value",fidelity:"Medium",basis:"ADF Mentors secondary source explicitly describes highest/lowest decimal and fraction comparisons",
+    help:[
+      "The task is usually simple: identify the highest or lowest value among several decimals, fractions or mixed forms.",
+      "For decimals, line up place values mentally. Compare 3.89 with 3.9 by thinking 3.890 versus 3.900.",
+      "For familiar fractions, memorise decimal/percentage equivalents: 1/2=.5, 1/3≈.333, 1/4=.25, 2/5=.4, 3/5=.6, 3/4=.75.",
+      "If fractions are close, simplify them or compare by cross-multiplication instead of converting everything longhand.",
+      "Use estimation first. You rarely need a long decimal expansion just to decide which value is largest."
+    ],traps:["Comparing only numerators","Treating a longer decimal as automatically larger","Forgetting whether the prompt asks highest or lowest","Doing exact long division when a quick comparison is enough"]},
+
+  wordProblems:{cat:"Numerical",name:"Word Problems",fidelity:"High",basis:"Official speed-distance example + ADF Mentors secondary-source examples and maths guidance",
+    help:[
+      "Translate the wording into one relationship before calculating: D=S×T, percent=part/whole×100, average=total/count, work=rate×people×time.",
+      "Expect percentages, reverse percentages, fractions/decimals, ratios, averages, work rates, probability-style counting and general arithmetic.",
+      "For 'X is p% of what number?', work backwards: whole = part ÷ decimal percentage. For friendly percentages, convert to a fraction mentally.",
+      "For combination questions, multiply the independent number of choices in each category. Remember that 'no topping' or 'none' can be an extra option.",
+      "For percentage increases, separate the amount of increase from the final amount. Chunk awkward percentages into 10%, 5%, 25% and 50% pieces.",
+      "Check units before answering. Convert minutes to hours before using km/h or miles/h.",
+      "For ratios, total the parts first; for averages, reconstruct the required total first."
+    ],traps:["Applying a second percentage to the original base instead of the changed base","Forgetting an optional 'none' choice in combinations","Mixing minutes and hours","Solving a related quantity rather than the one asked","Using addition where independent choices should be multiplied"]},
+
+  numMatrix:{cat:"Numerical",name:"Matrix Completion",fidelity:"High",basis:"Official 3×3 missing-number example + ADF Mentors secondary-source matrix guidance",
+    help:[
+      "Treat the matrix as number-series logic arranged in rows and columns. Test complete rows first, then complete columns.",
+      "Look for relationships between neighbouring cells: +/−, ×/÷, a fixed two-step operation, or a constant change across the row/column.",
+      "Prove the same rule on at least two complete lines before applying it to the line containing the question mark.",
+      "A matrix can run left-to-right, top-to-bottom, or occasionally use an overall inventory rule. Prefer the simplest rule that explains all complete evidence.",
+      "Do not let the grid make a familiar number pattern look more complicated than it is."
+    ],traps:["Using a rule that fits only one row","Ignoring columns","Inventing a diagonal rule before testing simpler row/column rules","Arithmetic slips after the correct relationship is found"]},
+
+  wordRelation:{cat:"Verbal",name:"General Vocabulary",fidelity:"Medium",basis:"ADF Mentors secondary source: closest meaning, opposite meaning and same/opposite/neither vocabulary tasks",
+    help:[
+      "Define the target word in plain language before looking at the options.",
+      "For closest-meaning questions, choose the word with the nearest dictionary sense, not merely something from the same topic.",
+      "For same/opposite/neither questions, opposites must lie on the same dimension. Related words can still be 'neither'.",
+      "Use prefixes and roots when useful, but do not guess solely from how a word sounds.",
+      "Vocabulary-heavy questions are less systematic than logic questions; if a word is genuinely unknown, make the best elimination and move on."
+    ],traps:["Treating related words as synonyms","Choosing a familiar word with the wrong sense","Missing direction in an antonym prompt","Spending excessive time on one unknown vocabulary item"]},
+
+  sentenceCompletion:{cat:"Verbal",name:"Sentence Completion",fidelity:"Medium",basis:"ADF Mentors secondary source explicitly lists sentence completion under word categorisation",
+    help:[
+      "Read the whole sentence before filling either blank. The second blank often confirms the first.",
+      "Predict the meaning needed in each blank before reading the answer pairs.",
+      "Use grammar, tense, tone and logical sequence as elimination tools.",
+      "For two-blank questions, both words must work. Reject an option as soon as either half produces an unnatural or illogical sentence."
+    ],traps:["Choosing an option because only the first blank fits","Ignoring grammar or tense","Selecting a plausible word pair that reverses the intended timeline","Reading options before understanding the sentence"]},
+
+  oddWords:{cat:"Verbal",name:"Word Categorisation — Odd One Out",fidelity:"Medium",basis:"ADF Mentors secondary source + other Australian JOA-focused prep descriptions",
+    help:[
+      "Find the clean majority category first, then identify the item or items outside it.",
+      "The prompt can ask for one outsider or two. Check the required selection count before answering.",
+      "Prefer a precise semantic category over a vague association.",
+      "Every member of the majority should satisfy the same rule. If your rule needs exceptions, look again."
+    ],traps:["Picking the visually or emotionally unusual word without defining the category","Ignoring whether ONE or TWO are required","Using an overly broad category","Treating a coincidental association as the intended rule"]},
+
+  accuracyPrecision:{cat:"Verbal",name:"Accuracy & Precision",fidelity:"Medium",basis:"ADF Mentors secondary source explicitly describes exact left/right text matching",
+    help:[
+      "Compare one row at a time, top to bottom. Do not bounce rapidly between rows.",
+      "Check exact identity, not pronunciation or general appearance.",
+      "Look specifically for punctuation, UPPER/lower case, transposed letters/numbers, similar-looking characters, abbreviations and omitted letters.",
+      "A useful training pace is roughly 3–4 seconds per row: fast enough for the test, slow enough to avoid careless misses.",
+      "Count the exact matches only after each pair has been deliberately checked."
+    ],traps:["Mentally autocorrecting a misspelling","Ignoring punctuation or case","Missing a middle-letter transposition","Treating abbreviation and full word as the same","Rushing across several rows at once"]},
+
+  analogy:{cat:"Verbal",name:"Word Analogies",fidelity:"Medium",basis:"ADF Mentors secondary source explicitly teaches analogy bridge-sentence and direction strategy",
+    help:[
+      "Before looking at the answers, write or say a short sentence that captures the relationship between the first pair.",
+      "Apply that exact sentence to the second pair in the same direction.",
+      "Common relationships include type-of, opposite, degree, part-whole, tool-function, creator-output, place-object and stage/age.",
+      "If several answers are related, choose the one that reproduces the relationship — not merely the topic.",
+      "Direction matters: young→older is different from older→young."
+    ],traps:["Matching by association instead of relationship","Reversing direction","Looking at answer options before defining the relationship","Using a relationship that is true but less precise than the original pair"]},
+
+  deduction:{cat:"Verbal",name:"Logical Reasoning",fidelity:"High",basis:"Official two-statement proof example + ADF Mentors secondary-source True/False/Uncertain and statement-chain forms",
+    help:[
+      "Treat the statements as the entire universe. Do not add outside knowledge.",
+      "For PROVE questions, the selected statements must force the conclusion.",
+      "For True / False / Uncertain questions, ask whether the conclusion must be true in every model, must be false, or could vary.",
+      "Simple circle/Venn sketches are useful for 'all', 'some' and 'no' category statements.",
+      "For chains such as A→B and B→C, link them step by step. Do not reverse a one-way implication.",
+      "If asked which statements are required, test whether the conclusion still follows when each statement is removed."
+    ],traps:["Assuming the converse","Confusing 'some' with 'all'","Using outside facts","Choosing statements that mention the same nouns but do not entail the conclusion","Calling something false when it is merely uncertain"]},
+
+  seatingArrangements:{cat:"Verbal",name:"Seating / Ordering Arrangements",fidelity:"Medium",basis:"ADF Mentors secondary source explicitly lists seating arrangements under inferences",
+    help:[
+      "Draw a row of slots. Start with the easiest fixed-position clue first, then add restrictions one at a time.",
+      "Use compact notation: A|B for adjacency, A<B for 'A is left of B', and X over a forbidden slot for exclusions.",
+      "After applying all clues, check whether the conclusion is forced, impossible or only one of several possibilities.",
+      "If multiple arrangements remain, do not guess. A conclusion is 'Cannot say' when it is true in some valid arrangements and false in others."
+    ],traps:["Starting with the vaguest clue","Forgetting that 'not at the sides' leaves several positions","Assuming one valid arrangement is the only arrangement","Confusing 'next to' with 'immediately left/right'"]},
+
+  familyTrees:{cat:"Verbal",name:"Family Trees",fidelity:"Medium",basis:"ADF Mentors secondary source explicitly lists family-tree inference questions",
+    help:[
+      "Draw the family tree as you read — do not try to hold every relationship in working memory.",
+      "Use one generation per horizontal level. Put siblings side by side and partners on the same level.",
+      "Translate one phrase at a time: 'X's brother' → sibling; 'Y's daughter-in-law' → spouse of Y's son.",
+      "After drawing, answer from the diagram rather than rereading the full sentence chain."
+    ],traps:["Skipping a generation","Confusing brother-in-law with brother","Attaching an in-law to the wrong side of the family","Trying to solve a long chain entirely in your head"]},
+
+  abstractSequence:{cat:"Abstract",name:"Picture Series",fidelity:"Medium",basis:"ADF Mentors secondary source explicitly describes picture-series elimination and feature tracking",
+    help:[
+      "Isolate one object or feature at a time and track it through the frames.",
+      "Look for common changes: rotation, mirror/reflection, position, size, count, colour/fill and shading.",
+      "Do not inspect the answer choices until you have identified at least one rule in the sequence.",
+      "Use elimination as each independent rule is discovered.",
+      "If several objects move, track each object separately rather than viewing the frame as one complicated picture."
+    ],traps:["Trying to solve the whole frame at once","Letting many arrows/shapes distract you from one object's movement","Looking at options too early","Missing a second independent rule"]},
+
+  abstractMatrix:{cat:"Abstract",name:"Picture Matrices",fidelity:"Medium",basis:"ADF Mentors secondary source explicitly lists picture matrices and row/column/inventory strategies",
+    help:[
+      "Check patterns across rows and down columns before trying diagonals.",
+      "Isolate one row or column and track how its shape, rotation, fill, count or position changes.",
+      "Some matrices use an overall inventory rule — for example each row/column must contain one of each type.",
+      "Some use combination rules where two cells combine to create a third.",
+      "Find at least one reliable rule before looking hard at the answer options, then eliminate options that violate it."
+    ],traps:["Searching diagonals first","Ignoring a column rule because a row looks visually busy","Missing an overall one-of-each inventory","Failing to test whether two cells combine into the third"]},
+
+  abstractAnalogy:{cat:"Abstract",name:"Picture Analogies",fidelity:"Medium",basis:"ADF Mentors secondary source explicitly describes shape analogies",
+    help:[
+      "Identify the transformation from the first shape/panel to the second before considering the answer choices.",
+      "Apply the same transformation to the third panel in the same direction.",
+      "The transformation may change count, position, rotation, fill, order or more than one attribute.",
+      "If there are two rules, use elimination after applying the first rule, then the second."
+    ],traps:["Changing an attribute that stayed constant in the first pair","Reversing the transformation","Using only one of two transformations","Choosing an option that resembles the source rather than the transformed result"]},
+
+  abstractOdd:{cat:"Abstract",name:"Picture Odd One Out",fidelity:"High",basis:"Official odd-one-out format + ADF Mentors secondary-source symmetry/feature guidance",
+    help:[
+      "There is no sequence to follow. Compare 5–6 images and identify the common structural property.",
+      "For busy images, inventory: shape types, number of each type, location, edges, curved/straight sides, size, fill, line direction/thickness, symmetry and parallel edges.",
+      "A unique characteristic is only useful if the other options do not each have their own different unique characteristic on the same dimension.",
+      "For symmetry questions, count or identify the axes of symmetry rather than relying on overall visual similarity.",
+      "For nested shapes, compare edge counts or the relationship between inner and outer shapes."
+    ],traps:["Calling any unique feature the rule without checking the other options","Ignoring how many outsiders are requested","Overlooking symmetry or edge-count relationships","Choosing by visual salience instead of a common property"]}
+});
+
 
 const WORKED = {
   numSeries:[
@@ -999,10 +1211,79 @@ const WORKED = {
   ]
 };
 
-const QUESTION_BANK_VERSION="2026-09-01-QA2";
+
+Object.assign(WORKED,{
+  numSeries:[
+    {title:"Example 1 — Look at changing increments",q:"3, 10, 18, 27, 37, ?",steps:["<b>Method:</b> subtract neighbouring terms.","The increments are +7, +8, +9, +10.","The increments themselves rise by 1 each time, so the next increment is +11.","37 + 11 = 48."],a:"48"},
+    {title:"Example 2 — Alternate operations",q:"9, 14, 8, 13, 7, 12, ?",steps:["<b>Method:</b> when one constant rule fails, inspect alternating changes.","The pattern is +5, −6, +5, −6, +5...","Continue the alternating cycle with −6.","12 − 6 = 6."],a:"6"}
+  ],
+  numValue:[
+    {title:"Example 1 — Decimal place value",q:"Which is highest: 3.119, 2.7449, 3.882, 3.89879, 3.072?",steps:["Compare the whole-number part first: every 3.x value beats 2.7449.","Then compare the decimal digits left to right.","3.89879 is greater than 3.882 because the hundredths/tenths sequence is larger."],a:"3.89879"},
+    {title:"Example 2 — Fractions",q:"Which is lowest: 4/7, 2/6, 1/2, 3/10, 4/12?",steps:["Use familiar equivalents or simplify.","4/7≈0.57, 2/6=1/3≈0.333, 1/2=0.5, 3/10=0.30, 4/12=1/3≈0.333.","The smallest value is 0.30."],a:"3/10"}
+  ],
+  wordProblems:[
+    {title:"Example 1 — Reverse percentage",q:"8.5 is 50% of what number?",steps:["50% is one half.","If 8.5 is one half of the number, double it.","8.5 × 2 = 17."],a:"17"},
+    {title:"Example 2 — Independent choices",q:"A meal can use 2 breads, 3 fillings and 4 sauces. Sauce may also be omitted. How many combinations are possible?",steps:["Independent choices multiply.","Bread: 2 choices. Filling: 3 choices. Sauce: 4 sauces plus 'none' = 5 choices.","2 × 3 × 5 = 30."],a:"30 combinations"}
+  ],
+  numMatrix:[
+    {title:"Example 1 — Two operations across each row",q:"4 | 8 | 32<br>10 | 20 | 80<br>25 | ? | ?",steps:["Look at the complete rows first.","First → second is ×2.","Second → third is ×4.","Apply the same first step to the last row: 25 × 2 = 50."],a:"50 for the middle cell"},
+    {title:"Example 2 — Constant step within rows",q:"? | 9 | 12<br>24 | 27 | 30<br>18 | 21 | 24",steps:["The complete rows rise by +3 across each cell.","Work backwards from 9 by subtracting 3.","9 − 3 = 6."],a:"6"}
+  ],
+  wordRelation:[
+    {title:"Example 1 — Closest meaning",q:"Which word is closest in meaning to 'insipid': vivid, vapid, cautious, fearful?",steps:["Define insipid: dull, bland or lacking stimulation.","Vapid has the closest meaning: dull or lacking interest.","The other words describe different qualities."],a:"vapid"},
+    {title:"Example 2 — Neither",q:"feeble — interested",steps:["Feeble means weak or lacking strength.","Interested means curious or engaged.","They are neither equivalent nor opposite on one shared dimension."],a:"Neither similar nor opposite"}
+  ],
+  sentenceCompletion:[
+    {title:"Example 1 — Let the second blank confirm the first",q:"When I reached the ____ question, I was relieved the test was almost ____.",steps:["The phrase 'almost ____' strongly suggests 'over' or 'finished'.","That makes a late-position word such as 'final' fit the first blank.","Check the whole sentence for natural grammar and meaning."],a:"final; over"},
+    {title:"Example 2 — Both halves must fit",q:"Because the instructions were ____, the team completed the task ____.",steps:["The first blank needs a word meaning clear/easy to understand.","The second needs a result compatible with clarity, such as efficiently.","Reject any answer pair if only one word fits."],a:"clear; efficiently"}
+  ],
+  oddWords:[
+    {title:"Example 1 — One outsider",q:"house, cottage, school, hut, bungalow — which one does not belong?",steps:["Define the majority category.","House, cottage, hut and bungalow are dwellings.","School is a building, but not primarily a dwelling."],a:"school"},
+    {title:"Example 2 — Two outsiders",q:"metre, litre, kilometre, gram, centimetre, millimetre — choose TWO",steps:["Four terms are units of length.","Litre measures volume.","Gram measures mass."],a:"litre and gram"}
+  ],
+  accuracyPrecision:[
+    {title:"Example 1 — Exact matching",q:"Compare five left/right entries and count exact matches.",steps:["Check each row independently, top to bottom.","Treat punctuation and capitalisation as part of the text.","A transposed pair of letters or one changed digit makes the row different.","Count only rows that are character-for-character identical."],a:"The exact-match count"},
+    {title:"Example 2 — Do not mentally autocorrect",q:"Left: 'North-Tech 90 Ltd.' &nbsp; Right: 'North-Tech 90 Ltd'<br>Left: 'Teletronic Group plc' &nbsp; Right: 'Teletronic Group plc'",steps:["The first pair differs because the full stop is missing on the right.","The second pair is an exact match.","Small punctuation differences count."],a:"1 exact match"}
+  ],
+  analogy:[
+    {title:"Example 1 — Type-of relationship",q:"Vehicle : motorcycle :: Clothing : ?",steps:["Write a bridge sentence before looking at answers.","A motorcycle is a type of vehicle.","Apply the same direction: the answer must be a type of clothing.","A shirt fits the relationship."],a:"shirt"},
+    {title:"Example 2 — Preserve direction",q:"Young : elder :: Intern : ?",steps:["The relationship is 'has less experience/years than'.","Keep the direction from less to more.","An intern has less professional experience than a professional."],a:"professional"}
+  ],
+  deduction:[
+    {title:"Example 1 — True / False / Uncertain",q:"Some T are S. No Q are T. Conclusion: Some S are not Q.",steps:["Draw T overlapping S.","Draw Q separate from T because no Q are T.","The part of T inside S cannot be Q.","Therefore at least some S are not Q."],a:"True"},
+    {title:"Example 2 — Required chain",q:"Riley is an auditor. All auditors wear ID cards. Everyone wearing an ID card may enter. Which facts are required to prove Riley may enter?",steps:["Riley → auditor uses the first fact.","Auditor → ID card uses the second.","ID card → may enter uses the third.","Remove any one link and the chain breaks."],a:"All three statements"}
+  ],
+  seatingArrangements:[
+    {title:"Example 1 — Start with the fixed position",q:"Four people stand in a row. Dana is second from the right. Blair is not at an end. Casey is not next to Blair. Must Alex be next to Blair?",steps:["Draw four empty slots.","Place Dana second from the right first — it is the strongest fixed clue.","Apply Blair's 'not at an end' restriction, then Casey's non-adjacency.","Only the valid arrangement(s) decide whether the conclusion is forced."],a:"Correct if every valid arrangement places Alex next to Blair"},
+    {title:"Example 2 — 'Cannot say' is a real answer",q:"If two different valid arrangements remain, and a conclusion is true in one but false in the other, what should you choose?",steps:["Do not pick the arrangement you found first.","List or visualise all remaining possibilities.","A statement not forced by the clues is not proven."],a:"Cannot say"}
+  ],
+  familyTrees:[
+    {title:"Example 1 — Draw while reading",q:"Liam is the son of Erin's daughter-in-law. Erin's son is Noah, and Noah's brother is Mason. What is Mason to Liam?",steps:["Place Erin one generation above Noah and Mason, who are siblings.","Erin's daughter-in-law is Noah's spouse.","Liam is their son, one generation below Noah.","Mason is therefore the brother of Liam's father."],a:"Uncle"},
+    {title:"Example 2 — Keep generations level",q:"Ava is the daughter of Mia. Mia and Zoe are sisters. What is Zoe to Ava?",steps:["Mia and Zoe sit on the same generation as sisters.","Ava is one generation below Mia.","A parent's sister is an aunt."],a:"Aunt"}
+  ],
+  abstractSequence:[
+    {title:"Example 1 — Track one object at a time",q:"Several arrows move around a square over successive frames.",steps:["Pick one distinctive arrow and ignore the others temporarily.","Track its position frame by frame.","Determine the movement rule, then repeat for a second arrow.","Use each confirmed rule to eliminate options."],a:"The option satisfying every tracked movement"},
+    {title:"Example 2 — Two independent rules",q:"A shape rotates each frame while its fill alternates solid / outline.",steps:["Rule 1: track orientation only.","Rule 2: track fill only.","Do not merge them into one complicated story.","The next option must satisfy both rules."],a:"The option with both the correct orientation and fill"}
+  ],
+  abstractMatrix:[
+    {title:"Example 1 — Rotation across rows",q:"In each row, the same shape turns 90° clockwise from left to right.",steps:["Inspect a complete row first.","Confirm the same direction and step in a second row.","Apply the identical rotation to the row with the missing cell."],a:"The shape at the next 90° clockwise orientation"},
+    {title:"Example 2 — Combination down a column",q:"In each column, the bottom panel combines the shape counts from the two panels above.",steps:["Count the components in the top two cells.","Check that their combined count matches the bottom cell in a complete column.","Use the same combination rule in the incomplete column."],a:"The option with the combined component count"}
+  ],
+  abstractAnalogy:[
+    {title:"Example 1 — Count transformation",q:"First panel has 3 parallel lines; second has 4. Third has 2. What should the fourth have?",steps:["Identify the first-pair transformation before looking at answers.","The number of lines increases by one.","Apply +1 to the third panel's two lines."],a:"3 lines"},
+    {title:"Example 2 — Two rules",q:"In the first pair a marked shape rotates 90° and changes from solid to outline.",steps:["Rule 1: rotate the distinctive feature 90° in the same direction.","Rule 2: toggle the fill state.","Apply both changes to the third panel.","Eliminate any option satisfying only one rule."],a:"The option with both transformations"}
+  ],
+  abstractOdd:[
+    {title:"Example 1 — Symmetry",q:"Five shapes have both vertical and horizontal symmetry; one has only one or no such axis.",steps:["Ignore superficial size differences.","Check vertical symmetry, then horizontal symmetry.","The outsider fails the common symmetry condition."],a:"The shape that lacks the shared symmetry"},
+    {title:"Example 2 — Compare structural counts",q:"Five panels contain four different symbol types; one panel contains five different types.",steps:["For busy panels, count distinct types rather than total symbols.","Apply the same counting rule to every panel.","One panel has a different type-count."],a:"The panel with five distinct symbol types"}
+  ]
+});
+
+
+const QUESTION_BANK_VERSION="2026-09-02-QA4";
 const PRACTICE_BANK_SIZE_PER_DIFFICULTY=80;
 const PRACTICE_BANK_BANDS=["easy","medium","hard"];
-const PRACTICE_BANK_SUBTYPES=["numSeries","numMatrix","wordProblems","oddWords","analogy","wordRelation","deduction","abstractOdd","abstractSequence","rotation","multiAttribute"];
+const PRACTICE_BANK_SUBTYPES=["numSeries","numValue","wordProblems","numMatrix","wordRelation","sentenceCompletion","oddWords","accuracyPrecision","analogy","deduction","seatingArrangements","familyTrees","abstractSequence","abstractMatrix","abstractAnalogy","abstractOdd"];
 function practiceBankSeed(subtype,band,index){
   const si=PRACTICE_BANK_SUBTYPES.indexOf(subtype),bi=PRACTICE_BANK_BANDS.indexOf(band);
   return 71000001 + si*1000003 + bi*100003 + index*7919;
@@ -2182,7 +2463,7 @@ function genAbstractSequenceV3(seed,difficulty="medium"){
 
  if(band==="easy"){
    if(type===0){
-     const base=pick(r,[0,45,90,135,180,225,270,315]),step=pick(r,[45,-45,90,-90,180]),shape=pick(r,["arrow","triangle","L"]);
+     const base=pick(r,[0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345]),step=pick(r,[30,-30,45,-45,60,-60,90,-90,120,180]),shape=pick(r,["arrow","triangle","L"]);
      frames=[0,1,2,3].map(i=>({type:"shape",shape,rot:(base+i*step+3600)%360,fill:"solid",marker:shape==="L"?"accent":undefined}));
      correct={type:"shape",shape,rot:(base+4*step+3600)%360,fill:"solid",marker:shape==="L"?"accent":undefined};
      opts=[correct,{...correct,rot:(correct.rot+45)%360},{...correct,rot:(correct.rot+90)%360},{...correct,rot:(correct.rot+180)%360}];
@@ -2400,6 +2681,589 @@ function generateV3(subtype,seed,difficulty="medium",attempt=0){
 /* Override the public generator after QA3 calibration. */
 generate=generateV3;
 
+
+/* ===========================================================
+   Question Bank QA4 — ADF Mentors secondary-source expansion
+   =========================================================== */
+
+function genNumValueV4(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"numValue",band);
+ const askHigh=r()<.5;
+ let options=[],values=[],family,reason;
+
+ function addUnique(label,value){
+   if(values.some(v=>Math.abs(v-value)<1e-10))return false;
+   options.push(label);values.push(value);return true;
+ }
+
+ if(band==="easy"){
+   if(seed%2===0){
+     while(options.length<5){
+       const whole=ri(r,1,6),digits=ri(r,2,4),scale=10**digits,n=ri(r,1,scale-1);
+       addUnique(`${whole}.${String(n).padStart(digits,"0")}`,whole+n/scale);
+     }
+     family="numvalue-decimals";
+   }else{
+     const common=[[1,2],[1,3],[2,3],[1,4],[3,4],[1,5],[2,5],[3,5],[4,5],[3,10],[7,10]];
+     for(const [a,b] of shuffle(r,common)){
+       if(addUnique(`${a}/${b}`,a/b)&&options.length===5)break;
+     }
+     family="numvalue-common-fractions";
+   }
+   reason="Values are familiar decimals or common fractions; the main demand is accurate place-value comparison.";
+ }else if(band==="medium"){
+   if(seed%3===0){
+     while(options.length<5){
+       const d=pick(r,[6,7,8,9,10,12,15]),n=ri(r,1,d-1);
+       addUnique(`${n}/${d}`,n/d);
+     }
+     family="numvalue-unlike-fractions";
+   }else if(seed%3===1){
+     while(options.length<5){
+       if(options.length%2===0){
+         const d=pick(r,[5,8,10,12]),n=ri(r,1,d-1);addUnique(`${n}/${d}`,n/d);
+       }else{
+         const val=ri(r,18,92)/100;addUnique(val.toFixed(2),val);
+       }
+     }
+     family="numvalue-mixed-forms";
+   }else{
+     const base=ri(r,20,80)/10;
+     while(options.length<5){
+       const val=base+ri(r,1,95)/1000;
+       addUnique(val.toFixed(3),val);
+     }
+     family="numvalue-close-decimals";
+   }
+   reason="Requires comparing unlike denominators, mixed representations or closer decimal values rather than obvious whole-number differences.";
+ }else{
+   if(seed%2===0){
+     const base=ri(r,30,70)/100;
+     while(options.length<5){
+       const d=pick(r,[11,12,13,14,15,16,18,20]),n=Math.max(1,Math.min(d-1,Math.round((base+(ri(r,-5,5)/100))*d)));
+       addUnique(`${n}/${d}`,n/d);
+     }
+     family="numvalue-close-fractions";
+   }else{
+     const base=ri(r,250,850)/1000;
+     while(options.length<5){
+       if(options.length<3){
+         const d=pick(r,[8,12,16,20,25]),n=Math.max(1,Math.min(d-1,Math.round((base+(ri(r,-3,3)/100))*d)));
+         addUnique(`${n}/${d}`,n/d);
+       }else{
+         const val=base+ri(r,-20,20)/1000;addUnique(val.toFixed(3),val);
+       }
+     }
+     family="numvalue-close-mixed";
+   }
+   reason="Uses close fractions/decimals where estimation narrows the field but precise comparison or cross-multiplication is still needed.";
+ }
+
+ const target=askHigh?Math.max(...values):Math.min(...values);
+ const idx=values.findIndex(v=>v===target);
+ q.prompt=`Which option has the ${askHigh?"highest":"lowest"} value?`;
+ q.kind="single";q.options=shuffle(r,options);q.answer=options[idx];
+ q.explanation=`Compare the values on a common scale. ${q.answer} is the ${askHigh?"greatest":"smallest"} of the five choices.`;
+ return withFamily(setDifficulty(q,band,reason),family+(askHigh?"-high":"-low"));
+}
+
+function genWordProblemV4(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),mode=seed%5;
+ if(mode>=2)return genWordProblemV3(seed,band);
+ const q=qbase(seed,"wordProblems",band);
+ let prompt,ans,exp,family,reason;
+ if(mode===0){
+   if(band==="easy"){
+     const price=pick(r,[8,12,15,18,24]),qty=ri(r,4,9);ans=price*qty;
+     prompt=`Small parts cost ${price} cents per packet. How much do ${qty} packets cost?`;
+     exp=`Multiply unit cost by quantity: ${price} × ${qty} = ${ans} cents.`;
+     family="word-unit-cost";reason="One direct multiplication from unit cost and quantity.";
+   }else if(band==="medium"){
+     const a=ri(r,2,4),b=ri(r,2,4),c=ri(r,2,4),optional=ri(r,2,4);ans=a*b*c*(optional+1);
+     prompt=`A kit can be configured with ${a} case types, ${b} battery choices, ${c} label styles and either one of ${optional} optional accessories or no accessory. How many different configurations are possible?`;
+     exp=`Independent choices multiply. The accessory category has ${optional+1} choices including 'none': ${a} × ${b} × ${c} × ${optional+1} = ${ans}.`;
+     family="word-combinations";reason="Requires recognising independent choice categories and counting an optional 'none' as an additional possibility.";
+   }else{
+     const a=ri(r,2,4),b=ri(r,2,4),c=ri(r,2,5),d=ri(r,2,4),none=r()<.5?1:0;ans=a*b*c*(d+none);
+     prompt=`A field pack is selected from ${a} frame sizes, ${b} colours, ${c} pouch layouts and ${d} attachment choices${none?" (or no attachment)":""}. How many distinct packs can be configured?`;
+     exp=`Multiply the independent choices${none?", counting 'no attachment' as an extra choice":""}: ${a} × ${b} × ${c} × ${d+none} = ${ans}.`;
+     family="word-combinations-hard";reason="A multi-category counting problem where overlooking an optional none-choice produces a plausible wrong answer.";
+   }
+ }else{
+   if(band==="easy"){
+     const part=pick(r,[6,8,9,12,15]),pct=pick(r,[25,50]);ans=part/(pct/100);
+     prompt=`${part} is ${pct}% of what number?`;
+     exp=`Whole = part ÷ ${pct/100}. ${part} ÷ ${pct/100} = ${ans}.`;
+     family="word-reverse-percent-friendly";reason="A reverse percentage with a familiar quarter/half relationship.";
+   }else if(band==="medium"){
+     const start=pick(r,[20,30,40,50]),pct=pick(r,[15,20,25,30]),increase=start*pct/100,add=increase;ans=pct*2;
+     prompt=`An item costs $${start}. Its price rises by ${pct}% and then by an additional $${add.toFixed(2)}. What is the total percentage increase from the original price?`;
+     exp=`The first increase is $${increase.toFixed(2)}. The extra $${add.toFixed(2)} is the same amount again, so the total increase is $${(increase+add).toFixed(2)}, which is ${ans}% of $${start}.`;
+     family="word-percent-plus-fixed";reason="Requires converting a fixed second increase back to a percentage of the original base.";
+   }else{
+     const sale=pick(r,[72,80,90,120,150]),remain=pick(r,[60,75,80]);ans=sale/(remain/100);
+     prompt=`After a reduction, a quantity is ${sale}, which represents ${remain}% of the original amount. What was the original amount?`;
+     exp=`Original = ${sale} ÷ ${remain/100} = ${ans}.`;
+     family="word-reverse-percent-hard";reason="Requires reversing a non-trivial percentage rather than applying a forward percentage.";
+   }
+ }
+ q.prompt=prompt;q.answer=ans;q.kind=band==="easy"?"single":"numeric";
+ if(q.kind==="single")q.options=uniqOptions(ans,[ans+2,ans-2,ans*2],r);
+ q.explanation=exp;
+ return withFamily(setDifficulty(q,band,reason),family);
+}
+
+const closestMeaningV4=[
+ ["rapid","swift",["slow","rough","quiet"],"both mean fast"],
+ ["assist","aid",["avoid","judge","delay"],"both mean help"],
+ ["quiet","silent",["bright","active","wide"],"both describe little or no sound"],
+ ["begin","commence",["finish","pause","measure"],"both mean start"],
+ ["finish","conclude",["open","travel","compare"],"both mean bring to an end"],
+ ["large","huge",["tiny","late","thin"],"both describe great size"],
+ ["careful","cautious",["reckless","brief","noisy"],"both describe taking care"],
+ ["accurate","correct",["random","heavy","brief"],"both relate to being right"],
+ ["obvious","evident",["hidden","fragile","slow"],"both mean readily apparent"],
+ ["reluctant","unwilling",["eager","solid","early"],"both describe lack of willingness"],
+ ["scarce","limited",["plentiful","formal","smooth"],"both describe restricted availability"],
+ ["robust","sturdy",["fragile","vague","late"],"both describe strength or resilience"],
+ ["insipid","vapid",["palpable","tacit","trepid"],"both mean dull or lacking stimulation"],
+ ["meticulous","fastidious",["reckless","brief","obscure"],"both describe very careful attention to detail"],
+ ["transient","temporary",["permanent","rigid","abundant"],"both describe something lasting only a short time"],
+ ["mitigate","alleviate",["aggravate","predict","conceal"],"both can mean to reduce severity"],
+ ["sporadic","intermittent",["continuous","precise","mandatory"],"both describe irregular or non-continuous occurrence"],
+ ["concise","succinct",["verbose","fragile","tacit"],"both describe brevity"],
+ ["plausible","credible",["impossible","silent","lavish"],"both describe something believable or apparently reasonable"],
+ ["ambiguous","equivocal",["explicit","certain","brief"],"both can describe more than one possible interpretation"]
+];
+const oppositeMeaningV4=[
+ ["hot","cold",["warm","dry","large"],"hot and cold contrast in temperature"],
+ ["early","late",["prompt","quick","soon"],"early and late contrast in timing"],
+ ["open","closed",["wide","empty","clear"],"open and closed contrast in openness"],
+ ["full","empty",["large","heavy","complete"],"full and empty contrast in contents"],
+ ["increase","decrease",["improve","measure","repeat"],"increase and decrease contrast in direction of change"],
+ ["bright","dark",["clear","large","silent"],"bright and dark contrast in light level"],
+ ["accept","reject",["consider","allow","record"],"accept and reject contrast in acceptance"],
+ ["expand","contract",["stretch","move","rotate"],"expand and contract contrast in size change"],
+ ["strong","weak",["large","sturdy","fast"],"strong and weak contrast in strength"],
+ ["tame","wild",["docile","subdued","cultivated"],"tame and wild contrast in domestication"],
+ ["scarce","abundant",["limited","meagre","partial"],"scarce and abundant contrast in availability"],
+ ["explicit","implicit",["stated","clear","detailed"],"explicit and implicit contrast in whether something is directly stated"],
+ ["fragile","robust",["delicate","light","small"],"fragile and robust contrast in resistance to damage"],
+ ["concise","verbose",["brief","compact","clear"],"concise and verbose contrast in wordiness"],
+ ["temporary","permanent",["short","brief","uncertain"],"temporary and permanent contrast in duration"],
+ ["certain","doubtful",["clear","exact","possible"],"certain and doubtful contrast in confidence"],
+ ["calm","agitated",["quiet","stable","slow"],"calm and agitated contrast in emotional state"],
+ ["mandatory","optional",["required","formal","written"],"mandatory and optional contrast in requirement"],
+ ["transparent","opaque",["clear","solid","bright"],"transparent and opaque contrast in light transmission"],
+ ["mitigate","aggravate",["reduce","predict","observe"],"mitigate and aggravate contrast in severity change"]
+];
+function genWordRelationV4(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"wordRelation",band),style=seed%3;
+ if(style===0){
+   const pool=closestMeaningV4.slice(0,band==="easy"?12:closestMeaningV4.length),item=pool[Math.abs(Math.floor(seed/3))%pool.length];
+   q.prompt=`Which word is closest in meaning to '${item[0]}'?`;
+   q.kind="single";q.options=shuffle(r,[item[1],...item[2]]);q.answer=item[1];q.explanation=`${item[0]} and ${item[1]}: ${item[3]}.`;
+   return withFamily(setDifficulty(q,band,band==="hard"?"Less-common vocabulary with close semantic distractors.":"A direct closest-meaning comparison."),"vocab-closest");
+ }
+ if(style===1){
+   const item=oppositeMeaningV4[Math.abs(Math.floor(seed/3))%oppositeMeaningV4.length];
+   q.prompt=`'${item[0]}' is the opposite of:`;
+   q.kind="single";q.options=shuffle(r,[item[1],...item[2]]);q.answer=item[1];q.explanation=`${item[3]}.`;
+   return withFamily(setDifficulty(q,band,band==="hard"?"Requires precise antonym recognition with related distractors.":"Direct antonym recognition."),"vocab-opposite");
+ }
+ return genWordRelationV3(seed,band);
+}
+
+function genOddWordsV4(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"oddWords",band);
+ const template=pick(r,oddWordTemplatesV3[band]);
+ const chooseTwo=(band==="hard"||seed%3===0);
+ if(chooseTwo){
+   const core=shuffle(r,template.core).slice(0,4),outs=shuffle(r,template.outs).slice(0,2);
+   q.prompt="Which TWO words do not belong with the others?";
+   q.kind="multi";q.options=shuffle(r,[...core,...outs]);q.answer=outs;q.maxSelect=2;
+   q.explanation=`The majority rule is: ${template.rule}. The two outsiders do not fit it.`;
+ }else{
+   const core=shuffle(r,template.core).slice(0,4),out=pick(r,template.outs);
+   q.prompt="Which ONE word does not belong with the others?";
+   q.kind="single";q.options=shuffle(r,[...core,out]);q.answer=out;
+   q.explanation=`The majority rule is: ${template.rule}. ${out} is the outsider.`;
+ }
+ const reason=band==="easy"?"Concrete semantic category with a clear outsider.":band==="medium"?"Requires a more conceptual semantic category and precise membership.":"Uses closer vocabulary categories and may require identifying two outsiders.";
+ return withFamily(setDifficulty(q,band,reason),`oddwords-${template.id}-${chooseTwo?"two":"one"}`);
+}
+
+const sentenceTemplatesV4=[
+ {family:"completion-timeline",stem:"When I reached the ____ item, I was relieved the session was almost ____.",correct:["final","over"],alts:[["first","beginning"],["third","starting"],["best","mine"]]},
+ {family:"completion-cause",stem:"Because the instructions were ____, the group completed the task ____.",correct:["clear","efficiently"],alts:[["vague","smoothly"],["lengthy","silently"],["optional","yesterday"]]},
+ {family:"completion-contrast",stem:"The route looked ____ on the map, but in practice it was surprisingly ____.",correct:["simple","difficult"],alts:[["difficult","simple"],["quiet","blue"],["short","mapped"]]},
+ {family:"completion-sequence",stem:"After the equipment was ____, it was ____ for use.",correct:["inspected","approved"],alts:[["approved","inspected"],["stored","broken"],["painted","earlier"]]},
+ {family:"completion-tone",stem:"Her explanation was so ____ that even a complex procedure seemed ____.",correct:["concise","manageable"],alts:[["confusing","obvious"],["verbose","short"],["angry","numerical"]]},
+ {family:"completion-logic",stem:"The evidence was ____ rather than conclusive, so the team remained ____.",correct:["suggestive","cautious"],alts:[["certain","uncertain"],["complete","careless"],["irrelevant","finished"]]},
+ {family:"completion-purpose",stem:"The checklist was designed to ____ errors and ____ consistency.",correct:["reduce","improve"],alts:[["increase","reduce"],["ignore","measure"],["paint","delay"]]},
+ {family:"completion-condition",stem:"If the signal remains ____, the operator should ____ the procedure.",correct:["unstable","pause"],alts:[["stable","stop"],["bright","measure"],["written","repeat"]]}
+];
+function genSentenceCompletionV4(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"sentenceCompletion",band);
+ const t=pick(r,sentenceTemplatesV4);
+ const variants={
+   "completion-timeline":["assessment","briefing","inspection","exercise","review","drill","interview","practice test"],
+   "completion-cause":["team","crew","section","class","unit","group","staff","candidates"],
+   "completion-contrast":["route","plan","procedure","schedule","layout","task","diagram","instruction set"],
+   "completion-sequence":["equipment","vehicle","device","document","system","kit","instrument","package"],
+   "completion-tone":["explanation","briefing","summary","description","instruction","report","guide","demonstration"],
+   "completion-logic":["evidence","report","data","signal","result","observation","reading","test"],
+   "completion-purpose":["checklist","process","review","procedure","template","audit","routine","system"],
+   "completion-condition":["signal","reading","connection","system","supply","measurement","link","voltage"]
+ };
+ const variant=pick(r,variants[t.family]||["item"]);
+ let stem=t.stem
+   .replace("session",variant)
+   .replace("group",variant)
+   .replace("route",variant)
+   .replace("equipment",variant)
+   .replace("explanation",variant)
+   .replace("evidence",variant)
+   .replace("checklist",variant)
+   .replace("signal",variant);
+ const distract=shuffle(r,t.alts).slice(0,3);
+ const fmt=p=>`${p[0]}; ${p[1]}`;
+ q.prompt=stem;q.kind="single";q.options=shuffle(r,[fmt(t.correct),...distract.map(fmt)]);q.answer=fmt(t.correct);
+ q.explanation=`Both blanks must work together. '${t.correct[0]}' fits the first context and '${t.correct[1]}' completes the sentence logically and grammatically.`;
+ const reason=band==="easy"?"Both blanks are strongly constrained by familiar context.":band==="medium"?"Requires using both sentence halves plus grammar/tone to reject plausible pairs.":"Uses closer semantic distractors where both words must preserve the sentence's logic and tone.";
+ return withFamily(setDifficulty(q,band,reason),t.family);
+}
+
+const accuracyBasesV4=[
+ "Northline Systems Pty Ltd.","Telemetric Group plc","Favourable Friends Corp.","Boreal Hill Dining","CTJL SlopeTech Industries",
+ "Mason & Vale Co.","Sector-7 Logistics","Harbour Point Services","Axiom Research Unit","Westbridge 61 Ltd.",
+ "Coreline Equipment Pty.","Delta Ridge Operations","Beacon Street Company","Northern Vector Group","Kestrel-8 Services"
+];
+function mutateAccuracyV4(r,s,type){
+ if(type==="punct")return s.endsWith(".")?s.slice(0,-1):s+".";
+ if(type==="case"){const i=ri(r,0,s.length-1);return s.slice(0,i)+s[i].toUpperCase()+s.slice(i+1);}
+ if(type==="transpose"){
+   const idx=[...Array(s.length-1).keys()].filter(i=>/[A-Za-z0-9]/.test(s[i])&&/[A-Za-z0-9]/.test(s[i+1]));
+   if(!idx.length)return s+" ";
+   const i=pick(r,idx);return s.slice(0,i)+s[i+1]+s[i]+s.slice(i+2);
+ }
+ if(type==="similar"){
+   const pairs=[["m","n"],["n","m"],["7","1"],["1","7"],["6","8"],["8","6"],["l","I"],["O","0"]];
+   for(const [a,b] of shuffle(r,pairs)){const i=s.indexOf(a);if(i>=0)return s.slice(0,i)+b+s.slice(i+1);}
+   return s.replace(/a/i,"e");
+ }
+ if(type==="omit"){
+   const idx=[...Array(s.length).keys()].filter(i=>/[A-Za-z]/.test(s[i])&&i>1);
+   if(!idx.length)return s+"x";
+   const i=pick(r,idx);return s.slice(0,i)+s.slice(i+1);
+ }
+ if(type==="abbr")return s.replace("Company","Co.").replace("Industries","Ind.").replace("Services","Svc.");
+ return s+" ";
+}
+function genAccuracyPrecisionV4(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"accuracyPrecision",band);
+ const rowsN=band==="easy"?5:band==="medium"?6:7;
+ const matchN=band==="easy"?ri(r,2,4):band==="medium"?ri(r,2,4):ri(r,2,5);
+ const bases=shuffle(r,accuracyBasesV4).slice(0,rowsN),rows=[];
+ const diffTypes=band==="easy"?["punct","case","omit"]:band==="medium"?["punct","case","transpose","similar","omit"]:["punct","case","transpose","similar","omit","abbr"];
+ const matchIdx=new Set(shuffle(r,[...Array(rowsN).keys()]).slice(0,matchN));
+ for(let i=0;i<rowsN;i++){
+   const left=bases[i],right=matchIdx.has(i)?left:mutateAccuracyV4(r,left,pick(r,diffTypes));
+   rows.push({left,right});
+ }
+ const exact=rows.filter(x=>x.left===x.right).length;
+ q.prompt=`How many of the ${rowsN} entries in the left column are EXACTLY the same as the corresponding entry on the right?`;
+ q.display={type:"comparisonRows",rows};q.kind="single";q.options=uniqOptions(exact,[Math.max(0,exact-1),Math.min(rowsN,exact+1),Math.min(rowsN,exact+2)],r);q.answer=exact;
+ q.explanation=`Compare character-for-character, including case and punctuation. Exactly ${exact} row${exact===1?"":"s"} match.`;
+ const reason=band==="easy"?"Five rows with relatively visible differences such as punctuation/case.":band==="medium"?"More rows and subtle transposition/character traps.":"Seven rows with close visual differences, abbreviations and transpositions that punish rushed scanning.";
+ return withFamily(setDifficulty(q,band,reason),`accuracy-${band}-${diffTypes[seed%diffTypes.length]}`);
+}
+
+function genDeductionV4(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),style=seed%3;
+ if(style===0)return genDeductionV3(seed,band);
+ const q=qbase(seed,"deduction",band);
+ if(style===1){
+   const type=seed%6;
+   let statements=[],conclusion,answer,explanation,family;
+   if(type===0){statements=["Some T are S.","No Q are T."];conclusion="Some S are not Q.";answer="True";explanation="The T members that are S cannot be Q because no Q are T.";family="logic-sets-some-no";}
+   else if(type===1){statements=["All R are M.","Object X is R."];conclusion="Object X is M.";answer="True";explanation="Membership in R guarantees membership in M.";family="logic-all-membership";}
+   else if(type===2){statements=["All R are M.","Object X is M."];conclusion="Object X is R.";answer="Uncertain";explanation="R implies M, but M does not imply R. This would reverse the rule.";family="logic-converse-trap";}
+   else if(type===3){statements=["No R are M.","Object X is R."];conclusion="Object X is M.";answer="False";explanation="The exclusion rule makes R and M disjoint.";family="logic-no-exclusion";}
+   else if(type===4){statements=["Some R are M."];conclusion="All R are M.";answer="Uncertain";explanation="'Some' does not establish 'all'.";family="logic-some-all";}
+   else{statements=["All A are B.","All B are C.","Item P is A."];conclusion="Item P is C.";answer="True";explanation="Chain A → B → C, then apply membership of P in A.";family="logic-category-chain";}
+   q.prompt=`<div class="logic-statements">${statements.map((s,i)=>`<div><b>Statement ${i+1}:</b> ${s}</div>`).join("")}<div style="margin-top:7px"><b>Conclusion:</b> ${conclusion}</div></div>Assuming the statements are true, is the conclusion True, False or Uncertain?`;
+   q.kind="single";q.options=["True","False","Uncertain"];q.answer=answer;q.explanation=explanation;
+   const reason=band==="easy"?"Direct category logic with one clear implication/exclusion.":band==="medium"?"Requires distinguishing entailment from an invalid converse or quantifier jump.":"Requires chaining or carefully distinguishing what is forced from what is merely possible.";
+   return withFamily(setDifficulty(q,band,reason),family);
+ }
+ const n=pick(r,names),role=pick(r,["auditor","technician","coordinator","inspector"]),item=pick(r,["ID card","clearance badge","authorisation","verified pass"]);
+ const s1=`${n} is a ${role}.`,s2=`All ${role}s receive an ${item}.`,s3=`Everyone with an ${item} is admitted to the secure area.`;
+ q.prompt=`Which statements are required to PROVE that ${n} is admitted to the secure area?<div class="logic-statements"><div>A. ${s1}</div><div>B. ${s2}</div><div>C. ${s3}</div></div>`;
+ q.kind="single";q.options=["A + B","A + C","B + C","A + B + C"];q.answer="A + B + C";
+ q.explanation=`The proof is a three-link chain: ${n} → ${role} → ${item} → admitted. Every statement is required.`;
+ return withFamily(setDifficulty(q,band,band==="hard"?"A three-link implication chain where removing any premise breaks the proof.":"A multi-step implication chain that must be checked link by link."),"logic-required-chain");
+}
+
+function permutationsV4(arr){
+ if(arr.length<=1)return [arr.slice()];
+ const out=[];
+ arr.forEach((v,i)=>permutationsV4(arr.slice(0,i).concat(arr.slice(i+1))).forEach(rest=>out.push([v,...rest])));
+ return out;
+}
+function genSeatingV4(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"seatingArrangements",band);
+ const n=band==="easy"?4:5,people=shuffle(r,names).slice(0,n),target=shuffle(r,people),all=permutationsV4(people);
+ const facts=[];
+ const addFact=(text,test)=>facts.push({text,test});
+ // Build a pool of true clues from the target arrangement.
+ for(let i=0;i<n;i++){
+   const p=target[i];
+   addFact(`${p} is in position ${i+1} from the left.`,perm=>perm[i]===p);
+   if(i!==0&&i!==n-1)addFact(`${p} is not at either end.`,perm=>perm[0]!==p&&perm[n-1]!==p);
+ }
+ for(let i=0;i<n-1;i++){
+   const a=target[i],b=target[i+1];
+   addFact(`${a} is immediately left of ${b}.`,perm=>perm.indexOf(a)+1===perm.indexOf(b));
+   addFact(`${a} is next to ${b}.`,perm=>Math.abs(perm.indexOf(a)-perm.indexOf(b))===1);
+ }
+ for(let i=0;i<n;i++)for(let j=i+2;j<n;j++){
+   const a=target[i],b=target[j];
+   addFact(`${a} is somewhere to the left of ${b}.`,perm=>perm.indexOf(a)<perm.indexOf(b));
+   addFact(`${a} is not next to ${b}.`,perm=>Math.abs(perm.indexOf(a)-perm.indexOf(b))!==1);
+ }
+ const chosen=[],shuffled=shuffle(r,facts);let candidates=all;
+ const targetMax=band==="easy"?1:band==="medium"?3:6;
+ for(const f of shuffled){
+   const next=candidates.filter(f.test);
+   if(next.length&&next.length<candidates.length){chosen.push(f);candidates=next;}
+   if(chosen.length>=(band==="easy"?3:4)&&candidates.length<=targetMax)break;
+ }
+ // Choose a conclusion and classify across all candidates.
+ const pairs=[];
+ for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
+   const a=people[i],b=people[j];
+   pairs.push({text:`${a} and ${b} are next to each other.`,test:p=>Math.abs(p.indexOf(a)-p.indexOf(b))===1,fam:"adjacent"});
+   pairs.push({text:`${a} is somewhere to the left of ${b}.`,test:p=>p.indexOf(a)<p.indexOf(b),fam:"order"});
+ }
+ let rel=pick(r,shuffle(r,pairs)),vals=candidates.map(rel.test),answer=vals.every(Boolean)?"Correct":vals.every(v=>!v)?"Incorrect":"Cannot say";
+ // On hard, prefer uncertain sometimes; on easy prefer forced.
+ if(band==="easy"&&answer==="Cannot say"){
+   const forced=pairs.find(x=>{const v=candidates.map(x.test);return v.every(Boolean)||v.every(z=>!z)});
+   if(forced){rel=forced;vals=candidates.map(rel.test);answer=vals.every(Boolean)?"Correct":"Incorrect";}
+ }
+ q.prompt=`<div class="logic-statements">${chosen.map((f,i)=>`<div>${i+1}. ${f.text}</div>`).join("")}<div style="margin-top:8px"><b>Conclusion:</b> ${rel.text}</div></div>Is the conclusion Correct, Incorrect or Cannot say?`;
+ q.kind="single";q.options=["Correct","Incorrect","Cannot say"];q.answer=answer;
+ q.explanation=`Sketch ${n} slots and apply the most fixed clue first. After all clues, ${candidates.length} arrangement${candidates.length===1?"":"s"} remain. The conclusion is ${answer.toLowerCase()} across those valid arrangement(s).`;
+ const reason=band==="easy"?"Four-person arrangement with enough fixed-position information to reach a forced conclusion.":band==="medium"?"Five-person ordering with several constraints and a need to check whether the conclusion is forced across remaining arrangements.":"Five-person ordering deliberately leaves close alternatives, making 'Cannot say' and partial-information traps more common.";
+ return withFamily(setDifficulty(q,band,reason),`seating-${rel.fam}-${answer.toLowerCase().replace(" ","-")}`);
+}
+
+const maleNamesV4=["Liam","Noah","Mason","Ethan","Oliver","Jack","Leo","Henry","Lucas","Finn"];
+const femaleNamesV4=["Ava","Mia","Zoe","Emma","Ruby","Ella","Grace","Sophie","Chloe","Isla"];
+function genFamilyTreeV4(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"familyTrees",band),type=seed%6;
+ const M=shuffle(r,maleNamesV4),F=shuffle(r,femaleNamesV4);
+ let prompt,answer,options,exp,family;
+ if(type===0){
+   prompt=`${M[0]} is the son of ${F[0]}. ${F[0]} and ${F[1]} are sisters. What is ${F[1]} to ${M[0]}?`;
+   answer="Aunt";options=["Aunt","Sister","Cousin","Grandmother","Niece"];exp=`${F[1]} is the sister of ${M[0]}'s mother, so she is his aunt.`;family="family-aunt";
+ }else if(type===1){
+   prompt=`${F[0]} is the daughter of ${M[0]}. ${M[0]} and ${M[1]} are brothers. What is ${M[1]} to ${F[0]}?`;
+   answer="Uncle";options=["Uncle","Brother","Cousin","Grandfather","Brother-in-law"];exp=`${M[1]} is the brother of ${F[0]}'s father.`;family="family-uncle";
+ }else if(type===2){
+   prompt=`${M[0]} is married to ${F[0]}. ${F[0]}'s brother is ${M[1]}. What is ${M[1]} to ${M[0]}?`;
+   answer="Brother-in-law";options=["Brother-in-law","Brother","Uncle","Cousin","Father-in-law"];exp=`A spouse's brother is a brother-in-law.`;family="family-inlaw";
+ }else if(type===3){
+   prompt=`${F[0]} and ${F[1]} are sisters. ${F[0]}'s son is ${M[0]}, and ${F[1]}'s daughter is ${F[2]}. What is ${F[2]} to ${M[0]}?`;
+   answer="Cousin";options=["Cousin","Sister","Aunt","Niece","Mother"];exp=`Children of siblings are cousins.`;family="family-cousin";
+ }else if(type===4){
+   prompt=`${M[0]} is the father of ${F[0]}. ${F[0]} is the mother of ${M[1]}. What is ${M[0]} to ${M[1]}?`;
+   answer="Grandfather";options=["Grandfather","Father","Uncle","Brother","Cousin"];exp=`${M[0]} is the father of ${M[1]}'s mother.`;family="family-grandfather";
+ }else{
+   prompt=`${M[0]} is the brother of ${F[0]}. ${F[0]} is the mother of ${F[1]}. What is ${F[1]} to ${M[0]}?`;
+   answer="Niece";options=["Niece","Sister","Aunt","Cousin","Daughter"];exp=`${F[1]} is the daughter of ${M[0]}'s sister.`;family="family-niece";
+ }
+ if(band==="hard"){
+   prompt=`${prompt} Draw the relationships before answering.`;
+ }
+ q.prompt=prompt;q.kind="single";q.options=shuffle(r,options);q.answer=answer;q.explanation=exp;
+ const reason=band==="easy"?"A short two-step family relationship.":band==="medium"?"Requires placing relatives across two generations or through marriage.":"Uses indirect relationship wording where drawing the family tree prevents generation/in-law errors.";
+ return withFamily(setDifficulty(q,band,reason),family);
+}
+
+function genAbstractMatrixV4(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"abstractMatrix",band),type=seed%4;
+ let cells=[],correct,opts,exp,family,reason;
+ if(type===0){
+   const shape=pick(r,["arrow","triangle","L"]),step=band==="easy"?90:pick(r,[45,90,135]),starts=[pick(r,[0,45,90,135]),pick(r,[0,45,90,135]),pick(r,[0,45,90,135])];
+   for(let row=0;row<3;row++)for(let col=0;col<3;col++)cells.push({type:"shape",shape,rot:(starts[row]+col*step)%360,fill:"solid",marker:shape==="L"?"accent":undefined});
+   correct=cells[1];cells[1]=null;
+   opts=[correct,{...correct,rot:(correct.rot+45)%360},{...correct,rot:(correct.rot+90)%360},{...correct,fill:"outline"}];
+   exp=`Across every row the same shape rotates ${step}° from one cell to the next.`;family="abstract-matrix-row-rotation";
+ }else if(type===1){
+   const shapes=["circle","square","triangle"],fills=["solid","outline","solid"];
+   for(let row=0;row<3;row++)for(let col=0;col<3;col++)cells.push({type:"shape",shape:shapes[col],rot:(row*90)%360,fill:fills[row]});
+   correct=cells[8];cells[8]=null;
+   opts=[correct,{...correct,shape:"square"},{...correct,fill:correct.fill==="solid"?"outline":"solid"},{...correct,rot:(correct.rot+90)%360}];
+   exp="Each column keeps one base shape while each row keeps its fill/orientation state.";family="abstract-matrix-inventory";
+ }else if(type===2){
+   const a=ri(r,1,3),b=ri(r,1,3),c=ri(r,1,3),d=ri(r,1,3),e=ri(r,1,3),f=ri(r,1,3);
+   const counts=[[a,b,a+b],[c,d,c+d],[e,f,e+f]];
+   for(let row=0;row<3;row++)for(let col=0;col<3;col++)cells.push({type:"dots",dots:counts[row][col],dotFill:row%2===0?"solid":"outline"});
+   correct=cells[7];cells[7]=null;
+   opts=[correct,{...correct,dots:Math.max(1,correct.dots-1)},{...correct,dots:correct.dots+1},{...correct,dotFill:correct.dotFill==="solid"?"outline":"solid"}];
+   exp="In each row, the third panel contains the combined number of dots from the first two panels. The fill state is constant within the row.";family="abstract-matrix-count-combine";
+ }else{
+   const step=pick(r,[90,180]),shapes=["arrow","L","triangle"];
+   for(let row=0;row<3;row++)for(let col=0;col<3;col++)cells.push({type:"shape",shape:shapes[row],rot:(row*45+col*step)%360,fill:col===1?"outline":"solid",marker:shapes[row]==="L"?"accent":undefined});
+   correct=cells[5];cells[5]=null;
+   opts=[correct,{...correct,rot:(correct.rot+90)%360},{...correct,fill:"outline"},{...correct,shape:"square",marker:undefined}];
+   exp=`Rows preserve shape type; columns control fill; orientation advances ${step}° across each row.`;family="abstract-matrix-multi-rule";
+ }
+ q.prompt="Which option should replace the question mark in the picture matrix?";
+ q.display={type:"visualMatrix",cells};q.kind="visualSingle";q.visualOptions=shuffle(r,opts);
+ q.answer=q.visualOptions.findIndex(o=>JSON.stringify(stableCanonical(o))===JSON.stringify(stableCanonical(correct)));
+ q.explanation=exp;
+ reason=band==="easy"?"One obvious row/column transformation.":band==="medium"?"Requires checking both row and column structure or a combination rule.":"Uses multiple simultaneous row/column attributes with close distractors.";
+ return withFamily(setDifficulty(q,band,reason),family);
+}
+
+function genAbstractAnalogyV4(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"abstractAnalogy",band),type=seed%5;
+ let a,b,c,correct,opts,exp,family,reason;
+ const angles=[0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345];
+
+ if(type===0){
+   const n=ri(r,1,5),m=ri(r,1,5),fill=pick(r,["solid","outline"]),fill2=pick(r,["solid","outline"]);
+   a={type:"dots",dots:n,dotFill:fill};b={type:"dots",dots:n+1,dotFill:fill};c={type:"dots",dots:m,dotFill:fill2};correct={type:"dots",dots:m+1,dotFill:fill2};
+   opts=[correct,{...correct,dots:Math.max(1,m)},{...correct,dots:m+2},{...correct,dotFill:fill2==="solid"?"outline":"solid"}];
+   exp="The first transformation adds one component while preserving fill. Apply +1 to the third panel.";family="abstract-analogy-count";
+ }else if(type===1){
+   const shape=pick(r,["arrow","L","triangle"]),rot=pick(r,[30,45,60,90,120,135,180]),start=pick(r,angles),cstart=pick(r,angles);
+   a={type:"shape",shape,rot:start,fill:"solid",marker:shape==="L"?"accent":undefined};b={...a,rot:(start+rot)%360};
+   c={type:"shape",shape,rot:cstart,fill:"outline",marker:shape==="L"?"accent":undefined};correct={...c,rot:(cstart+rot)%360};
+   opts=[correct,{...correct,rot:(correct.rot+30)%360},{...correct,fill:"solid"},{...correct,mirror:true}];
+   exp=`The first panel rotates ${rot}° without changing its other attributes. Apply the same rotation to the third panel.`;family="abstract-analogy-rotation";
+ }else if(type===2){
+   const shapeA=pick(r,["triangle","square","circle","diamond","arrow","L"]),shapeC=pick(r,["triangle","square","circle","diamond","arrow","L"]),ra=pick(r,angles),rc=pick(r,angles),fillA=pick(r,["solid","outline"]);
+   a={type:"shape",shape:shapeA,rot:ra,fill:fillA,marker:shapeA==="L"?"accent":undefined};b={...a,fill:fillA==="solid"?"outline":"solid"};
+   c={type:"shape",shape:shapeC,rot:rc,fill:fillA,marker:shapeC==="L"?"accent":undefined};correct={...c,fill:fillA==="solid"?"outline":"solid"};
+   opts=[correct,{...correct,fill:fillA},{...correct,rot:(correct.rot+45)%360},{...correct,shape:shapeA,marker:shapeA==="L"?"accent":undefined}];
+   exp="The transformation toggles fill while preserving shape and orientation.";family="abstract-analogy-fill";
+ }else if(type===3){
+   const start=pick(r,angles),cstart=pick(r,angles),fill=pick(r,["solid","outline"]);
+   a={type:"shape",shape:"L",rot:start,fill,marker:"accent",mirror:false};b={...a,mirror:true};
+   c={type:"shape",shape:"L",rot:cstart,fill:fill==="solid"?"outline":"solid",marker:"accent",mirror:false};correct={...c,mirror:true};
+   opts=[correct,{...correct,mirror:false},{...correct,rot:(correct.rot+45)%360},{...correct,fill:fill}];
+   exp="The first transformation is a reflection that preserves the other attributes. Reflect the third panel in the same way.";family="abstract-analogy-reflection";
+ }else{
+   const map=pick(r,[["arrow","triangle"],["square","diamond"],["circle","square"],["triangle","L"]]),other=pick(r,[["circle","diamond"],["arrow","L"],["square","triangle"]]);
+   const rot=pick(r,[0,45,90,135]),fill=pick(r,["solid","outline"]);
+   a={type:"shape",shape:map[0],rot,fill,marker:map[0]==="L"?"accent":undefined};b={type:"shape",shape:map[1],rot,fill,marker:map[1]==="L"?"accent":undefined};
+   c={type:"shape",shape:other[0],rot:(rot+45)%360,fill:fill==="solid"?"outline":"solid",marker:other[0]==="L"?"accent":undefined};
+   correct={type:"shape",shape:other[1],rot:c.rot,fill:c.fill,marker:other[1]==="L"?"accent":undefined};
+   opts=[correct,{...correct,shape:other[0],marker:other[0]==="L"?"accent":undefined},{...correct,rot:(correct.rot+45)%360},{...correct,fill:fill}];
+   exp="The first transformation changes the base shape while preserving orientation and fill. Apply the same kind of shape substitution to the third panel.";family="abstract-analogy-shape-substitution";
+ }
+ q.prompt="Apply the same transformation from the first pair to the third figure. Which option completes the analogy?";
+ q.display={type:"visualAnalogy",a,b,c};q.kind="visualSingle";q.visualOptions=shuffle(r,opts);
+ q.answer=q.visualOptions.findIndex(o=>JSON.stringify(stableCanonical(o))===JSON.stringify(stableCanonical(correct)));
+ q.explanation=exp;
+ reason=band==="easy"?"One visible transformation such as count, fill, shape substitution or rotation.":band==="medium"?"Requires applying a transformation in the same direction while preserving unrelated attributes.":"Uses asymmetric/reflection or close multi-attribute distractors where only the exact transformation survives.";
+ return withFamily(setDifficulty(q,band,reason),family);
+}
+function genAbstractOddV4(seed,difficulty="medium"){
+ const r=rng(seed),band=requestedBand(difficulty);
+ if(seed%3===0)return genAbstractOddV3(seed,band);
+ const q=qbase(seed,"abstractOdd",band);
+
+ if(seed%3===1){
+   const symmetric=["circle","square","diamond","oval","rectangle","hexagon","cross"];
+   const normal=shuffle(r,symmetric).slice(0,4);
+   const out=pick(r,["trapezoid","parallelogram","L"]);
+   const fill=pick(r,["solid","outline"]);
+   let specs=normal.map(shape=>({
+     type:"shape",shape,
+     rot:shape==="circle"?0:pick(r,[0,15,30,45,60,75,90,105,120,135,150,165]),
+     fill,
+     marker:shape==="L"?"accent":undefined
+   }));
+   specs.push({type:"shape",shape:out,rot:pick(r,[0,15,30,45,60]),fill,marker:out==="L"?"accent":undefined});
+   specs=shuffle(r,specs);
+   q.prompt="Which ONE figure does not share the same symmetry property as the others?";
+   q.kind="visualSingle";q.visualOptions=specs;q.answer=specs.findIndex(x=>x.shape===out);
+   q.explanation="The majority each have at least two mirror-symmetry axes. The outsider has at most one.";
+   return withFamily(setDifficulty(q,band,band==="hard"?"Several unrelated shapes force you to compare symmetry structure rather than visual similarity.":"A symmetry-based odd-one-out with rotation used only as a distractor."),"abstractodd-symmetry");
+ }
+
+ const pairs=[
+   {outer:"square",inner:"triangle",bad:"triangle"},
+   {outer:"diamond",inner:"triangle",bad:"triangle"},
+   {outer:"pentagon",inner:"square",bad:"square"},
+   {outer:"hexagon",inner:"pentagon",bad:"pentagon"},
+   {outer:"hexagon",inner:"square",bad:"triangle"},
+   {outer:"pentagon",inner:"triangle",bad:"triangle"}
+ ];
+ const pair=pick(r,pairs),angles=shuffle(r,[0,15,30,45,60,75,90,105,120,135,150,165]).slice(0,5);
+ let specs=angles.slice(0,4).map(rot=>({type:"nested",outer:pair.outer,inner:pair.inner,rot}));
+ specs.push({type:"nested",outer:pair.bad,inner:pair.inner,rot:angles[4]});
+ specs=shuffle(r,specs);
+ q.prompt="Which ONE panel does not follow the same relationship between the outer and inner shapes?";
+ q.kind="visualSingle";q.visualOptions=specs;
+ q.answer=specs.findIndex(x=>x.outer===pair.bad&&x.inner===pair.inner);
+ q.explanation="In the normal panels the outer shape has more edges than the inner shape. One panel breaks that edge-count relationship.";
+ return withFamily(setDifficulty(q,band,band==="hard"?"Requires comparing a relation between nested shapes while rotation is irrelevant.":"Requires comparing inner-versus-outer edge counts rather than one isolated shape."),"abstractodd-nested-edges");
+}
+
+/* Extend fig rendering with shapes used by the ADF-Mentors-informed modules. */
+const _figSvgV3=figSvg;
+figSvg=function(spec,w=118,h=82){
+ const cx=w/2,cy=h/2;
+ if(spec?.type==="nested"){
+   const outer={type:"shape",shape:spec.outer,rot:spec.rot||0,fill:"outline"};
+   const outerSvg=figSvg({...outer},w,h);
+   // Overlay a smaller inner-shape SVG by extracting its inner group.
+   const inner=figSvg({type:"shape",shape:spec.inner,rot:spec.rot||0,fill:"outline"},Math.round(w*.62),Math.round(h*.62));
+   return `<div style="position:relative;width:${w}px;height:${h}px">${outerSvg}<div style="position:absolute;inset:16% 19%;display:flex;align-items:center;justify-content:center">${inner}</div></div>`;
+ }
+ if(spec?.type==="shape"&&["oval","trapezoid","parallelogram","pentagon","rectangle","hexagon","cross"].includes(spec.shape)){
+   const rot=spec.rot||0,fill=spec.fill==="outline"?"white":"#1c2830";
+   let body="";
+   if(spec.shape==="oval")body=`<ellipse cx="${cx}" cy="${cy}" rx="31" ry="21" fill="${fill}" stroke="#1c2830" stroke-width="2"/>`;
+   if(spec.shape==="trapezoid")body=`<polygon points="${cx-20},${cy-25} ${cx+20},${cy-25} ${cx+31},${cy+24} ${cx-31},${cy+24}" fill="${fill}" stroke="#1c2830" stroke-width="2"/>`;
+   if(spec.shape==="parallelogram")body=`<polygon points="${cx-18},${cy-25} ${cx+31},${cy-25} ${cx+18},${cy+25} ${cx-31},${cy+25}" fill="${fill}" stroke="#1c2830" stroke-width="2"/>`;
+   if(spec.shape==="pentagon")body=`<polygon points="${cx},${cy-29} ${cx+28},${cy-8} ${cx+17},${cy+27} ${cx-17},${cy+27} ${cx-28},${cy-8}" fill="${fill}" stroke="#1c2830" stroke-width="2"/>`;
+   if(spec.shape==="rectangle")body=`<rect x="${cx-31}" y="${cy-20}" width="62" height="40" fill="${fill}" stroke="#1c2830" stroke-width="2"/>`;
+   if(spec.shape==="hexagon")body=`<polygon points="${cx-28},${cy} ${cx-14},${cy-24} ${cx+14},${cy-24} ${cx+28},${cy} ${cx+14},${cy+24} ${cx-14},${cy+24}" fill="${fill}" stroke="#1c2830" stroke-width="2"/>`;
+   if(spec.shape==="cross")body=`<path d="M ${cx-10} ${cy-29} H ${cx+10} V ${cy-10} H ${cx+29} V ${cy+10} H ${cx+10} V ${cy+29} H ${cx-10} V ${cy+10} H ${cx-29} V ${cy-10} H ${cx-10} Z" fill="${fill}" stroke="#1c2830" stroke-width="2"/>`;
+   return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><g transform="translate(${cx} ${cy}) rotate(${rot}) translate(${-cx} ${-cy})">${body}</g></svg>`;
+ }
+ return _figSvgV3(spec,w,h);
+};
+
+function generateV4(subtype,seed,difficulty="medium",attempt=0){
+ const band=requestedBand(difficulty);let q;
+ if(subtype==="numValue")q=genNumValueV4(seed,band);
+ else if(subtype==="wordProblems")q=genWordProblemV4(seed,band);
+ else if(subtype==="wordRelation")q=genWordRelationV4(seed,band);
+ else if(subtype==="sentenceCompletion")q=genSentenceCompletionV4(seed,band);
+ else if(subtype==="oddWords")q=genOddWordsV4(seed,band);
+ else if(subtype==="accuracyPrecision")q=genAccuracyPrecisionV4(seed,band);
+ else if(subtype==="deduction")q=genDeductionV4(seed,band);
+ else if(subtype==="seatingArrangements")q=genSeatingV4(seed,band);
+ else if(subtype==="familyTrees")q=genFamilyTreeV4(seed,band);
+ else if(subtype==="abstractMatrix")q=genAbstractMatrixV4(seed,band);
+ else if(subtype==="abstractAnalogy")q=genAbstractAnalogyV4(seed,band);
+ else if(subtype==="abstractOdd")q=genAbstractOddV4(seed,band);
+ else q=generateV3(subtype,seed,band,attempt);
+ q=calibrateDifficulty(q);q.requestedDifficulty=band;
+ if(q.difficulty!==band&&attempt<16)return generateV4(subtype,seed+104729,band,attempt+1);
+ return q;
+}
+generate=generateV4;
+
+
 /* ---------- Diversity selection ---------- */
 function familyBalancedPick(candidates,count,random,blockedFingerprints=new Set()){
  const unique=[];
@@ -2495,9 +3359,9 @@ function buildDiverseCategoryMixSet(cat,bands,random){
 function uniqueQuestionCount(qs){return new Set(qs.map(questionFingerprint)).size;}
 
 const byCat={
- Numerical:["numSeries","numMatrix","wordProblems"],
- Verbal:["oddWords","analogy","wordRelation","deduction"],
- Abstract:["abstractOdd","abstractSequence","rotation","multiAttribute"]
+ Numerical:["numSeries","numValue","wordProblems","numMatrix"],
+ Verbal:["wordRelation","sentenceCompletion","oddWords","accuracyPrecision","analogy","deduction","seatingArrangements","familyTrees"],
+ Abstract:["abstractSequence","abstractMatrix","abstractAnalogy","abstractOdd"]
 };
 const CATEGORY_MIXES={
  mixNumerical:{cat:"Numerical",name:"Numerical Mixed Practice",basis:"Questions from every Numerical practice type",fidelity:"Mixed"},
@@ -2506,7 +3370,7 @@ const CATEGORY_MIXES={
 };
 function categoryMixKey(cat){return "mix"+cat;}
 function isCategoryMix(st){return !!CATEGORY_MIXES[st];}
-const practiceCounts={Numerical:720,Verbal:960,Abstract:960}; // finite audited bank: 80 items × 3 difficulty bands × subtype count
+const practiceCounts={Numerical:960,Verbal:1920,Abstract:960}; // finite audited bank: 80 items × 3 difficulty bands × subtype count
 const MOCK_TIER_INFO={
  easier:{label:"Easier than JOA",short:"Easier",desc:"Confidence-building: mostly Easy, some Medium, and very few Hard questions."},
  joa:{label:"Same difficulty as JOA",short:"JOA-level",desc:"Best public-evidence match to JOA difficulty. ADF does not publish official item difficulty ratings."},
@@ -2662,7 +3526,7 @@ function home(){
     <div class="stat"><b>51</b><span>official scored questions</span></div>
     <div class="stat"><b>20:00</b><span>official scored time</span></div>
     <div class="stat"><b>23.5s</b><span>average pace per item</span></div>
-    <div class="stat"><b>2,640</b><span>finite category-practice questions</span></div>
+    <div class="stat"><b>3,840</b><span>finite category-practice questions</span></div>
    </div>
   </div>
   <aside class="card hero-side">
@@ -2739,9 +3603,9 @@ function practicePage(){
  </div>
  <div class="section-head section"><div><h2>Practice by reasoning family</h2><p>Each family contains separate drills and an embedded help guide.</p></div></div>
  <section class="grid3">
-  ${catCard("Numerical","01",["Number series","3×3 matrices","Rates, ratios, percentages & averages"],"High fidelity on the core styles shown in the official guide.")}
-  ${catCard("Verbal","02",["Two-statement proofs","Analogies & word relationships","Odd-word classification"],"The proof format is official; other verbal subtypes are informed by current Australian JOA-specific prep sources.")}
-  ${catCard("Abstract","03",["Figure odd-one-out","Rotation & orientation","Sequences & multi-attribute rules"],"Odd-one-out is directly shown in the official guide; sequence/rotation drills are secondary-source informed.")}
+  ${catCard("Numerical","01",["Number series","Number value","Word problems","Matrix completion"],"Official examples plus the additional Numerical taxonomy documented by ADF Mentors.")}
+  ${catCard("Verbal","02",["Vocabulary & sentence completion","Categorisation & accuracy","Analogies & logic","Seating & family trees"],"The official proof format is retained and the broader practice taxonomy is informed by ADF Mentors.")}
+  ${catCard("Abstract","03",["Picture series","Picture matrices","Picture analogies","Picture odd-one-out"],"Odd-one-out is official-style; the four-part picture taxonomy is strongly supported by ADF Mentors.")}
  </section>
  ${state.practice?renderPracticeModal():""}</main>`;
 }
@@ -2855,6 +3719,9 @@ function renderDisplay(d){
  if(d.type==="matrix") return `<table class="matrix">${d.grid.map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join("")}</tr>`).join("")}</table>`;
  if(d.type==="figSequence") return `<div class="svg-seq">${d.frames.map(f=>`<div class="svg-frame">${figSvg(f,94,76)}</div>`).join("")}<div style="font-size:28px;font-weight:900">?</div></div>`;
  if(d.type==="singleFig") return `<div class="svg-seq" style="flex-direction:column;gap:6px"><div class="smallnote" style="font-weight:900">${d.label||"Reference figure"}</div><div class="svg-frame">${figSvg(d.spec,94,76)}</div></div>`;
+ if(d.type==="comparisonRows") return `<table class="comparison-table" aria-label="Accuracy and precision comparison">${d.rows.map(x=>`<tr><td>${modalEscape(x.left)}</td><td>${modalEscape(x.right)}</td></tr>`).join("")}</table>`;
+ if(d.type==="visualMatrix") return `<div class="visual-matrix">${d.cells.map(cell=>`<div class="visual-matrix-cell ${cell?"":"missing"}">${cell?figSvg(cell,88,68):"?"}</div>`).join("")}</div>`;
+ if(d.type==="visualAnalogy") return `<div class="visual-analogy"><div class="visual-analogy-cell">${figSvg(d.a,90,68)}</div><span class="visual-analogy-word">is to</span><div class="visual-analogy-cell">${figSvg(d.b,90,68)}</div><span class="visual-analogy-word">as</span><div class="visual-analogy-cell">${figSvg(d.c,90,68)}</div><span class="visual-analogy-word">is to ?</span></div>`;
  return "";
 }
 function isOptionCorrect(q,o,i){
@@ -3188,10 +4055,11 @@ function strategyPage(){
  <section class="card" style="padding:22px"><h3>1. The pacing reality</h3><p>51 questions in 20 minutes is an average of about <b>23.5 seconds per question</b>. The official ADF guide says finishing all 51 is very rare and recommends answering the questions you feel confident about first, flagging difficult questions and returning later.</p>
  <div class="notice blue">Training rule: use ~10–15 seconds for immediately obvious items, and consider moving on around 30 seconds if you are still not making progress. The exact 30-second cap is a training heuristic, not an ADF rule.</div></section>
  <section class="grid3 section">
-  <div class="card category-card"><h3>Numerical speed</h3><ul><li>Memorise common fraction/percent equivalents: 1/2=50%, 1/4=25%, 3/4=75%, 1/5=20%.</li><li>For rates, write D = S × T, then cover the variable you need.</li><li>For series, differences first; do not immediately reach for algebra.</li><li>Use rough estimation to eliminate impossible options.</li></ul></div>
-  <div class="card category-card"><h3>Verbal speed</h3><ul><li>For analogies, form a one-line bridge sentence.</li><li>For proof questions, use only given facts — never background assumptions.</li><li>For odd-word sets, define the majority category before picking outsiders.</li><li>Read the instruction word: NOT, TWO, PROVE and ONLY change the task.</li></ul></div>
-  <div class="card category-card"><h3>Abstract speed</h3><ul><li>Scan count → fill → position → rotation → symmetry.</li><li>Track one attribute at a time.</li><li>Test alternating patterns early.</li><li>Say the rule in words before selecting an odd figure.</li></ul></div>
+  <div class="card category-card"><h3>Numerical speed</h3><ul><li>Memorise common fraction/decimal/percent equivalents: 1/2=.5=50%, 1/3≈.333, 1/4=.25, 1/5=.2.</li><li>For Number Value, compare place value or cross-multiply close fractions instead of doing long division.</li><li>For rates, write D = S × T; for work, output = people × rate × time.</li><li>For series, write the increments if the first rule is not obvious — the increments may contain the pattern.</li><li>For combinations, multiply independent choice counts and remember an optional 'none' can be another choice.</li></ul></div>
+  <div class="card category-card"><h3>Verbal speed</h3><ul><li>For analogies, define the relationship in a one-line bridge sentence <b>before</b> studying the answers, then preserve its direction.</li><li>For logic, use only the given facts. Simple circles/sets help with all/some/no; never assume the converse.</li><li>For seating, draw slots and place the easiest fixed clue first. For family trees, draw each relationship as you read.</li><li>For accuracy/precision, compare one row at a time and actively check punctuation, case, transpositions and lookalike characters.</li><li>Vocabulary is less systematic: eliminate quickly and avoid sacrificing too much time to one unknown word.</li></ul></div>
+  <div class="card category-card"><h3>Abstract speed</h3><ul><li>For picture series, isolate one object/attribute at a time and track its movement before looking deeply at answers.</li><li>For matrices, test rows and columns first; also consider one-of-each inventories and two-cells-combine rules.</li><li>For analogies, identify the first-pair transformation and apply the same change in the same direction.</li><li>For odd-one-out, inspect count, shape type, edges, fill, line direction/thickness, symmetry and parallel edges.</li><li>Use elimination after each confirmed rule rather than waiting to solve every feature at once.</li></ul></div>
  </section>
+ <section class="card section" style="padding:22px"><h3>Secondary-source training insight — ADF Mentors</h3><p>The user-supplied ADF Mentors module reinforces a practical split between <b>systematic</b> question types (series, matrices, analogies, logic, seating/family relationships, accuracy checking) and vocabulary-heavy items. Its strongest recurring advice is to externalise the pattern: write increments for number series, use slot/table sketches for ordering, draw family trees and simple set circles, and isolate one visual feature at a time. It also recommends reviewing missed questions after a simulation and repeating the same practice test after roughly <b>2–3 days</b> to see whether the method has improved. This trainer uses those ideas as <b>training techniques</b>, not as official ADF instructions.</p></section>
  <section class="card section" style="padding:22px"><h3>2. Test-day setup from the official guide</h3><ul style="line-height:1.75"><li>Use a laptop or desktop and a supported browser.</li><li>Be rested, comfortable and free of distractions.</li><li>Do not accept help from anyone.</li><li>Do not open the unique JOA link until you are ready to complete the assessment in full.</li><li>Use the practice period to learn the navigation and answer mechanics.</li></ul></section>
  <section class="card section" style="padding:22px"><h3>3. Calculator / paper caution</h3><p>Current independent JOA prep sources commonly advise practising without a calculator and some say pen and paper are permitted. The attached official ADF guide does not state a calculator/paper rule. This trainer therefore assumes <b>mental arithmetic first</b> but does not present calculator policy as an official fact. Follow the instructions shown in your actual assessment.</p></section>
  </main>`;
@@ -3201,13 +4069,14 @@ function sourcesPage(){
  <div class="sources">
   <div class="card source-card"><h3><span class="badge official">Primary / official</span> ADF-RECREF132 — A Guide to the Job Opportunities Assessment for the Australian Defence Force</h3><p>Revised 27 June 2025. Used as the controlling source for timing, 51-item length, 10-minute / 5-question familiarisation, numerical-verbal-abstract families, flagging/navigation advice and the high-fidelity example styles (number matrix, dot odd-one-out, two-statement verbal proof, block odd-one-out, number sequence and speed-distance word problem).</p></div>
   <div class="card source-card"><h3><span class="badge official">Primary / official</span> ADF Careers — Application Process</h3><p>Used to verify that the JOA is an early application step intended to help determine suitable services and positions, and to separate the JOA from the later YOU Session.</p></div>
-  <div class="card source-card"><h3><span class="badge medium">Secondary</span> Current Australian-focused JOA preparation providers</h3><p>ADFTestPrep.com, Army-Test / Seliant, ADF Mentors, OpenExamPrep and the Institute of Psychometric Coaching were checked for current JOA-specific descriptions. They broadly support numerical/verbal/abstract preparation and add likely subtypes such as word analogies, synonyms/antonyms, number series/matrices, odd-word classification and visual sequences. Where secondary sources conflict with the revised official guide (for example older 'game-based mini-test' descriptions), this trainer follows the official guide.</p></div>
+  <div class="card source-card"><h3><span class="badge medium">Secondary — detailed capture</span> ADF Mentors — JOA Online Test training module</h3><p>A user-supplied set of 30 screenshots was reviewed page by page for v1.11. It documents four Numerical styles (Number Series, Number Value, Word Problems, Matrix Completion), a broader Verbal taxonomy (general vocabulary, sentence completion, odd-one-out, accuracy/precision, analogies, logical reasoning, seating arrangements and family trees), and four Abstract styles (Picture Series, Matrices, Analogies and Odd One Out). It also supplies practical techniques such as writing number increments, fraction/decimal comparison, D/S/T and reverse-percentage thinking, analogy bridge sentences, Venn/set sketches, slot diagrams, family-tree drawing, exact-text comparison and feature-by-feature visual elimination. Its simulation material separately describes some tests as representative of the real level and later tests as deliberately harder; that is useful secondary support for this trainer's JOA-level / harder practice tiers, but is <b>not</b> an official ADF difficulty rating. A historical page in the capture also describes a 51-question / 20-minute online test across Numerical, Verbal and Abstract reasoning; the current 2025 official ADF guide remains the authority for those format facts. These screenshots are treated as reputable secondary-source signals — never as overriding the official ADF guide.</p></div>
+  <div class="card source-card"><h3><span class="badge medium">Secondary</span> Other Australian-focused JOA preparation providers</h3><p>ADFTestPrep.com, Army-Test / Seliant, OpenExamPrep and the Institute of Psychometric Coaching were also used for cross-checking likely practice families. Where any secondary source conflicts with the revised official guide, this trainer follows the official guide.</p></div>
   <div class="card source-card"><h3><span class="badge medium">Anecdotal only</span> Reddit — AustralianMilitary / ADFRecruiting</h3><p>Used only for broad experience signals: candidates repeatedly describe intense time pressure, strategic skipping/flagging and value in becoming familiar with the format. No recalled or restricted live-test questions were copied. Current ADFRecruiting moderation also explicitly prohibits sharing specific JOA assessment content, so this tool stays with independently generated practice material.</p></div>
  </div>
  <section class="section"><h2>Question-family fidelity map</h2><table class="fidelity-table"><thead><tr><th>Training module</th><th>Fidelity</th><th>Why</th></tr></thead><tbody>
- ${Object.entries(SUBTYPES).map(([k,v])=>`<tr><td>${v.cat} — ${v.name}</td><td><span class="badge ${v.fidelity.toLowerCase()}">${v.fidelity}</span></td><td>${v.basis}</td></tr>`).join("")}
+ ${PRACTICE_BANK_SUBTYPES.map(k=>[k,SUBTYPES[k]]).map(([k,v])=>`<tr><td>${v.cat} — ${v.name}</td><td><span class="badge ${v.fidelity.toLowerCase()}">${v.fidelity}</span></td><td>${v.basis}</td></tr>`).join("")}
  </tbody></table></section>
- <section class="card section" style="padding:20px"><h3>Question-bank QA</h3><p>This build uses a finite category-practice bank of <b>2,640 questions</b> (80 deterministic slots per difficulty band for each question subtype) plus 18 fixed 51-question practice tests. The full bank is exhaustively machine-checked before release for answer presence, selection counts, arithmetic consistency, matrix-rule ambiguity, correct-vs-incorrect visual distinguishability, clipping, reference/starting figures only where the prompt genuinely requires one, and deterministic regeneration. Semantic verbal templates are also manually reviewed. New completed full-test attempts save an exact snapshot of their 51 questions so later bank updates cannot change an old answer review.</p></section><section class="card section" style="padding:20px"><h3>Difficulty calibration</h3><p>Easy / Medium / Hard badges are assigned by the <b>actual construction of each generated item</b>. Easy remains one-rule or immediately classifiable. Medium has been recalibrated upward to favour two-rule, reverse-operation, interleaved, conversion or two-attribute reasoning. Hard now more consistently uses layered dependencies, multi-stage numerical work, conditional/logical traps, multiple simultaneous visual attributes, close reflection/rotation distractors or changing/interleaved rule systems. A regression guard still explicitly classifies simple A-B-A-B number alternation as Easy.</p></section><section class="card section" style="padding:20px"><h3>What this tool does not claim</h3><p>It does not claim to reproduce proprietary JOA questions, exact scoring, role cut-scores, adaptive behaviour, official item difficulty labels or an unpublished official section split. “Same difficulty as JOA” is therefore a best-match simulation tier based on the official public examples and current Australian JOA-focused descriptions, not an ADF-issued difficulty rating.</p></section>
+ <section class="card section" style="padding:20px"><h3>Question-bank QA</h3><p>This build uses a finite category-practice bank of <b>3,840 questions</b> (80 deterministic slots per difficulty band for each active question subtype) plus 18 fixed 51-question practice tests. The full bank is exhaustively machine-checked before release for answer presence, selection counts, arithmetic consistency, matrix-rule ambiguity, correct-vs-incorrect visual distinguishability, clipping, reference/starting figures only where the prompt genuinely requires one, and deterministic regeneration. Semantic verbal templates are also manually reviewed. New completed full-test attempts save an exact snapshot of their 51 questions so later bank updates cannot change an old answer review.</p></section><section class="card section" style="padding:20px"><h3>Difficulty calibration</h3><p>Easy / Medium / Hard badges are assigned by the <b>actual construction of each generated item</b>. Easy remains one-rule or immediately classifiable. Medium has been recalibrated upward to favour two-rule, reverse-operation, interleaved, conversion or two-attribute reasoning. Hard now more consistently uses layered dependencies, multi-stage numerical work, conditional/logical traps, multiple simultaneous visual attributes, close reflection/rotation distractors or changing/interleaved rule systems. A regression guard still explicitly classifies simple A-B-A-B number alternation as Easy.</p></section><section class="card section" style="padding:20px"><h3>What this tool does not claim</h3><p>It does not claim to reproduce proprietary JOA questions, exact scoring, role cut-scores, adaptive behaviour, official item difficulty labels or an unpublished official section split. ADF Mentors describes a score above 30/51 as a strong practice result in its own simulation material, but this trainer deliberately does <b>not</b> turn that secondary-source statement into a pass mark, occupational cut-score or official ADF benchmark. “Same difficulty as JOA” is therefore a best-match simulation tier based on the official public examples and current Australian JOA-focused descriptions, not an ADF-issued difficulty rating.</p></section>
  </main>`;
 }
 function render(){
