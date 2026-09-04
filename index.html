@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.24">
+<meta name="app-version" content="1.25">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -1700,12 +1700,74 @@ body{
   }
 }
 
+
+/* ===========================================================
+   v1.25 small UI layout refinements
+   =========================================================== */
+
+/* Times-table selector: title left, Selected factors only toggle right. */
+.table-picker-modal-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.table-picker-modal-head h3{
+  margin:0;
+}
+.table-picker-header-toggle{
+  margin-left:auto;
+  font-weight:400 !important;
+}
+.table-picker-header-toggle > span{
+  font-weight:400 !important;
+}
+
+/* Marked Questions: count stacked above the Open button. */
+.marked-feature-action{
+  display:flex !important;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:center;
+  gap:8px !important;
+}
+.marked-count{
+  align-self:flex-end;
+}
+.marked-open-btn{
+  align-self:flex-end;
+}
+
+/* Keep the compact stack tidy on phones too. */
+@media(max-width:760px){
+  .marked-feature-action{
+    width:100%;
+    align-items:flex-start;
+  }
+  .marked-count,
+  .marked-open-btn{
+    align-self:flex-start;
+  }
+  .marked-open-btn{
+    margin-left:0 !important;
+  }
+
+  .table-picker-modal-head{
+    gap:10px;
+    align-items:center;
+  }
+  .table-picker-header-toggle{
+    margin-left:auto;
+    font-size:11px;
+  }
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.24</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.25</span></div>
 
 <script>
 /* ===========================================================
@@ -1719,7 +1781,7 @@ body{
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.24";
+const APP_VERSION = "1.25";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -5587,7 +5649,7 @@ async function applyMentalTablePicker(){
  state.mentalSetup.tableMode="custom";state.mentalPickerOpen=false;render();
 }
 function cancelMentalTablePicker(){state.mentalPickerOpen=false;render();}
-function renderMentalTablePicker(){return `<div class="ui-modal-root" style="z-index:210"><div class="ui-modal-card" role="dialog" aria-modal="true" aria-label="Choose times tables"><div class="ui-modal-head"><h3>Choose times tables</h3></div><div class="ui-modal-body"><div class="table-picker-intro"><label class="mini-switch-row"><span>Selected factors only</span><button type="button" class="mini-switch ${state.mentalPickerSelectedFactorsOnly?"on":""}" aria-pressed="${state.mentalPickerSelectedFactorsOnly}" onclick="toggleMentalSelectedFactorsOnly()"><span></span></button></label></div><div class="smallnote selected-factor-help">${state.mentalPickerSelectedFactorsOnly?"Both factors must come from your selected tables. Example: with 3, 4, 5 and 6 selected, 4×6 is allowed but 4×12 is not.":"Standard table targeting: one factor is from the selected table(s), while the other may be any value from 1–12."}</div><div class="table-picker-grid">${Array.from({length:12},(_,i)=>i+1).map(n=>`<button class="table-pick ${state.mentalPickerDraft.includes(n)?"active":""}" onclick="toggleMentalTablePick(${n})">${n}×</button>`).join("")}</div><div class="table-picker-actions"><div><button class="btn ghost small" onclick="setMentalPickerAll(true)">Select all</button> <button class="btn ghost small" onclick="setMentalPickerAll(false)">Clear</button></div><div><button class="btn ghost small" onclick="cancelMentalTablePicker()">Cancel</button> <button class="btn small" onclick="applyMentalTablePicker()">Apply</button></div></div></div></div></div>`;}
+function renderMentalTablePicker(){return `<div class="ui-modal-root" style="z-index:210"><div class="ui-modal-card" role="dialog" aria-modal="true" aria-label="Choose times tables"><div class="ui-modal-head table-picker-modal-head"><h3>Choose times tables</h3><label class="mini-switch-row table-picker-header-toggle"><span>Selected factors only</span><button type="button" class="mini-switch ${state.mentalPickerSelectedFactorsOnly?"on":""}" aria-pressed="${state.mentalPickerSelectedFactorsOnly}" onclick="toggleMentalSelectedFactorsOnly()"><span></span></button></label></div><div class="ui-modal-body"><div class="smallnote selected-factor-help">${state.mentalPickerSelectedFactorsOnly?"Both factors must come from your selected tables. Example: with 3, 4, 5 and 6 selected, 4×6 is allowed but 4×12 is not.":"Standard table targeting: one factor is from the selected table(s), while the other may be any value from 1–12."}</div><div class="table-picker-grid">${Array.from({length:12},(_,i)=>i+1).map(n=>`<button class="table-pick ${state.mentalPickerDraft.includes(n)?"active":""}" onclick="toggleMentalTablePick(${n})">${n}×</button>`).join("")}</div><div class="table-picker-actions"><div><button class="btn ghost small" onclick="setMentalPickerAll(true)">Select all</button> <button class="btn ghost small" onclick="setMentalPickerAll(false)">Clear</button></div><div><button class="btn ghost small" onclick="cancelMentalTablePicker()">Cancel</button> <button class="btn small" onclick="applyMentalTablePicker()">Apply</button></div></div></div></div></div>`;}
 function activeMentalTables(){const s=state.mentalSetup;if(s.tableMode==="single")return [s.singleTable];if(s.tableMode==="custom")return s.selectedTables.length?[...s.selectedTables]:Array.from({length:12},(_,i)=>i+1);return Array.from({length:12},(_,i)=>i+1);}
 function mentalFactKey(q){
  if(!q)return "";
