@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.23">
+<meta name="app-version" content="1.24">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -1475,12 +1475,237 @@ body{
  .table-picker-intro{align-items:flex-start;flex-direction:column}.mini-switch-row{align-self:stretch;justify-content:space-between}
 }
 
+
+/* ===========================================================
+   v1.24 UI refinements
+   =========================================================== */
+
+/* Marked Questions feature card */
+.marked-feature-action{
+  display:flex !important;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  min-width:0 !important;
+}
+.marked-count{
+  display:inline-flex;
+  align-items:baseline;
+  gap:5px;
+  white-space:nowrap;
+}
+.marked-count b{
+  font-size:30px;
+  line-height:1;
+  color:var(--navy);
+}
+.marked-count span{
+  color:var(--muted);
+  font-weight:800;
+}
+.marked-open-btn{
+  height:36px !important;
+  min-height:36px !important;
+  padding:0 10px !important;
+  font-size:12px !important;
+  line-height:1 !important;
+  white-space:nowrap;
+  margin:0 !important;
+}
+
+/* Marked Questions modal close button */
+.marked-modal-close{
+  width:42px;
+  height:42px;
+  flex:0 0 42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid #c7d4dc;
+  border-radius:10px;
+  background:#f4f8fa;
+  color:var(--navy);
+  font-size:30px;
+  font-weight:400;
+  line-height:1;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.marked-modal-close:hover,
+.marked-modal-close:focus-visible{
+  background:#e8f2f7;
+  border-color:#9fb8c7;
+}
+.marked-modal-close:active{
+  background:#deedf5;
+}
+
+/* White Practice Test controls must never inherit the red .btn hover state. */
+.test-nav .btn.ghost,
+.test-nav .btn.ghost:hover,
+.test-nav .btn.ghost:active,
+.test-nav .btn.ghost:focus,
+.test-nav .btn.ghost:focus-visible{
+  background:#fff !important;
+  color:#26343e !important;
+  border-color:var(--line) !important;
+  box-shadow:none !important;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* Version is not useful during the live timed test. */
+.version-stamp.test-hidden{
+  display:none !important;
+}
+
+/* Times-table popup: the remaining toggle sits neatly on the right. */
+.table-picker-intro{
+  justify-content:flex-end !important;
+}
+
+/*
+  iPhone landscape only.
+  Physical iPhone screenshots are wide, but the CSS viewport is typically
+  around 844–956px wide and under ~500px high. Keep iPad and desktop rules
+  untouched by requiring both the short height and limited width.
+*/
+@media (orientation:landscape) and (max-height:500px) and (max-width:1000px){
+  .test-head{
+    min-height:38px;
+    padding:4px 8px;
+    font-size:11px;
+    gap:7px;
+  }
+  .test-exit{
+    min-height:30px;
+    padding:3px 8px;
+    font-size:11px;
+  }
+  .test-body{
+    grid-template-columns:160px minmax(0,1fr);
+    min-height:calc(100dvh - 78px);
+  }
+  .test-side{
+    padding:8px;
+  }
+  .status-grid{
+    gap:2px;
+    margin:6px 0 10px;
+  }
+  .status-grid button{
+    height:22px;
+    font-size:9px;
+  }
+  .legend{
+    font-size:9px;
+    gap:4px;
+  }
+  .legend span i{
+    width:11px;
+    height:11px;
+  }
+  .timerbox{
+    padding-top:8px;
+  }
+  .timerbar{
+    height:10px;
+  }
+  .time{
+    font-size:11px;
+    margin-top:3px;
+  }
+
+  .test-question{
+    padding:12px 20px 8px;
+    max-width:900px;
+  }
+  .test-question .prompt{
+    font-size:15px;
+    line-height:1.3;
+    margin:6px 0 10px;
+  }
+  .test-question .options{
+    gap:6px;
+  }
+  .test-question .option{
+    min-height:38px;
+    padding:7px 10px;
+    font-size:14px;
+    gap:8px;
+    border-radius:8px;
+  }
+  .test-question .option .letter{
+    width:24px;
+    height:24px;
+    font-size:13px;
+  }
+  .test-question .visual-options{
+    gap:7px;
+  }
+  .test-question .visual-option{
+    min-height:82px;
+    padding:5px;
+  }
+  .test-question .fig{
+    min-height:60px;
+  }
+  .test-question .fig svg{
+    max-height:62px;
+    width:auto;
+  }
+  .test-question .sequence{
+    font-size:19px;
+    padding:10px;
+    margin:6px 0 10px;
+  }
+  .test-question .matrix{
+    margin:6px auto 10px;
+  }
+  .test-question .matrix td{
+    width:50px;
+    height:42px;
+    font-size:17px;
+  }
+  .test-question .smallnote{
+    font-size:10px;
+    margin-top:6px !important;
+  }
+
+  .test-nav{
+    padding:6px 10px;
+    gap:6px;
+    padding-bottom:max(6px,env(safe-area-inset-bottom));
+  }
+  .test-nav .middle{
+    gap:6px;
+  }
+  .test-nav .btn{
+    min-height:36px;
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:11px;
+    line-height:1.15;
+  }
+}
+
+/* Marked Questions feature card stacking remains tidy on phones. */
+@media(max-width:760px){
+  .marked-feature-action{
+    width:100%;
+    justify-content:flex-start;
+    flex-wrap:wrap;
+  }
+  .marked-open-btn{
+    margin-left:auto !important;
+  }
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.23</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.24</span></div>
 
 <script>
 /* ===========================================================
@@ -1494,7 +1719,7 @@ body{
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.23";
+const APP_VERSION = "1.24";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -4591,6 +4816,8 @@ async function showCompletedUpdateNotice(){
 
 function syncVersionRefreshHit(){
  const hit=document.getElementById("versionRefreshHit");
+ const stamp=document.getElementById("versionStamp");
+ if(stamp)stamp.classList.toggle("test-hidden",state.page==="test");
  if(!hit)return;
  hit.classList.toggle("home-refresh-enabled",state.page==="home");
  hit.onclick=state.page==="home"?forceLatestOnlineVersion:null;
@@ -5262,7 +5489,7 @@ function markedQuestionModal(){
  const grouped=["Numerical","Verbal","Abstract"].map(cat=>({cat,items:items.filter(x=>x.question?.category===cat)})).filter(g=>g.items.length);
  return `<div class="marked-modal-root" role="dialog" aria-modal="true" aria-label="Marked Questions">
   <div class="marked-modal">
-   <div class="marked-modal-head"><div><div class="kicker">Review library</div><h2>Marked Questions</h2></div><button class="drill-close" onclick="closeMarkedQuestions()">Close</button></div>
+   <div class="marked-modal-head"><div><div class="kicker">Review library</div><h2>Marked Questions</h2></div><button class="marked-modal-close" onclick="closeMarkedQuestions()" aria-label="Close Marked Questions">×</button></div>
    <div class="marked-modal-body">
     <aside class="marked-list-pane">
      ${grouped.length?grouped.map(g=>`<section class="marked-group"><h3>${g.cat}</h3>${g.items.map(x=>{
@@ -5287,7 +5514,7 @@ function renderMarkedQuestionDetail(item){
 function progressPage(){
  const a=progress.attempts||[],marked=progress.markedQuestions||[],avg=a.length?Math.round(a.reduce((n,x)=>n+x.correct,0)/(a.length*51)*100):0,best=a.length?Math.max(...a.map(x=>x.correct)):0;
  return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Review</h2><p>Reopen completed Practice Tests and keep a personal library of questions you want to revisit.</p></div>${a.length?`<button class="btn danger-btn" onclick="deleteAllAttempts()">Delete all test history</button>`:""}</div>
- <section class="card marked-feature"><div><div class="kicker">Personal question library</div><h3>Marked Questions</h3><p>Save useful or difficult questions while taking a Practice Test or Category Practice drill, then review the full question and feedback here.</p></div><div class="marked-feature-action"><b>${marked.length}</b><span>saved</span><button class="btn" onclick="openMarkedQuestions()">Open Marked Questions</button></div></section>
+ <section class="card marked-feature"><div><div class="kicker">Personal question library</div><h3>Marked Questions</h3><p>Save useful or difficult questions while taking a Practice Test or Category Practice drill, then review the full question and feedback here.</p></div><div class="marked-feature-action"><div class="marked-count"><b>${marked.length}</b><span>saved</span></div><button class="btn small marked-open-btn" onclick="openMarkedQuestions()">Open Marked Questions</button></div></section>
  <div class="result-grid"><div class="result-stat"><b>${a.length}</b><span>Saved test attempts</span></div><div class="result-stat"><b>${avg}%</b><span>Average total score</span></div><div class="result-stat"><b>${best}/51</b><span>Best score</span></div><div class="result-stat"><b>${a.filter(x=>x.tier==="joa").length}</b><span>JOA-level attempts</span></div></div>
  ${a.length?`<div class="history-list">${a.map(historyItem).join("")}</div>`:`<div class="card history-empty"><h3>No full tests saved yet</h3><p>Complete any full 51-question Practice Test and its score, answers and review will appear here.</p><button class="btn" onclick="go('mocks')">Choose a Practice Test</button></div>`}
  <div class="footer">Review data is stored in this browser's local storage for this HTML file. Clearing site/browser data or opening a separately copied file may remove or separate the history.</div>${markedQuestionModal()}</main>`;
@@ -5336,7 +5563,7 @@ function mentalPage(){
  const s=state.mentalSetup,usesTables=s.ops.includes("mul")||s.ops.includes("div");
  const tableText=s.tableMode==="all"?"All tables 1–12":s.tableMode==="single"?`${s.singleTable} times table`:`Custom: ${s.selectedTables.join(", ")}${s.selectedFactorsOnly?" · selected factors only":""}`;
  return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Mental Math</h2><p>Build fast arithmetic recall for numerical reasoning and general test pace.</p></div></div><div class="mental-layout">
- <section class="card mental-card"><h3>1. Operations</h3><p class="section-copy">Choose one operation, any combination, or Quick Hit for all four.</p><div class="mental-op-grid">${Object.entries(MENTAL_OPS).map(([key,v])=>`<button class="mental-op ${s.ops.includes(key)?"active":""}" onclick="toggleMentalOp('${key}')">${v.label}</button>`).join("")}<button class="mental-op quick ${s.ops.length===4?"active":""}" onclick="setMentalAllOps()">All</button></div></section>
+ <section class="card mental-card"><h3>1. Operations</h3><p class="section-copy">Choose one operation, any combination, or All for all four.</p><div class="mental-op-grid">${Object.entries(MENTAL_OPS).map(([key,v])=>`<button class="mental-op ${s.ops.includes(key)?"active":""}" onclick="toggleMentalOp('${key}')">${v.label}</button>`).join("")}<button class="mental-op quick ${s.ops.length===4?"active":""}" onclick="setMentalAllOps()">All</button></div></section>
  <section class="card mental-card"><h3>2. Times tables</h3><p class="section-copy">${usesTables?"Multiplication and division use the selected tables. Addition and subtraction always use number facts based on 1–12.":"Times-table targeting becomes active when Multiplication or Division is selected."}</p><div class="mental-choice-row" style="${usesTables?"":"opacity:.48;pointer-events:none"}"><button class="mental-choice ${s.tableMode==="all"?"active":""}" onclick="setMentalTableMode('all')">All 1–12</button><button class="mental-choice ${s.tableMode==="single"?"active":""}" onclick="setMentalTableMode('single')">Specific table</button><button class="mental-choice ${s.tableMode==="custom"?"active":""}" onclick="openMentalTablePicker()">Choose tables…</button></div>${usesTables&&s.tableMode==="single"?`<div class="mental-setting-row" style="margin-top:12px"><div class="field"><label>Times table</label><select onchange="state.mentalSetup.singleTable=+this.value">${Array.from({length:12},(_,i)=>i+1).map(n=>`<option value="${n}" ${s.singleTable===n?"selected":""}>${n} times table</option>`).join("")}</select></div></div>`:""}<div class="mental-table-summary">${usesTables?tableText:"Not currently used"}</div></section>
  <section class="card mental-card"><h3>3. Session length</h3><p class="section-copy">Choose a fixed number of questions or work continuously against the clock.</p><div class="mental-choice-row"><button class="mental-choice ${s.lengthMode==="questions"?"active":""}" onclick="setMentalLengthMode('questions')">Number of questions</button><button class="mental-choice ${s.lengthMode==="time"?"active":""}" onclick="setMentalLengthMode('time')">Timed session</button></div><div class="mental-setting-row" style="margin-top:12px">${s.lengthMode==="questions"?`<div class="field"><label>Questions</label><select onchange="state.mentalSetup.questionCount=+this.value">${[10,20,30,50,100].map(n=>`<option value="${n}" ${s.questionCount===n?"selected":""}>${n}</option>`).join("")}</select></div>`:`<div class="field"><label>Duration</label><select onchange="state.mentalSetup.durationSeconds=+this.value">${[[60,"1 minute"],[120,"2 minutes"],[180,"3 minutes"],[300,"5 minutes"],[600,"10 minutes"]].map(([n,l])=>`<option value="${n}" ${s.durationSeconds===n?"selected":""}>${l}</option>`).join("")}</select></div>`}</div><div class="mental-start"><button class="btn" onclick="startMentalMath()">Start Mental Math</button></div></section>
  </div>${state.mentalPickerOpen?renderMentalTablePicker():""}${state.mental?renderMentalSessionModal():""}</main>`;
@@ -5360,7 +5587,7 @@ async function applyMentalTablePicker(){
  state.mentalSetup.tableMode="custom";state.mentalPickerOpen=false;render();
 }
 function cancelMentalTablePicker(){state.mentalPickerOpen=false;render();}
-function renderMentalTablePicker(){return `<div class="ui-modal-root" style="z-index:210"><div class="ui-modal-card" role="dialog" aria-modal="true" aria-label="Choose times tables"><div class="ui-modal-head"><h3>Choose times tables</h3></div><div class="ui-modal-body"><div class="table-picker-intro"><div class="smallnote">Select any combination from 1 to 12.</div><label class="mini-switch-row"><span>Selected factors only</span><button type="button" class="mini-switch ${state.mentalPickerSelectedFactorsOnly?"on":""}" aria-pressed="${state.mentalPickerSelectedFactorsOnly}" onclick="toggleMentalSelectedFactorsOnly()"><span></span></button></label></div><div class="smallnote selected-factor-help">${state.mentalPickerSelectedFactorsOnly?"Both factors must come from your selected tables. Example: with 3, 4, 5 and 6 selected, 4×6 is allowed but 4×12 is not.":"Standard table targeting: one factor is from the selected table(s), while the other may be any value from 1–12."}</div><div class="table-picker-grid">${Array.from({length:12},(_,i)=>i+1).map(n=>`<button class="table-pick ${state.mentalPickerDraft.includes(n)?"active":""}" onclick="toggleMentalTablePick(${n})">${n}×</button>`).join("")}</div><div class="table-picker-actions"><div><button class="btn ghost small" onclick="setMentalPickerAll(true)">Select all</button> <button class="btn ghost small" onclick="setMentalPickerAll(false)">Clear</button></div><div><button class="btn ghost small" onclick="cancelMentalTablePicker()">Cancel</button> <button class="btn small" onclick="applyMentalTablePicker()">Apply</button></div></div></div></div></div>`;}
+function renderMentalTablePicker(){return `<div class="ui-modal-root" style="z-index:210"><div class="ui-modal-card" role="dialog" aria-modal="true" aria-label="Choose times tables"><div class="ui-modal-head"><h3>Choose times tables</h3></div><div class="ui-modal-body"><div class="table-picker-intro"><label class="mini-switch-row"><span>Selected factors only</span><button type="button" class="mini-switch ${state.mentalPickerSelectedFactorsOnly?"on":""}" aria-pressed="${state.mentalPickerSelectedFactorsOnly}" onclick="toggleMentalSelectedFactorsOnly()"><span></span></button></label></div><div class="smallnote selected-factor-help">${state.mentalPickerSelectedFactorsOnly?"Both factors must come from your selected tables. Example: with 3, 4, 5 and 6 selected, 4×6 is allowed but 4×12 is not.":"Standard table targeting: one factor is from the selected table(s), while the other may be any value from 1–12."}</div><div class="table-picker-grid">${Array.from({length:12},(_,i)=>i+1).map(n=>`<button class="table-pick ${state.mentalPickerDraft.includes(n)?"active":""}" onclick="toggleMentalTablePick(${n})">${n}×</button>`).join("")}</div><div class="table-picker-actions"><div><button class="btn ghost small" onclick="setMentalPickerAll(true)">Select all</button> <button class="btn ghost small" onclick="setMentalPickerAll(false)">Clear</button></div><div><button class="btn ghost small" onclick="cancelMentalTablePicker()">Cancel</button> <button class="btn small" onclick="applyMentalTablePicker()">Apply</button></div></div></div></div></div>`;}
 function activeMentalTables(){const s=state.mentalSetup;if(s.tableMode==="single")return [s.singleTable];if(s.tableMode==="custom")return s.selectedTables.length?[...s.selectedTables]:Array.from({length:12},(_,i)=>i+1);return Array.from({length:12},(_,i)=>i+1);}
 function mentalFactKey(q){
  if(!q)return "";
