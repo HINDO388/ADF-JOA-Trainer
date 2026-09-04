@@ -25,7 +25,7 @@
 <meta name="theme-color" content="#082f4f">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="application-name" content="ADF JOA Trainer">
-<meta name="app-version" content="1.22">
+<meta name="app-version" content="1.23">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JOA Trainer">
@@ -1427,12 +1427,60 @@ body{
 .review-main{padding:22px;min-width:0}.review-question-meta{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}.review-question-time{padding:7px 10px;border:1px solid var(--line);background:#f5f9fb;border-radius:9px;font-size:12px;font-weight:850;color:#365a70}.review-feedback{margin-top:16px}.review-nav{display:flex;justify-content:space-between;gap:12px;margin-top:18px}.review-mobile-status-wrap{display:none}
 @media(max-width:760px){.review-test-body{display:block;border-radius:0 0 14px 14px}.review-test-side{display:none}.review-main{padding:15px}.review-mobile-status-wrap{display:block;border:1px solid var(--line);border-bottom:0;border-radius:14px 14px 0 0;background:#f4f8fa;padding:10px;overflow:hidden}.review-mobile-status{display:flex;gap:6px;overflow-x:auto;padding:3px 2px 7px;-webkit-overflow-scrolling:touch}.review-mobile-status button{flex:0 0 38px;height:38px;border-radius:8px;padding:0}}
 
+
+/* ===========================================================
+   v1.23 Review / Marked Questions / accuracy toggle / mental toggle
+   =========================================================== */
+.mark-question-btn.saved{border-color:#d9b347 !important;background:#fff8df !important;color:#6f5700 !important}
+.practice-q-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+
+.marked-feature{
+  padding:20px 22px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:20px;
+  border-left:5px solid var(--sky-deep);background:linear-gradient(135deg,#fff,#f1f8fb);
+}
+.marked-feature h3{font-size:22px;margin:3px 0 5px}.marked-feature p{margin:0;max-width:760px;color:var(--muted)}
+.marked-feature-action{display:grid;grid-template-columns:auto auto;align-items:center;gap:0 8px;min-width:210px}
+.marked-feature-action>b{font-size:34px;line-height:1;color:var(--navy)}.marked-feature-action>span{color:var(--muted);font-weight:800}
+.marked-feature-action .btn{grid-column:1/-1;margin-top:10px}
+
+.marked-modal-root{position:fixed;inset:0;z-index:260;background:rgba(5,26,40,.62);padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));display:flex;align-items:center;justify-content:center}
+.marked-modal{width:min(1220px,100%);height:min(820px,94dvh);background:#fff;border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.26);overflow:hidden;display:flex;flex-direction:column}
+.marked-modal-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.marked-modal-head h2{margin:1px 0 0}.marked-modal-body{display:grid;grid-template-columns:minmax(280px,38%) minmax(0,1fr);min-height:0;flex:1}
+.marked-list-pane{overflow-y:auto;background:#f4f8fa;border-right:1px solid var(--line);padding:14px}
+.marked-group h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:12px 6px 7px}
+.marked-list-item{width:100%;border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px;text-align:left;margin-bottom:7px;cursor:pointer}
+.marked-list-item.active{border-color:var(--sky-deep);box-shadow:0 0 0 2px rgba(49,139,190,.14);background:#eef8fd}
+.marked-list-item b{display:block;font-size:13px;line-height:1.32;color:var(--navy);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.marked-list-item span{display:block;margin-top:5px;font-size:11px;color:var(--muted);font-weight:750}
+.marked-detail-pane{overflow-y:auto;padding:20px;min-width:0}.marked-detail-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.marked-full-question{margin-top:10px}.marked-empty-detail{padding:40px 20px;text-align:center;color:var(--muted)}
+
+.accuracy-mode-row{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin:14px 0 8px;color:var(--muted);font-size:12px;font-weight:850}
+.accuracy-mode-toggle{display:inline-flex;border:1px solid var(--line);border-radius:9px;padding:3px;background:#f3f7f9}
+.accuracy-mode-toggle button{border:0;background:transparent;border-radius:6px;padding:7px 10px;font:inherit;color:#486477;cursor:pointer}
+.accuracy-mode-toggle button.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(20,55,75,.14)}
+
+.table-picker-intro{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.mini-switch-row{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:850;color:var(--navy);white-space:nowrap}
+.mini-switch{width:42px;height:24px;padding:2px;border:0;border-radius:999px;background:#c4d1d8;cursor:pointer;position:relative}
+.mini-switch span{display:block;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.22);transition:transform .12s ease}
+.mini-switch.on{background:var(--sky-deep)}.mini-switch.on span{transform:translateX(18px)}
+.selected-factor-help{margin-top:7px;padding:8px 10px;background:#f3f8fa;border-radius:8px}
+
+@media(max-width:760px){
+ .marked-feature{align-items:flex-start;flex-direction:column}.marked-feature-action{width:100%;grid-template-columns:auto 1fr}
+ .marked-modal{height:96dvh}.marked-modal-body{display:block;overflow-y:auto}.marked-list-pane{border-right:0;border-bottom:1px solid var(--line);max-height:43%;overflow-y:auto}.marked-detail-pane{overflow:visible}
+ .accuracy-mode-row{justify-content:flex-start;align-items:flex-start;flex-direction:column}
+ .table-picker-intro{align-items:flex-start;flex-direction:column}.mini-switch-row{align-self:stretch;justify-content:space-between}
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="shell"></div>
 <div id="uiModalRoot" class="ui-modal-root"></div>
-<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.22</span></div>
+<div id="versionStamp" class="version-stamp" aria-label="Application version"><span id="versionRefreshHit" class="version-refresh-hit">v1.23</span></div>
 
 <script>
 /* ===========================================================
@@ -1446,7 +1494,7 @@ body{
    =========================================================== */
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const APP_VERSION = "1.22";
+const APP_VERSION = "1.23";
 const SUBTYPES = {
   numSeries:{cat:"Numerical",name:"Number Series",fidelity:"High",basis:"Official guide examples + current secondary sources",
     help:[
@@ -1933,7 +1981,7 @@ Object.assign(WORKED,{
 });
 
 
-const QUESTION_BANK_VERSION="2026-09-02-QA7";
+const QUESTION_BANK_VERSION="2026-09-04-QA8";
 const PRACTICE_BANK_SIZE_PER_DIFFICULTY=80;
 const PRACTICE_BANK_BANDS=["easy","medium","hard"];
 const PRACTICE_BANK_SUBTYPES=["numSeries","numValue","wordProblems","numMatrix","wordRelation","sentenceCompletion","oddWords","accuracyPrecision","analogy","deduction","seatingArrangements","familyTrees","abstractSequence","abstractMatrix","abstractAnalogy","abstractOdd"];
@@ -1945,18 +1993,63 @@ function practiceBankSeed(subtype,band,index){
 const state = {
   page:"home", cat:"Numerical", subtype:"numSeries", practice:null, test:null, review:null,
   settings:{difficulty:"mixed",count:15,timed:false},
-  mentalSetup:{ops:["mul"],tableMode:"all",singleTable:2,selectedTables:[],lengthMode:"questions",questionCount:20,durationSeconds:120},
-  mental:null,mentalPickerOpen:false,mentalPickerDraft:[],
+  mentalSetup:{ops:["mul"],tableMode:"all",singleTable:2,selectedTables:[],selectedFactorsOnly:false,lengthMode:"questions",questionCount:20,durationSeconds:120},
+  mental:null,mentalPickerOpen:false,mentalPickerDraft:[],mentalPickerSelectedFactorsOnly:false,
+  markedBrowserOpen:false,markedSelectedId:null,
   practiceTestTiers:{easier:false,joa:false,harder:false}
 };
-// Only full 51-question practice tests are persisted. Category drills are deliberately not tracked.
+// Full 51-question Practice Test history and user-marked questions are persisted locally.
 const storeKey="adfJoaTrainerFullTestProgressV3";
-let progress={attempts:[]};
+let progress={attempts:[],markedQuestions:[]};
 try{
-  const saved=JSON.parse(localStorage.getItem(storeKey)||'{"attempts":[]}');
-  if(saved && Array.isArray(saved.attempts)) progress=saved;
-}catch(e){ progress={attempts:[]}; }
+  const saved=JSON.parse(localStorage.getItem(storeKey)||'{"attempts":[],"markedQuestions":[]}');
+  if(saved && Array.isArray(saved.attempts)){
+    progress=saved;
+    if(!Array.isArray(progress.markedQuestions))progress.markedQuestions=[];
+  }
+}catch(e){ progress={attempts:[],markedQuestions:[]}; }
 function saveProgress(){ localStorage.setItem(storeKey,JSON.stringify(progress)); }
+
+function markedQuestionId(q){return questionFingerprint(q)}
+function isQuestionMarked(q){const id=markedQuestionId(q);return (progress.markedQuestions||[]).some(x=>x.id===id)}
+function snapshotQuestion(q){return JSON.parse(JSON.stringify(q))}
+function toggleMarkedQuestion(q,source="Practice"){
+ const id=markedQuestionId(q),list=progress.markedQuestions||(progress.markedQuestions=[]),i=list.findIndex(x=>x.id===id);
+ if(i>=0)list.splice(i,1);
+ else list.unshift({id,question:snapshotQuestion(q),markedAt:new Date().toISOString(),source});
+ saveProgress();
+}
+function markCurrentPracticeQuestion(){
+ const p=state.practice;if(!p||p.phase!=="questions")return;
+ const q=p.qs[p.index];toggleMarkedQuestion(q,"Category Practice");render();
+}
+function markCurrentTestQuestion(){
+ const t=state.test;if(!t)return;
+ const q=t.questions[t.index];toggleMarkedQuestion(q,t.warmup?"Familiarisation":`Practice Test ${t.id}`);render();startTimer();
+}
+function markCurrentReviewQuestion(){
+ const r=state.review;if(!r)return;
+ const i=Math.max(0,Math.min(r.questions.length-1,r.reviewIndex||0)),q=r.questions[i];
+ toggleMarkedQuestion(q,`Practice Test ${r.id} review`);
+ const zone=document.getElementById("reviewZone");if(zone)zone.innerHTML=renderFullTestAnswerReview();
+}
+function markPracticeReviewQuestion(i){
+ const p=state.practice;if(!p||!p.qs?.[i])return;
+ toggleMarkedQuestion(p.qs[i],"Category Practice review");
+ render();
+}
+function removeMarkedQuestion(id){
+ progress.markedQuestions=(progress.markedQuestions||[]).filter(x=>x.id!==id);
+ if(state.markedSelectedId===id)state.markedSelectedId=null;
+ saveProgress();render();
+}
+function openMarkedQuestions(){
+ state.markedBrowserOpen=true;
+ if(!state.markedSelectedId&&progress.markedQuestions?.length)state.markedSelectedId=progress.markedQuestions[0].id;
+ render();
+}
+function closeMarkedQuestions(){state.markedBrowserOpen=false;state.markedSelectedId=null;render()}
+function selectMarkedQuestion(id){state.markedSelectedId=id;render()}
 
 let uiModalResolver=null;
 function modalEscape(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[ch]));}
@@ -3594,49 +3687,87 @@ function genSentenceCompletionV4(seed,difficulty="medium"){
  return withFamily(setDifficulty(q,band,reason),t.family);
 }
 
-const accuracyBasesV4=[
- "Northline Systems Pty Ltd.","Telemetric Group plc","Favourable Friends Corp.","Boreal Hill Dining","CTJL SlopeTech Industries",
- "Mason & Vale Co.","Sector-7 Logistics","Harbour Point Services","Axiom Research Unit","Westbridge 61 Ltd.",
- "Coreline Equipment Pty.","Delta Ridge Operations","Beacon Street Company","Northern Vector Group","Kestrel-8 Services"
+const accuracyWordA=[
+ "Meridian","Northstar","Harbour","Cobalt","Silver","Granite","Vector","Summit","Orion","Beacon","Redwood","Atlas",
+ "Cedar","Falcon","Pioneer","Sterling","Mariner","Vertex","Bayside","Ironwood","Aurora","Coastal","Frontier","Keystone",
+ "Highland","Bluewater","Raven","Evergreen","Central","Apex","Coral","Lighthouse"
 ];
-function mutateAccuracyV4(r,s,type){
- if(type==="punct")return s.endsWith(".")?s.slice(0,-1):s+".";
- if(type==="case"){const i=ri(r,0,s.length-1);return s.slice(0,i)+s[i].toUpperCase()+s.slice(i+1);}
+const accuracyWordB=[
+ "Ridge","Quay","Point","Gate","Field","Bridge","Crest","Lane","Works","Systems","Logistics","Surveying","Engineering",
+ "Research","Operations","Services","Equipment","Analytics","Industries","Solutions","Group","Network","Holdings","Dynamics",
+ "Projects","Support","Resources","Technology","Manufacturing","Planning","Security","Aviation"
+];
+const accuracySuffixes=[
+ "Pty Ltd.","Ltd.","Group","Services","Operations","Unit","Co.","Industries","Systems","Corp.","Partners","Australia"
+];
+function accuracyEntityV5(r,seed,index){
+ const a=accuracyWordA[(Math.abs(seed)+index*7+ri(r,0,accuracyWordA.length-1))%accuracyWordA.length];
+ const b=accuracyWordB[(Math.abs(seed*3)+index*11+ri(r,0,accuracyWordB.length-1))%accuracyWordB.length];
+ const suffix=accuracySuffixes[(Math.abs(seed*5)+index*13+ri(r,0,accuracySuffixes.length-1))%accuracySuffixes.length];
+ const code=(Math.abs(seed+index*97)%83)+11;
+ const mode=(Math.abs(seed)+index)%4;
+ if(mode===0)return `${a} ${b} ${suffix}`;
+ if(mode===1)return `${a}-${code} ${b} ${suffix}`;
+ if(mode===2)return `${a} ${b} ${code} ${suffix}`;
+ return `${a} & ${b} ${suffix}`;
+}
+function mutateAccuracyV5(r,s,type){
+ if(type==="punct"){
+   if(s.endsWith("."))return s.slice(0,-1);
+   if(s.includes("&"))return s.replace("&","and");
+   return s+",";
+ }
+ if(type==="case"){
+   const idx=[...Array(s.length).keys()].filter(i=>/[A-Za-z]/.test(s[i]));
+   if(!idx.length)return s+"X";
+   const i=pick(r,idx),ch=s[i],rep=ch===ch.toUpperCase()?ch.toLowerCase():ch.toUpperCase();
+   return s.slice(0,i)+rep+s.slice(i+1);
+ }
  if(type==="transpose"){
-   const idx=[...Array(s.length-1).keys()].filter(i=>/[A-Za-z0-9]/.test(s[i])&&/[A-Za-z0-9]/.test(s[i+1]));
+   const idx=[...Array(s.length-1).keys()].filter(i=>/[A-Za-z0-9]/.test(s[i])&&/[A-Za-z0-9]/.test(s[i+1])&&s[i]!==s[i+1]);
    if(!idx.length)return s+" ";
    const i=pick(r,idx);return s.slice(0,i)+s[i+1]+s[i]+s.slice(i+2);
  }
  if(type==="similar"){
-   const pairs=[["m","n"],["n","m"],["7","1"],["1","7"],["6","8"],["8","6"],["l","I"],["O","0"]];
+   const pairs=[["m","n"],["n","m"],["7","1"],["1","7"],["6","8"],["8","6"],["l","I"],["O","0"],["e","c"],["c","e"]];
    for(const [a,b] of shuffle(r,pairs)){const i=s.indexOf(a);if(i>=0)return s.slice(0,i)+b+s.slice(i+1);}
-   return s.replace(/a/i,"e");
+   return mutateAccuracyV5(r,s,"case");
  }
  if(type==="omit"){
-   const idx=[...Array(s.length).keys()].filter(i=>/[A-Za-z]/.test(s[i])&&i>1);
+   const idx=[...Array(s.length).keys()].filter(i=>/[A-Za-z0-9]/.test(s[i])&&i>1);
    if(!idx.length)return s+"x";
    const i=pick(r,idx);return s.slice(0,i)+s.slice(i+1);
  }
- if(type==="abbr")return s.replace("Company","Co.").replace("Industries","Ind.").replace("Services","Svc.");
+ if(type==="abbr"){
+   const replacements=[["Services","Svc."],["Operations","Ops."],["Industries","Ind."],["Australia","Aust."],["Company","Co."],["Limited","Ltd."]];
+   for(const [a,b] of replacements){if(s.includes(a))return s.replace(a,b)}
+   return s.replace("Group","Grp.");
+ }
  return s+" ";
 }
 function genAccuracyPrecisionV4(seed,difficulty="medium"){
  const r=rng(seed),band=requestedBand(difficulty),q=qbase(seed,"accuracyPrecision",band);
  const rowsN=band==="easy"?5:band==="medium"?6:7;
- const matchN=band==="easy"?ri(r,2,4):band==="medium"?ri(r,2,4):ri(r,2,5);
- const bases=shuffle(r,accuracyBasesV4).slice(0,rowsN),rows=[];
- const diffTypes=band==="easy"?["punct","case","omit"]:band==="medium"?["punct","case","transpose","similar","omit"]:["punct","case","transpose","similar","omit","abbr"];
+ const matchN=band==="easy"?ri(r,2,3):band==="medium"?ri(r,2,4):ri(r,2,5);
+ const bases=[],used=new Set();
+ for(let i=0;i<rowsN;i++){
+   let candidate,guard=0;
+   do{candidate=accuracyEntityV5(r,seed+i*104729,i+guard++);}while(used.has(candidate)&&guard<20);
+   used.add(candidate);bases.push(candidate);
+ }
+ const rows=[];
+ const diffTypes=band==="easy"?["case","transpose","omit","punct"]:band==="medium"?["punct","case","transpose","similar","omit"]:["punct","case","transpose","similar","omit","abbr"];
  const matchIdx=new Set(shuffle(r,[...Array(rowsN).keys()]).slice(0,matchN));
  for(let i=0;i<rowsN;i++){
-   const left=bases[i],right=matchIdx.has(i)?left:mutateAccuracyV4(r,left,pick(r,diffTypes));
+   const left=bases[i],right=matchIdx.has(i)?left:mutateAccuracyV5(r,left,pick(r,diffTypes));
    rows.push({left,right});
  }
  const exact=rows.filter(x=>x.left===x.right).length;
  q.prompt=`How many of the ${rowsN} entries in the left column are EXACTLY the same as the corresponding entry on the right?`;
  q.display={type:"comparisonRows",rows};q.kind="single";q.options=uniqOptions(exact,[Math.max(0,exact-1),Math.min(rowsN,exact+1),Math.min(rowsN,exact+2)],r);q.answer=exact;
- q.explanation=`Compare character-for-character, including case and punctuation. Exactly ${exact} row${exact===1?"":"s"} match.`;
- const reason=band==="easy"?"Five rows with relatively visible differences such as punctuation/case.":band==="medium"?"More rows and subtle transposition/character traps.":"Seven rows with close visual differences, abbreviations and transpositions that punish rushed scanning.";
- return withFamily(setDifficulty(q,band,reason),`accuracy-${band}-${diffTypes[seed%diffTypes.length]}`);
+ q.explanation=`Compare character-for-character, including spelling, case, punctuation, digits and spacing. Exactly ${exact} row${exact===1?"":"s"} match.`;
+ const reason=band==="easy"?"Five fresh entries with realistic but still noticeable character-level traps.":band==="medium"?"More rows and subtle transposition/lookalike-character traps.":"Seven fresh entries with close visual differences, abbreviations and transpositions that punish rushed scanning.";
+ return withFamily(setDifficulty(q,band,reason),`accuracy-${band}-${Math.abs(seed)%7}`);
 }
 
 function genDeductionV4(seed,difficulty="medium"){
@@ -3658,11 +3789,40 @@ function genDeductionV4(seed,difficulty="medium"){
    return withFamily(setDifficulty(q,band,reason),family);
  }
  const n=pick(r,names),role=pick(r,["auditor","technician","coordinator","inspector"]),item=pick(r,["ID card","clearance badge","authorisation","verified pass"]);
- const s1=`${n} is a ${role}.`,s2=`All ${role}s receive an ${item}.`,s3=`Everyone with an ${item} is admitted to the secure area.`;
- q.prompt=`Which statements are required to PROVE that ${n} is admitted to the secure area?<div class="logic-statements"><div>A. ${s1}</div><div>B. ${s2}</div><div>C. ${s3}</div></div>`;
- q.kind="single";q.options=["A + B","A + C","B + C","A + B + C"];q.answer="A + B + C";
- q.explanation=`The proof is a three-link chain: ${n} → ${role} → ${item} → admitted. Every statement is required.`;
- return withFamily(setDifficulty(q,band,band==="hard"?"A three-link implication chain where removing any premise breaks the proof.":"A multi-step implication chain that must be checked link by link."),"logic-required-chain");
+ const variant=Math.abs(seed)%4;
+ let A,B,C,answer,explanation;
+ if(variant===0){
+   A=`${n} is a ${role}.`;
+   B=`All ${role}s are admitted to the secure area.`;
+   C=`${n} carries a blue folder.`;
+   answer="A + B";
+   explanation=`A establishes that ${n} is a ${role}, and B says every ${role} is admitted. C is irrelevant to admission.`;
+ }else if(variant===1){
+   A=`${n} is a ${role}.`;
+   B=`The secure area is inspected each morning.`;
+   C=`All ${role}s are admitted to the secure area.`;
+   answer="A + C";
+   explanation=`A supplies ${n}'s role and C connects that role directly to admission. B does not help prove the conclusion.`;
+ }else if(variant===2){
+   A=`The ${item} is printed in colour.`;
+   B=`${n} has an ${item}.`;
+   C=`Everyone with an ${item} is admitted to the secure area.`;
+   answer="B + C";
+   explanation=`B establishes that ${n} has the ${item}; C makes that sufficient for admission. A is irrelevant.`;
+ }else{
+   A=`${n} is a ${role}.`;
+   B=`All ${role}s receive an ${item}.`;
+   C=`Everyone with an ${item} is admitted to the secure area.`;
+   answer="A + B + C";
+   explanation=`This is a three-link proof: ${n} → ${role} → ${item} → admitted. Removing any one of A, B or C breaks the chain.`;
+ }
+ q.prompt=`Which statements are required to PROVE that ${n} is admitted to the secure area?<div class="logic-statements"><div>A. ${A}</div><div>B. ${B}</div><div>C. ${C}</div></div>`;
+ q.kind="single";q.options=["A + B","A + C","B + C","A + B + C"];q.answer=answer;
+ q.explanation=explanation;
+ const reason=answer==="A + B + C"
+   ? "A three-link proof where every premise is necessary."
+   : "Requires identifying the two premises that actually establish the conclusion while rejecting one plausible but irrelevant statement.";
+ return withFamily(setDifficulty(q,band,reason),`logic-required-${answer.replace(/\s|\+/g,"").toLowerCase()}`);
 }
 
 function permutationsV4(arr){
@@ -3872,24 +4032,70 @@ function genAbstractOddV4(seed,difficulty="medium"){
    return withFamily(setDifficulty(q,band,band==="hard"?"Several unrelated shapes force you to compare symmetry structure rather than visual similarity.":"A symmetry-based odd-one-out with rotation used only as a distractor."),"abstractodd-symmetry");
  }
 
- const pairs=[
-   {outer:"square",inner:"triangle",bad:"circle"},
-   {outer:"diamond",inner:"triangle",bad:"oval"},
-   {outer:"pentagon",inner:"square",bad:"triangle"},
-   {outer:"hexagon",inner:"pentagon",bad:"square"},
-   {outer:"hexagon",inner:"square",bad:"triangle"},
-   {outer:"pentagon",inner:"triangle",bad:"circle"}
- ];
- const pair=pick(r,pairs),angles=shuffle(r,[0,15,30,45,60,75,90,105,120,135,150,165]).slice(0,5);
- let specs=angles.slice(0,4).map(rot=>({type:"nested",outer:pair.outer,inner:pair.inner,rot}));
- specs.push({type:"nested",outer:pair.bad,inner:pair.inner,rot:angles[4]});
+ const bySides={
+   3:["triangle"],
+   4:["square","diamond","rectangle","trapezoid","parallelogram"],
+   5:["pentagon"],
+   6:["hexagon"]
+ };
+ const angles=shuffle(r,[0,15,30,45,60,75,90,105,120,135,150,165]).slice(0,5);
+ const pairKey=x=>`${x.outer}|${x.inner}`;
+ let normalPairs=[],badPair,ruleId,ruleText;
+
+ if(band==="easy"){
+   // Baseline is now a real relationship: outer has exactly ONE more straight side.
+   const pool=[
+     ...bySides[4].map(outer=>({outer,inner:"triangle"})),
+     ...bySides[4].map(inner=>({outer:"pentagon",inner})),
+     {outer:"hexagon",inner:"pentagon"}
+   ];
+   normalPairs=shuffle(r,pool).slice(0,4);
+   const badPool=[
+     {outer:"hexagon",inner:"square"},      // +2
+     {outer:"pentagon",inner:"triangle"},  // +2
+     {outer:"square",inner:"diamond"},     // same count
+     {outer:"diamond",inner:"square"}
+   ].filter(x=>!normalPairs.some(n=>pairKey(n)===pairKey(x)));
+   badPair=pick(r,badPool);ruleId="outer-one-more";ruleText="the outer shape has exactly one more straight side than the inner shape";
+ }else if(band==="medium"){
+   // Count BOTH shapes: the absolute side-count difference is exactly one.
+   const pool=[
+     {outer:"triangle",inner:"square"},{outer:"square",inner:"triangle"},
+     {outer:"diamond",inner:"triangle"},{outer:"triangle",inner:"rectangle"},
+     {outer:"pentagon",inner:"square"},{outer:"square",inner:"pentagon"},
+     {outer:"hexagon",inner:"pentagon"},{outer:"pentagon",inner:"hexagon"},
+     {outer:"trapezoid",inner:"pentagon"},{outer:"pentagon",inner:"parallelogram"}
+   ];
+   normalPairs=shuffle(r,pool).slice(0,4);
+   const badPool=[{outer:"hexagon",inner:"square"},{outer:"pentagon",inner:"triangle"},{outer:"square",inner:"diamond"}];
+   badPair=pick(r,badPool);ruleId="absolute-difference-one";ruleText="the outer and inner shapes differ by exactly one straight side";
+ }else{
+   // Hard: totals rather than a single obvious outer-shape feature.
+   const pool=[
+     {outer:"triangle",inner:"hexagon"},{outer:"hexagon",inner:"triangle"},
+     {outer:"square",inner:"pentagon"},{outer:"diamond",inner:"pentagon"},
+     {outer:"pentagon",inner:"square"},{outer:"pentagon",inner:"rectangle"},
+     {outer:"trapezoid",inner:"pentagon"},{outer:"pentagon",inner:"parallelogram"}
+   ];
+   normalPairs=shuffle(r,pool).slice(0,4);
+   const badPool=[{outer:"hexagon",inner:"square"},{outer:"pentagon",inner:"triangle"},{outer:"square",inner:"triangle"}];
+   badPair=pick(r,badPool);ruleId="sum-nine";ruleText="the outer and inner straight-side counts add to nine";
+ }
+
+ let specs=normalPairs.map((pair,i)=>({type:"nested",outer:pair.outer,inner:pair.inner,rot:angles[i]}));
+ specs.push({type:"nested",outer:badPair.outer,inner:badPair.inner,rot:angles[4],bad:true});
  specs=shuffle(r,specs);
+
  q.prompt="Which ONE panel does not follow the same relationship between the outer and inner shapes?";
- q.kind="visualSingle";q.visualOptions=specs;
- q.answer=specs.findIndex(x=>x.outer===pair.bad&&x.inner===pair.inner);
- q.explanation="In the normal panels the outer shape has more straight sides than the inner shape. One panel breaks that relationship.";
- q.ruleMeta={kind:"nested-edge-count",normalOuter:pair.outer,inner:pair.inner,badOuter:pair.bad};
- return withFamily(setDifficulty(q,band,band==="hard"?"Requires comparing the straight-side relationship between two nested shapes while ignoring rotation.":"Requires comparing inner-versus-outer straight-side counts rather than one isolated shape."),"abstractodd-nested-edges");
+ q.kind="visualSingle";q.visualOptions=specs;q.answer=specs.findIndex(x=>x.bad);
+ q.explanation=`In four panels, ${ruleText}. One panel breaks that relationship.`;
+ q.ruleMeta={kind:"nested-edge-relation",rule:ruleId};
+ const reason=band==="easy"
+   ? "Even the easiest version requires counting both nested shapes across varied panels; rotation alone is irrelevant."
+   : band==="medium"
+     ? "Requires comparing two side counts in every panel while the outer/inner direction can reverse."
+     : "Requires discovering a relationship in the combined side counts rather than spotting one visibly different outer shape.";
+ return withFamily(setDifficulty(q,band,reason),`abstractodd-nested-${ruleId}`);
 }
 
 /* Extend fig rendering with shapes used by the ADF-Mentors-informed modules. */
@@ -4003,18 +4209,26 @@ function straightSideCount(shape){
  return ({circle:0,oval:0,triangle:3,square:4,diamond:4,rectangle:4,trapezoid:4,parallelogram:4,pentagon:5,hexagon:6,L:6,cross:12})[shape] ?? null;
 }
 function nestedEdgeEvidenceValid(q){
- if(q?.ruleMeta?.kind!=="nested-edge-count")return true;
- const answers=new Set(Array.isArray(q.answer)?q.answer:[q.answer]);
+ if(q?.ruleMeta?.kind!=="nested-edge-relation")return true;
+ const answers=new Set(Array.isArray(q.answer)?q.answer:[q.answer]),rule=q.ruleMeta.rule;
+ const pairKeys=new Set();
  for(let i=0;i<q.visualOptions.length;i++){
    const x=q.visualOptions[i];
    if(x.type!=="nested"||x.outer===x.inner)return false;
    const outer=straightSideCount(x.outer),inner=straightSideCount(x.inner);
    if(outer===null||inner===null)return false;
-   const shouldBeNormal=outer>inner;
-   if(answers.has(i)?shouldBeNormal:!shouldBeNormal)return false;
+   pairKeys.add(`${x.outer}|${x.inner}`);
+   let normal=false;
+   if(rule==="outer-one-more")normal=outer===inner+1;
+   else if(rule==="absolute-difference-one")normal=Math.abs(outer-inner)===1;
+   else if(rule==="sum-nine")normal=outer+inner===9;
+   else return false;
+   if(answers.has(i)?normal:!normal)return false;
  }
- return true;
+ // All five panels should not just be rotations of one or two repeated pairs.
+ return pairKeys.size>=4;
 }
+
 function genSimpleAverageV6(seed){
  const r=rng(seed),q=qbase(seed,"wordProblems","easy");
  const n=pick(r,[3,4,5]),avg=pick(r,[8,10,12,14,16,18]),spread=pick(r,[2,3,4]);
@@ -4180,7 +4394,7 @@ function navButtons(mobile=false){
   <button onclick="go('practice')" class="${cls('practice')}">Category Practice</button>
   <button onclick="go('mocks')" class="${cls('mocks')}">Full Practice Tests</button>
   <button onclick="go('mental')" class="${cls('mental')}">Mental Math</button>
-  <button onclick="go('progress')" class="${cls('progress')}">Progress</button>
+  <button onclick="go('progress')" class="${cls('progress')}">Review</button>
   <button onclick="go('strategy')" class="${cls('strategy')}">Strategy Guide</button>
   <button onclick="go('sources')" class="${cls('sources')}">Sources & Fidelity</button>`;
 }
@@ -4650,7 +4864,7 @@ function practicePage(){
    </div>
    ${mixed?categoryMixHelp(sub.cat):helpBox(state.subtype)}
    ${mixed?"":workedExamplesBox(state.subtype)}
-   <div id="practiceZone"><div class="notice blue">Choose settings and start a drill. Category drills are intentionally not saved; only completed full 51-question practice tests appear in Progress.</div></div>
+   <div id="practiceZone"><div class="notice blue">Choose settings and start a drill. Category drill results are not saved, but any question you mark is kept in Review. Completed full 51-question Practice Tests are also saved there.</div></div>
   </section>
  </div>
  <div class="section-head section"><div><h2>Practice by reasoning family</h2><p>Each family contains separate drills and an embedded help guide.</p></div></div>
@@ -4730,7 +4944,7 @@ function practiceHasAnswer(p,i){const a=p.answers[i];return a!==null&&a!==undefi
 function formatPracticeSeconds(value){const n=Number(value)||0;return n<10?`${n.toFixed(1)}s`:`${n.toFixed(0)}s`;}
 function renderPractice(){
  const p=state.practice,q=p.qs[p.index],checked=p.checked[p.index],paced=state.settings.timed,answered=practiceHasAnswer(p,p.index);
- return `<div class="drill-card"><div class="qmeta"><div class="left"><span class="badge">Question ${p.index+1}/${p.qs.length}</span><span class="badge diff-${q.difficulty}" title="${q.difficultyReason||''}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span></div><span class="smallnote">${paced?'Paced mode · no feedback until the end':'Learn (feedback) mode'}</span></div>
+ return `<div class="drill-card"><div class="qmeta"><div class="left"><span class="badge">Question ${p.index+1}/${p.qs.length}</span><span class="badge diff-${q.difficulty}" title="${q.difficultyReason||''}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span></div><div class="practice-q-actions"><button class="btn ghost small mark-question-btn ${isQuestionMarked(q)?"saved":""}" onclick="markCurrentPracticeQuestion()">${isQuestionMarked(q)?"★ Saved":"☆ Save Question"}</button><span class="smallnote">${paced?'Paced mode · no feedback until the end':'Learn (feedback) mode'}</span></div></div>
  ${renderQuestion(q,p.answers[p.index],checked&&!paced,"practice")}
  ${checked&&!paced?`<div class="feedback ${isCorrect(q,p.answers[p.index])?'good':'bad'}"><b>${isCorrect(q,p.answers[p.index])?'Correct':'Not quite'}</b>${q.explanation}<div class="question-time">Completed in ${formatPracticeSeconds(p.times[p.index])}</div><div class="difficulty-audit"><b>Difficulty rationale:</b> ${q.difficultyReason}</div></div>`:""}
  <div class="answer-row">${paced?`<button class="btn" onclick="nextPacedPractice()">${p.index===p.qs.length-1?'Finish':'Next'}</button>`:(!checked?`<button class="btn" onclick="checkPractice()">Check answer</button>`:`<button class="btn" onclick="nextPractice()">${p.index===p.qs.length-1?'Finish drill':'Next question'}</button>`)}<span class="smallnote">${paced?"Answers stay hidden until the drill ends.":checked?"Review the method, then continue.":q.kind.includes("Multi")||q.kind==="multi"?"Select exactly two answers.":""}</span></div></div>`;
@@ -4741,7 +4955,7 @@ function renderPracticeSummary(){
 }
 function renderPracticeReviewDetail(i){
  const p=state.practice,q=p.qs[i],good=isCorrect(q,p.answers[i]);
- return `<div class="practice-review-detail"><div class="qmeta"><div class="left"><span class="badge">Question ${i+1}</span><span class="badge diff-${q.difficulty}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span><span class="question-time">${formatPracticeSeconds(p.times[i])}</span></div><b style="color:${good?'var(--good)':'var(--bad)'}">${good?'Correct':'Incorrect'}</b></div>${renderQuestion(q,p.answers[i],true,"review")}<div class="feedback ${good?'good':'bad'}"><b>${good?'Correct':'Incorrect'}</b>${q.explanation}<div class="difficulty-audit"><b>Difficulty rationale:</b> ${q.difficultyReason}</div></div></div>`;
+ return `<div class="practice-review-detail"><div class="qmeta"><div class="left"><span class="badge">Question ${i+1}</span><span class="badge diff-${q.difficulty}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span><span class="question-time">${formatPracticeSeconds(p.times[i])}</span></div><div style="display:flex;gap:8px;align-items:center"><button class="btn ghost small mark-question-btn ${isQuestionMarked(q)?"saved":""}" onclick="markPracticeReviewQuestion(${i})">${isQuestionMarked(q)?"★ Saved":"☆ Save Question"}</button><b style="color:${good?'var(--good)':'var(--bad)'}">${good?'Correct':'Incorrect'}</b></div></div>${renderQuestion(q,p.answers[i],true,"review")}<div class="feedback ${good?'good':'bad'}"><b>${good?'Correct':'Incorrect'}</b>${q.explanation}<div class="difficulty-audit"><b>Difficulty rationale:</b> ${q.difficultyReason}</div></div></div>`;
 }
 function reviewPracticeQuestion(i){state.practice.reviewIndex=i;render();}
 function closeCompletedPractice(){state.practice=null;render();}
@@ -4802,7 +5016,7 @@ function nextPacedPractice(){const p=state.practice,i=p.index;if(!practiceHasAns
 function finishPractice(){const p=state.practice;if(!p)return;p.phase="summary";p.reviewIndex=null;p.finishedAt=Date.now();render();}
 
 function mocksPage(){
- return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Full Practice Tests</h2><p>18 fixed simulations • 51 questions • 20 minutes • full review history saved locally.</p></div><button class="btn secondary" onclick="go('progress')">View Progress</button></div>
+ return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Full Practice Tests</h2><p>18 practice-test slots • 51 questions • 20 minutes • each new attempt favours fresh questions and broad subtype coverage.</p></div><button class="btn secondary" onclick="go('progress')">Open Review</button></div>
  <div class="notice" style="margin-bottom:18px"><b>Difficulty calibration:</b> “Same difficulty as JOA” is a best-match estimate, not an official ADF rating. The ADF publishes the format and sample item styles, but does not publish Easy/Medium/Hard labels or item difficulty statistics.</div>
  ${["easier","joa","harder"].map(tier=>mockTierSection(tier)).join("")}
  <section class="card section" style="padding:20px"><h3>Before each practice test</h3><p>The official guide gives candidates 10 minutes of practice including five example questions before the scored JOA. Use the optional familiarisation below if you want to reproduce that transition.</p><button class="btn secondary" onclick="startWarmup()">Start 5-question / 10-minute familiarisation</button></section></main>`;
@@ -4853,22 +5067,6 @@ function fullTestSubtypeSchedule(cat,id,r){
  }
  return shuffle(r,out);
 }
-function expandedMockCandidates(st,band){
- const base=bankCandidates(st,band),extras=[];
- for(let i=0;i<240;i++)extras.push(generate(st,practiceBankSeed(st,band,i%PRACTICE_BANK_SIZE_PER_DIFFICULTY)+11000003+i*3571,band));
- const seen=new Set(),out=[];
- for(const q of [...base,...extras]){const fp=questionFingerprint(q);if(seen.has(fp))continue;seen.add(fp);out.push(q)}
- return out;
-}
-function pickMockQuestion({st,band,requiredFamilies,globalSeen,familyCounts,lastFamily,seed,slot}){
- let candidates=expandedMockCandidates(st,band)
-  .filter(q=>!globalSeen.has(questionFingerprint(q)))
-  .filter(q=>visualOptionsDistinctByAppearance(q)&&relationalVisualEvidenceValid(q)&&nestedEdgeEvidenceValid(q));
- if(requiredFamilies?.length)candidates=candidates.filter(q=>requiredFamilies.includes(questionFamily(q)));
- if(!candidates.length)return null;
- candidates.sort((a,b)=>{const fa=questionFamily(a),fb=questionFamily(b),ca=familyCounts.get(fa)||0,cb=familyCounts.get(fb)||0;if(ca!==cb)return ca-cb;if(fa===lastFamily&&fb!==lastFamily)return 1;if(fb===lastFamily&&fa!==lastFamily)return -1;return questionFingerprint(a)<questionFingerprint(b)?-1:1});
- return candidates[(seed+slot*1009+st.charCodeAt(0)*997)%candidates.length];
-}
 function fullTestCoverageSummary(qs){
  const subtypes=[...new Set(qs.map(q=>q.subtype))],word=qs.filter(q=>q.subtype==="wordProblems"),wordFamilies=word.map(questionFamily),groups={};
  const wordBandCounts={easy:0,medium:0,hard:0};word.forEach(q=>wordBandCounts[q.difficulty]=(wordBandCounts[q.difficulty]||0)+1);
@@ -4884,9 +5082,81 @@ function validateFullTestCoverage(qs,id){
  for(const [g,ok] of Object.entries(s.groups))if(!ok)throw new Error(`Practice Test ${id}: missing required Word Problem domain ${g}`);
  return s;
 }
-function buildMock(id){
+
+function normaliseSurfaceText(value){
+ const namesPattern=new RegExp(`\\b(${names.join("|")})\\b`,"gi");
+ return String(value??"")
+   .replace(/<[^>]*>/g," ")
+   .replace(namesPattern,"{name}")
+   .replace(/\\b\\d+(?:\\.\\d+)?\\b/g,"#")
+   .replace(/\\s+/g," ")
+   .trim().toLowerCase();
+}
+function questionSurfaceSimilarityKey(q){
+ const pieces=[q.subtype,questionFamily(q),normaliseSurfaceText(q.prompt)];
+ if(Array.isArray(q.options))pieces.push(q.options.map(normaliseSurfaceText).join("|"));
+ if(q.display?.type==="comparisonRows")pieces.push(q.display.rows.map(x=>normaliseSurfaceText(`${x.left}|${x.right}`)).join("||"));
+ else if(q.display?.type==="series")pieces.push("series-pattern");
+ else if(q.display?.type==="matrix")pieces.push("matrix-pattern");
+ else if(q.display)pieces.push(JSON.stringify(stableCanonical(q.display)).replace(/\\d+(?:\\.\\d+)?/g,"#"));
+ if(Array.isArray(q.visualOptions))pieces.push(q.visualOptions.map(visualAppearanceKey).join("|"));
+ return pieces.join("§");
+}
+function priorPracticeTestQuestions(){
+ return (progress.attempts||[]).flatMap(a=>Array.isArray(a.questions)?a.questions:[]);
+}
+const mockCandidateCache=new Map();
+function expandedMockCandidates(st,band,variation=0,testId=0){
+ const cacheKey=`${testId}|${variation}|${st}|${band}`;
+ if(mockCandidateCache.has(cacheKey))return mockCandidateCache.get(cacheKey);
+ const extras=[];
+ // Full tests use a test/attempt-specific candidate lane rather than
+ // repeatedly drawing the same first 80 finite-bank slots.
+ const laneSeed=17000011 + testId*10000019 + variation*20000033;
+ for(let i=0;i<180;i++){
+   const seed=practiceBankSeed(st,band,i%PRACTICE_BANK_SIZE_PER_DIFFICULTY)+laneSeed+i*3571;
+   extras.push(generate(st,seed,band));
+ }
+ const base=bankCandidates(st,band),seen=new Set(),out=[];
+ for(const q of [...extras,...base]){
+   const fp=questionFingerprint(q);if(seen.has(fp))continue;
+   seen.add(fp);out.push(q);
+ }
+ mockCandidateCache.set(cacheKey,out);
+ return out;
+}
+function pickMockQuestion({st,band,requiredFamilies,globalSeen,currentNearCounts,historicalExact,historicalNear,familyCounts,lastFamily,seed,slot,variation,testId}){
+ let candidates=expandedMockCandidates(st,band,variation,testId)
+   .filter(q=>!globalSeen.has(questionFingerprint(q)))
+   .filter(q=>visualOptionsDistinctByAppearance(q)&&relationalVisualEvidenceValid(q)&&nestedEdgeEvidenceValid(q));
+ if(requiredFamilies?.length)candidates=candidates.filter(q=>requiredFamilies.includes(questionFamily(q)));
+ if(!candidates.length)return null;
+
+ // Exact prior questions are a hard exclusion whenever a fresh candidate exists.
+ const fresh=candidates.filter(q=>!historicalExact.has(questionFingerprint(q)));
+ if(fresh.length)candidates=fresh;
+
+ candidates.sort((a,b)=>{
+   const fa=questionFamily(a),fb=questionFamily(b),na=questionSurfaceSimilarityKey(a),nb=questionSurfaceSimilarityKey(b);
+   const score=q=>{
+     const fp=questionFingerprint(q),near=questionSurfaceSimilarityKey(q),fam=questionFamily(q);
+     return (historicalExact.has(fp)?100000:0)
+       +(historicalNear.has(near)?2500:0)
+       +(currentNearCounts.get(near)||0)*800
+       +(familyCounts.get(fam)||0)*80
+       +(fam===lastFamily?25:0);
+   };
+   const sa=score(a),sb=score(b);if(sa!==sb)return sa-sb;
+   return questionFingerprint(a)<questionFingerprint(b)?-1:1;
+ });
+ return candidates[(seed+slot*1009+variation*811+st.charCodeAt(0)*997)%Math.min(candidates.length,12)];
+}
+function buildMock(id,{variation=0,avoidQuestions=[]}={}){
  const m=mocks.find(x=>x.id===Number(id));if(!m)throw new Error("Unknown practice test");
- const seed=m.seed,r=rng(seed),qs=[],globalSeen=new Set(),familyCounts=new Map();
+ const seed=m.seed+variation*15485863,r=rng(seed),qs=[],globalSeen=new Set(),familyCounts=new Map(),currentNearCounts=new Map();
+ const historicalExact=new Set(avoidQuestions.map(questionFingerprint));
+ const historicalNear=new Set(avoidQuestions.map(questionSurfaceSimilarityKey));
+
  for(const cat of ["Numerical","Verbal","Abstract"]){
    const plan=difficultyPlan(m.tier,r),schedule=fullTestSubtypeSchedule(cat,id,r);let lastFamily=null,wordSlot=0;
    for(let i=0;i<17;i++){
@@ -4894,15 +5164,25 @@ function buildMock(id){
      if(st==="wordProblems"){
        const group=FULL_TEST_WORD_GROUPS[wordSlot++];band=fullTestWordBand(m.tier);requiredFamilies=fullTestWordFamilies(group,band);
      }
-     const picked=pickMockQuestion({st,band,requiredFamilies,globalSeen,familyCounts,lastFamily,seed,slot:qs.length});
+     const picked=pickMockQuestion({st,band,requiredFamilies,globalSeen,currentNearCounts,historicalExact,historicalNear,familyCounts,lastFamily,seed,slot:qs.length,variation,testId:id});
      if(!picked)throw new Error(`Practice Test ${id}: no valid ${st}/${band} question for required family ${requiredFamilies||"any"}`);
-     qs.push(picked);const fp=questionFingerprint(picked),fam=questionFamily(picked);globalSeen.add(fp);familyCounts.set(fam,(familyCounts.get(fam)||0)+1);lastFamily=fam;
+     qs.push(picked);
+     const fp=questionFingerprint(picked),fam=questionFamily(picked),near=questionSurfaceSimilarityKey(picked);
+     globalSeen.add(fp);familyCounts.set(fam,(familyCounts.get(fam)||0)+1);currentNearCounts.set(near,(currentNearCounts.get(near)||0)+1);lastFamily=fam;
    }
  }
- const out=shuffle(r,qs).map((q,i)=>({...q,testNo:i+1}));validateFullTestCoverage(out,id);return out;
+ const out=shuffle(r,qs).map((q,i)=>({...q,testNo:i+1}));
+ validateFullTestCoverage(out,id);return out;
+}
+function buildMockForNewAttempt(id){
+ const previous=priorPracticeTestQuestions();
+ const sameTestAttempts=(progress.attempts||[]).filter(a=>Number(a.testId)===Number(id)).length;
+ const variation=(progress.attempts||[]).length*37+sameTestAttempts*1009+1;
+ return {questions:buildMock(id,{variation,avoidQuestions:previous}),variation};
 }
 function startMock(id){
- const m=mocks.find(x=>x.id===Number(id)),qs=buildMock(id);state.test={id:m.id,tier:m.tier,questions:qs,index:0,answers:Array(51).fill(null),flags:Array(51).fill(false),questionTimes:Array(51).fill(0),qEnteredAt:Date.now(),started:Date.now(),duration:1200,interval:null,warmup:false,submitted:false};state.page="test";render();startTimer();
+ const m=mocks.find(x=>x.id===Number(id)),built=buildMockForNewAttempt(id),qs=built.questions;
+ state.test={id:m.id,tier:m.tier,variation:built.variation,questions:qs,index:0,answers:Array(51).fill(null),flags:Array(51).fill(false),questionTimes:Array(51).fill(0),qEnteredAt:Date.now(),started:Date.now(),duration:1200,interval:null,warmup:false,submitted:false};state.page="test";render();startTimer();
 }
 function startTimer(){
  clearInterval(state.test?.interval);
@@ -4922,7 +5202,7 @@ function testPage(){
  <div class="legend"><span><i></i> Not answered</span><span><i class="ans"></i> Answered</span><span><i class="flg"></i> Flagged</span></div>
  <div class="timerbox"><div class="timerbar"><span id="timerFill" class="timer-fill" style="width:${left/t.duration*100}%"></span></div><div id="timerText" class="time timer-text">${Math.floor(left/60)}:${String(left%60).padStart(2,"0")} remaining</div></div></aside>
  <main class="test-main"><div class="test-question">${renderQuestion(q,ans,false,"test")}<div class="smallnote" style="margin-top:12px">${q.kind==="multi"||q.kind==="visualMulti"?"Select exactly two answers.":q.kind==="numeric"?"Type your numeric answer.":""}</div></div>
- <div class="test-nav"><button class="btn secondary" onclick="prevQ()" ${t.index===0?'disabled':''}>‹ Previous Question</button><div class="middle"><button class="btn ghost" onclick="toggleFlag()">${t.flags[t.index]?"★ Flagged":"⚑ Flag Question"}</button><button class="btn ghost" onclick="confirmSubmit()">Submit Test</button></div><button class="btn" onclick="nextQ()">${t.index===t.questions.length-1?'Review / Submit':'Next Question ›'}</button></div></main></div></div>`;
+ <div class="test-nav"><button class="btn secondary" onclick="prevQ()" ${t.index===0?'disabled':''}>‹ Previous Question</button><div class="middle"><button class="btn ghost" onclick="toggleFlag()">${t.flags[t.index]?"★ Flagged":"⚑ Flag Question"}</button><button class="btn ghost mark-question-btn ${isQuestionMarked(q)?"saved":""}" onclick="markCurrentTestQuestion()">${isQuestionMarked(q)?"★ Saved":"☆ Save Question"}</button><button class="btn ghost" onclick="confirmSubmit()">Submit Test</button></div><button class="btn" onclick="nextQ()">${t.index===t.questions.length-1?'Review / Submit':'Next Question ›'}</button></div></main></div></div>`;
 }
 function setTestNumeric(v){state.test.answers[state.test.index]=v===''?null:v}
 function selectTest(i){
@@ -4956,31 +5236,65 @@ function calculateBreakdown(questions,answers){
 function submitTest(auto){
  const t=state.test;if(!t||t.submitted)return;recordCurrentTestQuestionTime();t.submitted=true;clearInterval(t.interval);
  const correct=t.questions.filter((q,i)=>isCorrect(q,t.answers[i])).length,attempted=t.answers.filter(x=>x!==null&&x!==undefined&&(!Array.isArray(x)||x.length>0)).length,elapsed=Math.min(t.duration,Math.floor((Date.now()-t.started)/1000)),by=calculateBreakdown(t.questions,t.answers),questionTimes=Array.isArray(t.questionTimes)?t.questionTimes.map(x=>Math.max(0,Number(x)||0)):Array(t.questions.length).fill(null);
- state.review={id:t.id,tier:t.tier,questions:t.questions,answers:t.answers,flags:t.flags,questionTimes,reviewOpen:false,reviewIndex:0,correct,attempted,by,auto,warmup:t.warmup,elapsed,date:new Date().toISOString()};
- if(!t.warmup){const attemptId=`${Date.now()}-${Math.floor(Math.random()*1000000)}`;progress.attempts.unshift({attemptId,testId:t.id,tier:t.tier,date:state.review.date,elapsed,correct,attempted,answers:t.answers,flags:t.flags,questionTimes,auto:!!auto,questionBankVersion:QUESTION_BANK_VERSION,questions:t.questions});saveProgress();state.review.savedAttemptId=attemptId;}
+ state.review={id:t.id,tier:t.tier,questions:t.questions,answers:t.answers,flags:t.flags,questionTimes,reviewOpen:false,reviewIndex:0,accuracyMode:"total",correct,attempted,by,auto,warmup:t.warmup,elapsed,date:new Date().toISOString()};
+ if(!t.warmup){const attemptId=`${Date.now()}-${Math.floor(Math.random()*1000000)}`;progress.attempts.unshift({attemptId,testId:t.id,tier:t.tier,date:state.review.date,elapsed,correct,attempted,answers:t.answers,flags:t.flags,questionTimes,auto:!!auto,questionBankVersion:QUESTION_BANK_VERSION,variation:t.variation??null,questions:t.questions});saveProgress();state.review.savedAttemptId=attemptId;}
  state.test=null;state.page="results";render();window.scrollTo(0,0);
 }
 function formatAttemptDate(iso){
- try{return new Date(iso).toLocaleString("en-AU",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch(e){return iso||"";}
+ try{
+   return new Date(iso).toLocaleString("en-AU",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"UTC"})+" UTC";
+ }catch(e){return (iso||"")+" UTC";}
 }
 async function openSavedAttempt(attemptId){
  const a=(progress.attempts||[]).find(x=>x.attemptId===attemptId);if(!a)return;
  if(!Array.isArray(a.questions)||a.questions.length!==51){await uiAlert("This result was saved before the fully audited question bank was introduced. Its score and timing are preserved, but an exact per-question review cannot be reconstructed safely because the question bank has since changed. Please retake the test for a fully preserved answer review.","Legacy result");return;}
  const qs=a.questions,by=calculateBreakdown(qs,a.answers);
- state.review={id:a.testId,tier:a.tier,questions:qs,answers:a.answers,flags:a.flags||Array(qs.length).fill(false),questionTimes:Array.isArray(a.questionTimes)?a.questionTimes:Array(qs.length).fill(null),reviewOpen:true,reviewIndex:0,correct:a.correct,attempted:a.attempted,by,auto:a.auto,warmup:false,elapsed:a.elapsed,date:a.date,savedAttemptId:a.attemptId,fromHistory:true};state.page="results";render();window.scrollTo(0,0);setTimeout(()=>document.getElementById("reviewZone")?.scrollIntoView({behavior:"smooth",block:"start"}),50);
+ state.review={id:a.testId,tier:a.tier,questions:qs,answers:a.answers,flags:a.flags||Array(qs.length).fill(false),questionTimes:Array.isArray(a.questionTimes)?a.questionTimes:Array(qs.length).fill(null),reviewOpen:true,reviewIndex:0,accuracyMode:"total",correct:a.correct,attempted:a.attempted,by,auto:a.auto,warmup:false,elapsed:a.elapsed,date:a.date,savedAttemptId:a.attemptId,fromHistory:true};state.page="results";render();window.scrollTo(0,0);setTimeout(()=>document.getElementById("reviewZone")?.scrollIntoView({behavior:"smooth",block:"start"}),50);
 }
 async function deleteAttempt(attemptId){const ok=await uiConfirm("This saved full-test attempt and its answer review will be permanently deleted.","Delete result?","Delete",true);if(!ok)return;progress.attempts=progress.attempts.filter(x=>x.attemptId!==attemptId);saveProgress();render();}
 async function deleteAllAttempts(){if(!(progress.attempts||[]).length)return;const ok=await uiConfirm("Every saved full practice-test result and answer review will be permanently deleted.","Delete all history?","Delete all",true);if(!ok)return;progress.attempts=[];saveProgress();render();}
+function plainQuestionPrompt(q){
+ return String(q?.prompt||"").replace(/<[^>]+>/g," ").replace(/&nbsp;/g," ").replace(/\\s+/g," ").trim();
+}
+function markedQuestionModal(){
+ if(!state.markedBrowserOpen)return "";
+ const items=progress.markedQuestions||[],selected=items.find(x=>x.id===state.markedSelectedId)||items[0]||null;
+ const grouped=["Numerical","Verbal","Abstract"].map(cat=>({cat,items:items.filter(x=>x.question?.category===cat)})).filter(g=>g.items.length);
+ return `<div class="marked-modal-root" role="dialog" aria-modal="true" aria-label="Marked Questions">
+  <div class="marked-modal">
+   <div class="marked-modal-head"><div><div class="kicker">Review library</div><h2>Marked Questions</h2></div><button class="drill-close" onclick="closeMarkedQuestions()">Close</button></div>
+   <div class="marked-modal-body">
+    <aside class="marked-list-pane">
+     ${grouped.length?grouped.map(g=>`<section class="marked-group"><h3>${g.cat}</h3>${g.items.map(x=>{
+       const q=x.question,type=SUBTYPES[q.subtype]?.name||q.subtype||"Question";
+       return `<button class="marked-list-item ${selected?.id===x.id?"active":""}" onclick="selectMarkedQuestion(decodeURIComponent('${encodeURIComponent(x.id)}'))"><b>${plainQuestionPrompt(q)}</b><span>${type} · ${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span></button>`;
+     }).join("")}</section>`).join(""):`<div class="history-empty" style="padding:18px"><h3>No marked questions yet</h3><p>Use the small “Save Question” button while practising to build this review list.</p></div>`}
+    </aside>
+    <main class="marked-detail-pane">
+     ${selected?renderMarkedQuestionDetail(selected):`<div class="marked-empty-detail"><h3>Select a question</h3><p>Choose a saved question from the list to open the full question and its feedback.</p></div>`}
+    </main>
+   </div>
+  </div>
+ </div>`;
+}
+function renderMarkedQuestionDetail(item){
+ const q=item.question,type=SUBTYPES[q.subtype]?.name||q.subtype||"Question";
+ return `<div class="marked-detail-head"><div><span class="badge">${q.category}</span> <span class="badge">${type}</span> <span class="badge diff-${q.difficulty}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span></div><button class="btn danger-btn small" onclick="removeMarkedQuestion(decodeURIComponent('${encodeURIComponent(item.id)}'))">Remove</button></div>
+ <div class="smallnote" style="margin:10px 0">Saved ${formatAttemptDate(item.markedAt)} · ${item.source||"Practice"}</div>
+ <div class="marked-full-question">${renderQuestion(q,q.answer,true,"review")}</div>
+ <div class="feedback good"><b>Method & answer</b>${q.explanation}<div class="difficulty-audit"><b>Difficulty rationale:</b> ${q.difficultyReason}</div></div>`;
+}
 function progressPage(){
- const a=progress.attempts||[],avg=a.length?Math.round(a.reduce((n,x)=>n+x.correct,0)/(a.length*51)*100):0,best=a.length?Math.max(...a.map(x=>x.correct)):0;
- return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Full-Test Progress</h2><p>Only completed 51-question practice tests are stored. Category drills and the 5-question familiarisation are not tracked.</p></div>${a.length?`<button class="btn danger-btn" onclick="deleteAllAttempts()">Delete all history</button>`:""}</div>
- <div class="result-grid"><div class="result-stat"><b>${a.length}</b><span>Saved test attempts</span></div><div class="result-stat"><b>${avg}%</b><span>Average score</span></div><div class="result-stat"><b>${best}/51</b><span>Best score</span></div><div class="result-stat"><b>${a.filter(x=>x.tier==="joa").length}</b><span>JOA-level attempts</span></div></div>
- ${a.length?`<div class="history-list">${a.map(historyItem).join("")}</div>`:`<div class="card history-empty"><h3>No full tests saved yet</h3><p>Complete any full 51-question practice test and its score, answers and right/wrong review will appear here.</p><button class="btn" onclick="go('mocks')">Choose a Practice Test</button></div>`}
- <div class="footer">History is stored in this browser's local storage for this HTML file. Clearing site/browser data or opening a separately copied file may remove or separate the history.</div></main>`;
+ const a=progress.attempts||[],marked=progress.markedQuestions||[],avg=a.length?Math.round(a.reduce((n,x)=>n+x.correct,0)/(a.length*51)*100):0,best=a.length?Math.max(...a.map(x=>x.correct)):0;
+ return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Review</h2><p>Reopen completed Practice Tests and keep a personal library of questions you want to revisit.</p></div>${a.length?`<button class="btn danger-btn" onclick="deleteAllAttempts()">Delete all test history</button>`:""}</div>
+ <section class="card marked-feature"><div><div class="kicker">Personal question library</div><h3>Marked Questions</h3><p>Save useful or difficult questions while taking a Practice Test or Category Practice drill, then review the full question and feedback here.</p></div><div class="marked-feature-action"><b>${marked.length}</b><span>saved</span><button class="btn" onclick="openMarkedQuestions()">Open Marked Questions</button></div></section>
+ <div class="result-grid"><div class="result-stat"><b>${a.length}</b><span>Saved test attempts</span></div><div class="result-stat"><b>${avg}%</b><span>Average total score</span></div><div class="result-stat"><b>${best}/51</b><span>Best score</span></div><div class="result-stat"><b>${a.filter(x=>x.tier==="joa").length}</b><span>JOA-level attempts</span></div></div>
+ ${a.length?`<div class="history-list">${a.map(historyItem).join("")}</div>`:`<div class="card history-empty"><h3>No full tests saved yet</h3><p>Complete any full 51-question Practice Test and its score, answers and review will appear here.</p><button class="btn" onclick="go('mocks')">Choose a Practice Test</button></div>`}
+ <div class="footer">Review data is stored in this browser's local storage for this HTML file. Clearing site/browser data or opening a separately copied file may remove or separate the history.</div>${markedQuestionModal()}</main>`;
 }
 function historyItem(a){
- const info=MOCK_TIER_INFO[a.tier]||{label:"Practice test"},acc=a.attempted?Math.round(a.correct/a.attempted*100):0;
- return `<div class="card history-item"><div class="history-top"><div><div class="history-title">Practice Test ${a.testId} <span class="tier-pill ${a.tier}">${info.label}</span></div><div class="history-meta">${formatAttemptDate(a.date)}${a.auto?" · time expired":" · submitted manually"}</div></div><div class="history-score">${a.correct}/51</div></div><div class="history-stats"><span>Attempted ${a.attempted}/51</span><span>Accuracy on attempted ${acc}%</span><span>Time ${Math.floor(a.elapsed/60)}:${String(a.elapsed%60).padStart(2,"0")}</span></div><div class="history-actions"><button class="btn small" onclick="openSavedAttempt('${a.attemptId}')">${Array.isArray(a.questions)?"Open answer review":"Legacy result info"}</button><button class="btn small danger-btn" onclick="deleteAttempt('${a.attemptId}')">Delete this result</button></div></div>`;
+ const info=MOCK_TIER_INFO[a.tier]||{label:"Practice test"},acc=a.attempted?Math.round(a.correct/a.attempted*100):0,total=Math.round(a.correct/51*100);
+ return `<div class="card history-item"><div class="history-top"><div><div class="history-title">Practice Test ${a.testId} <span class="tier-pill ${a.tier}">${info.label}</span></div><div class="history-meta">${formatAttemptDate(a.date)}${a.auto?" · time expired":" · submitted manually"}</div></div><div class="history-score">${a.correct}/51</div></div><div class="history-stats"><span>Attempted ${a.attempted}/51</span><span>Total score ${total}%</span><span>Attempted-only ${acc}%</span><span>Time ${Math.floor(a.elapsed/60)}:${String(a.elapsed%60).padStart(2,"0")}</span></div><div class="history-actions"><button class="btn small" onclick="openSavedAttempt('${a.attemptId}')">${Array.isArray(a.questions)?"Open answer review":"Legacy result info"}</button><button class="btn small danger-btn" onclick="deleteAttempt('${a.attemptId}')">Delete this result</button></div></div>`;
 }
 
 function reviewAnswerState(r,i){const a=r.answers[i],unanswered=a===null||a===undefined||(Array.isArray(a)&&a.length===0);if(unanswered)return "unanswered";return isCorrect(r.questions[i],a)?"correct":"incorrect"}
@@ -4989,13 +5303,30 @@ function formatFullReviewTime(r,i){const t=Array.isArray(r.questionTimes)?r.ques
 function renderFullTestAnswerReview(){
  const r=state.review;if(!r||!r.reviewOpen)return "";const i=Math.max(0,Math.min(r.questions.length-1,r.reviewIndex||0)),q=r.questions[i],ans=r.answers[i],status=reviewAnswerState(r,i),good=status==="correct",statusLabel=status==="correct"?"Correct":status==="incorrect"?"Incorrect":"Unanswered",statusColor=status==="correct"?"var(--good)":status==="incorrect"?"var(--bad)":"#8a6900";
  const buttons=r.questions.map((_,n)=>`<button class="${reviewStatusClass(r,n)}" onclick="setFullReviewQuestion(${n})">${n+1}</button>`).join("");
- return `<section id="fullAnswerReview" class="full-review"><div class="full-review-title"><div><div class="kicker">Answer review</div><h2>Practice Test ${r.id}</h2></div><button class="btn ghost small" onclick="hideFullReview()">Hide review</button></div><div class="review-mobile-status-wrap"><div class="smallnote" style="font-weight:900;margin-bottom:5px">Question Status</div><div class="review-mobile-status">${buttons}</div></div><div class="review-test-body"><aside class="review-test-side"><b style="font-size:12px">Question Status</b><div class="review-status-grid">${buttons}</div><div class="review-legend"><span><i style="background:#cfeadd;border:1px solid #86c8a8"></i> Correct</span><span><i style="background:#f5d7da;border:1px solid #df9aa1"></i> Incorrect</span><span><i style="background:#f8e8ad;border:1px solid #dcc36b"></i> Unanswered</span></div></aside><main class="review-main"><div class="review-question-meta"><div class="qmeta"><div class="left"><span class="badge">${i+1}</span><span class="badge">${q.category}</span><span class="badge diff-${q.difficulty}" title="${q.difficultyReason||""}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span>${r.flags?.[i]?'<span class="badge">Flagged</span>':""}</div></div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="review-question-time">Time spent: ${formatFullReviewTime(r,i)}</span><b style="color:${statusColor}">${statusLabel}</b></div></div><div class="test-question">${renderQuestion(q,ans,true,"review")}</div><div class="feedback ${good?"good":"bad"} review-feedback"><b>${statusLabel}</b>${q.explanation}<div class="difficulty-audit"><b>Difficulty rationale:</b> ${q.difficultyReason}</div></div><div class="review-nav"><button class="btn secondary" onclick="setFullReviewQuestion(${i-1})" ${i===0?"disabled":""}>‹ Previous Question</button><button class="btn" onclick="setFullReviewQuestion(${i+1})" ${i===r.questions.length-1?"disabled":""}>Next Question ›</button></div></main></div></section>`;
+ return `<section id="fullAnswerReview" class="full-review"><div class="full-review-title"><div><div class="kicker">Answer review</div><h2>Practice Test ${r.id}</h2></div><button class="btn ghost small" onclick="hideFullReview()">Hide review</button></div><div class="review-mobile-status-wrap"><div class="smallnote" style="font-weight:900;margin-bottom:5px">Question Status</div><div class="review-mobile-status">${buttons}</div></div><div class="review-test-body"><aside class="review-test-side"><b style="font-size:12px">Question Status</b><div class="review-status-grid">${buttons}</div><div class="review-legend"><span><i style="background:#cfeadd;border:1px solid #86c8a8"></i> Correct</span><span><i style="background:#f5d7da;border:1px solid #df9aa1"></i> Incorrect</span><span><i style="background:#f8e8ad;border:1px solid #dcc36b"></i> Unanswered</span></div></aside><main class="review-main"><div class="review-question-meta"><div class="qmeta"><div class="left"><span class="badge">${i+1}</span><span class="badge">${q.category}</span><span class="badge diff-${q.difficulty}" title="${q.difficultyReason||""}">${q.difficulty[0].toUpperCase()+q.difficulty.slice(1)}</span>${r.flags?.[i]?'<span class="badge">Flagged</span>':""}</div></div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="review-question-time">Time spent: ${formatFullReviewTime(r,i)}</span><button class="btn ghost small mark-question-btn ${isQuestionMarked(q)?"saved":""}" onclick="markCurrentReviewQuestion()">${isQuestionMarked(q)?"★ Saved":"☆ Save Question"}</button><b style="color:${statusColor}">${statusLabel}</b></div></div><div class="test-question">${renderQuestion(q,ans,true,"review")}</div><div class="feedback ${good?"good":"bad"} review-feedback"><b>${statusLabel}</b>${q.explanation}<div class="difficulty-audit"><b>Difficulty rationale:</b> ${q.difficultyReason}</div></div><div class="review-nav"><button class="btn secondary" onclick="setFullReviewQuestion(${i-1})" ${i===0?"disabled":""}>‹ Previous Question</button><button class="btn" onclick="setFullReviewQuestion(${i+1})" ${i===r.questions.length-1?"disabled":""}>Next Question ›</button></div></main></div></section>`;
 }
 function setFullReviewQuestion(i){const r=state.review;if(!r||i<0||i>=r.questions.length)return;r.reviewIndex=i;const zone=document.getElementById("reviewZone");if(zone)zone.innerHTML=renderFullTestAnswerReview()}
 function hideFullReview(){if(!state.review)return;state.review.reviewOpen=false;const zone=document.getElementById("reviewZone");if(zone)zone.innerHTML=""}
+function setReviewAccuracyMode(mode){
+ const r=state.review;if(!r)return;
+ const y=window.scrollY||0;r.accuracyMode=mode==="attempted"?"attempted":"total";render();
+ setTimeout(()=>window.scrollTo(0,y),0);
+}
+function reviewAccuracyPercent(correct,total,attempted,mode){
+ const denom=mode==="attempted"?attempted:total;
+ return denom?Math.round(correct/denom*100):0;
+}
 function resultsPage(){
- const r=state.review; const accuracy=r.attempted?Math.round(r.correct/r.attempted*100):0;
- return `${currentPageNav()}<main class="container"><div class="card result-card"><div class="kicker">${r.warmup?"Familiarisation complete":`Practice Test ${r.id} · ${MOCK_TIER_INFO[r.tier]?.label||"Full test"}`}</div><h2>${r.correct}/${r.questions.length} correct</h2>${!r.warmup&&r.date?`<div class="smallnote">${r.fromHistory?"Saved attempt":"Saved to Progress"} · ${formatAttemptDate(r.date)}</div>`:""}<div class="result-grid"><div class="result-stat"><b>${r.correct}</b><span>Correct</span></div><div class="result-stat"><b>${r.attempted}</b><span>Attempted</span></div><div class="result-stat"><b>${accuracy}%</b><span>Accuracy on attempted</span></div><div class="result-stat"><b>${Math.floor(r.elapsed/60)}:${String(r.elapsed%60).padStart(2,"0")}</b><span>Elapsed</span></div></div>${r.warmup?'<div class="notice blue">The real scored JOA follows the official familiarisation period. You can now start a full 20-minute practice test.</div>':`<div class="notice"><b>Interpret cautiously:</b> this trainer does not know ADF occupational cut-scores and does not issue a pass/fail prediction. Use the result to diagnose speed, accuracy and weak question families.</div><table class="breakdown"><thead><tr><th>Family</th><th>Correct</th><th>Attempted</th><th>Accuracy attempted</th></tr></thead><tbody>${Object.entries(r.by).map(([k,v])=>`<tr><td>${k}</td><td>${v.correct}/${v.total}</td><td>${v.attempted}/${v.total}</td><td>${v.attempted?Math.round(v.correct/v.attempted*100):0}%</td></tr>`).join("")}</tbody></table>`}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn" onclick="showReview()">Review answers</button><button class="btn secondary" onclick="go('mocks')">Back to practice tests</button></div></div><div id="reviewZone">${r.reviewOpen?renderFullTestAnswerReview():""}</div></main>`;
+ const r=state.review,mode=r.accuracyMode||"total";
+ const accuracy=reviewAccuracyPercent(r.correct,r.questions.length,r.attempted,mode);
+ const modeLabel=mode==="total"?"Total score":"Accuracy on attempted";
+ const colLabel=mode==="total"?"Total %":"Accuracy attempted";
+ return `${currentPageNav()}<main class="container"><div class="card result-card"><div class="kicker">${r.warmup?"Familiarisation complete":`Practice Test ${r.id} · ${MOCK_TIER_INFO[r.tier]?.label||"Full test"}`}</div><h2>${r.correct}/${r.questions.length} correct</h2>${!r.warmup&&r.date?`<div class="smallnote">${r.fromHistory?"Saved attempt":"Saved to Review"} · ${formatAttemptDate(r.date)}</div>`:""}
+ <div class="accuracy-mode-row"><span>Percentage display</span><div class="accuracy-mode-toggle"><button class="${mode==="total"?"active":""}" onclick="setReviewAccuracyMode('total')">Total %</button><button class="${mode==="attempted"?"active":""}" onclick="setReviewAccuracyMode('attempted')">Attempted-only %</button></div></div>
+ <div class="result-grid"><div class="result-stat"><b>${r.correct}</b><span>Correct</span></div><div class="result-stat"><b>${r.attempted}</b><span>Attempted</span></div><div class="result-stat"><b>${accuracy}%</b><span>${modeLabel}</span></div><div class="result-stat"><b>${Math.floor(r.elapsed/60)}:${String(r.elapsed%60).padStart(2,"0")}</b><span>Elapsed</span></div></div>
+ ${r.warmup?'<div class="notice blue">The real scored JOA follows the official familiarisation period. You can now start a full 20-minute practice test.</div>':`<div class="notice"><b>Interpret cautiously:</b> this trainer does not know ADF occupational cut-scores and does not issue a pass/fail prediction. Use the result to diagnose speed, accuracy and weak question families.</div>
+ <table class="breakdown"><thead><tr><th>Family</th><th>Correct</th><th>Attempted</th><th>${colLabel}</th></tr></thead><tbody>${Object.entries(r.by).map(([k,v])=>`<tr><td>${k}</td><td>${v.correct}/${v.total}</td><td>${v.attempted}/${v.total}</td><td>${reviewAccuracyPercent(v.correct,v.total,v.attempted,mode)}%</td></tr>`).join("")}</tbody></table>`}
+ <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn" onclick="showReview()">Review answers</button><button class="btn secondary" onclick="go('mocks')">Back to practice tests</button></div></div><div id="reviewZone">${r.reviewOpen?renderFullTestAnswerReview():""}</div></main>`;
 }
 function showReview(){const r=state.review;if(!r)return;r.reviewOpen=true;if(!Number.isInteger(r.reviewIndex))r.reviewIndex=0;const zone=document.getElementById("reviewZone");if(zone)zone.innerHTML=renderFullTestAnswerReview();setTimeout(()=>document.getElementById("fullAnswerReview")?.scrollIntoView({behavior:"smooth",block:"start"}),30)}
 
@@ -5003,7 +5334,7 @@ function showReview(){const r=state.review;if(!r)return;r.reviewOpen=true;if(!Nu
 const MENTAL_OPS={add:{label:"Addition",symbol:"+"},sub:{label:"Subtraction",symbol:"−"},mul:{label:"Multiplication",symbol:"×"},div:{label:"Division",symbol:"÷"}};
 function mentalPage(){
  const s=state.mentalSetup,usesTables=s.ops.includes("mul")||s.ops.includes("div");
- const tableText=s.tableMode==="all"?"All tables 1–12":s.tableMode==="single"?`${s.singleTable} times table`:`Custom: ${s.selectedTables.join(", ")}`;
+ const tableText=s.tableMode==="all"?"All tables 1–12":s.tableMode==="single"?`${s.singleTable} times table`:`Custom: ${s.selectedTables.join(", ")}${s.selectedFactorsOnly?" · selected factors only":""}`;
  return `${currentPageNav()}<main class="container"><div class="section-head"><div><h2>Mental Math</h2><p>Build fast arithmetic recall for numerical reasoning and general test pace.</p></div></div><div class="mental-layout">
  <section class="card mental-card"><h3>1. Operations</h3><p class="section-copy">Choose one operation, any combination, or Quick Hit for all four.</p><div class="mental-op-grid">${Object.entries(MENTAL_OPS).map(([key,v])=>`<button class="mental-op ${s.ops.includes(key)?"active":""}" onclick="toggleMentalOp('${key}')">${v.label}</button>`).join("")}<button class="mental-op quick ${s.ops.length===4?"active":""}" onclick="setMentalAllOps()">All</button></div></section>
  <section class="card mental-card"><h3>2. Times tables</h3><p class="section-copy">${usesTables?"Multiplication and division use the selected tables. Addition and subtraction always use number facts based on 1–12.":"Times-table targeting becomes active when Multiplication or Division is selected."}</p><div class="mental-choice-row" style="${usesTables?"":"opacity:.48;pointer-events:none"}"><button class="mental-choice ${s.tableMode==="all"?"active":""}" onclick="setMentalTableMode('all')">All 1–12</button><button class="mental-choice ${s.tableMode==="single"?"active":""}" onclick="setMentalTableMode('single')">Specific table</button><button class="mental-choice ${s.tableMode==="custom"?"active":""}" onclick="openMentalTablePicker()">Choose tables…</button></div>${usesTables&&s.tableMode==="single"?`<div class="mental-setting-row" style="margin-top:12px"><div class="field"><label>Times table</label><select onchange="state.mentalSetup.singleTable=+this.value">${Array.from({length:12},(_,i)=>i+1).map(n=>`<option value="${n}" ${s.singleTable===n?"selected":""}>${n} times table</option>`).join("")}</select></div></div>`:""}<div class="mental-table-summary">${usesTables?tableText:"Not currently used"}</div></section>
@@ -5014,15 +5345,64 @@ function toggleMentalOp(op){const ops=state.mentalSetup.ops;state.mentalSetup.op
 function setMentalAllOps(){state.mentalSetup.ops=["add","sub","mul","div"];render();}
 function setMentalTableMode(mode){state.mentalSetup.tableMode=mode;render();}
 function setMentalLengthMode(mode){state.mentalSetup.lengthMode=mode;render();}
-function openMentalTablePicker(){state.mentalPickerDraft=state.mentalSetup.tableMode==="custom"?[...(state.mentalSetup.selectedTables||[])]:[];state.mentalPickerOpen=true;render();}
+function openMentalTablePicker(){
+ state.mentalPickerDraft=state.mentalSetup.tableMode==="custom"?[...(state.mentalSetup.selectedTables||[])]:[];
+ state.mentalPickerSelectedFactorsOnly=!!state.mentalSetup.selectedFactorsOnly;
+ state.mentalPickerOpen=true;render();
+}
 function toggleMentalTablePick(n){const a=state.mentalPickerDraft;state.mentalPickerDraft=a.includes(n)?a.filter(x=>x!==n):[...a,n].sort((x,y)=>x-y);render();}
 function setMentalPickerAll(on){state.mentalPickerDraft=on?Array.from({length:12},(_,i)=>i+1):[];render();}
-async function applyMentalTablePicker(){if(!state.mentalPickerDraft.length){await uiAlert("Choose at least one times table.","Choose tables");return;}state.mentalSetup.selectedTables=[...state.mentalPickerDraft];state.mentalSetup.tableMode="custom";state.mentalPickerOpen=false;render();}
+function toggleMentalSelectedFactorsOnly(){state.mentalPickerSelectedFactorsOnly=!state.mentalPickerSelectedFactorsOnly;render();}
+async function applyMentalTablePicker(){
+ if(!state.mentalPickerDraft.length){await uiAlert("Choose at least one times table.","Choose tables");return;}
+ state.mentalSetup.selectedTables=[...state.mentalPickerDraft];
+ state.mentalSetup.selectedFactorsOnly=!!state.mentalPickerSelectedFactorsOnly;
+ state.mentalSetup.tableMode="custom";state.mentalPickerOpen=false;render();
+}
 function cancelMentalTablePicker(){state.mentalPickerOpen=false;render();}
-function renderMentalTablePicker(){return `<div class="ui-modal-root" style="z-index:210"><div class="ui-modal-card" role="dialog" aria-modal="true" aria-label="Choose times tables"><div class="ui-modal-head"><h3>Choose times tables</h3></div><div class="ui-modal-body"><div class="smallnote">Select any combination from 1 to 12.</div><div class="table-picker-grid">${Array.from({length:12},(_,i)=>i+1).map(n=>`<button class="table-pick ${state.mentalPickerDraft.includes(n)?"active":""}" onclick="toggleMentalTablePick(${n})">${n}×</button>`).join("")}</div><div class="table-picker-actions"><div><button class="btn ghost small" onclick="setMentalPickerAll(true)">Select all</button> <button class="btn ghost small" onclick="setMentalPickerAll(false)">Clear</button></div><div><button class="btn ghost small" onclick="cancelMentalTablePicker()">Cancel</button> <button class="btn small" onclick="applyMentalTablePicker()">Apply</button></div></div></div></div></div>`;}
+function renderMentalTablePicker(){return `<div class="ui-modal-root" style="z-index:210"><div class="ui-modal-card" role="dialog" aria-modal="true" aria-label="Choose times tables"><div class="ui-modal-head"><h3>Choose times tables</h3></div><div class="ui-modal-body"><div class="table-picker-intro"><div class="smallnote">Select any combination from 1 to 12.</div><label class="mini-switch-row"><span>Selected factors only</span><button type="button" class="mini-switch ${state.mentalPickerSelectedFactorsOnly?"on":""}" aria-pressed="${state.mentalPickerSelectedFactorsOnly}" onclick="toggleMentalSelectedFactorsOnly()"><span></span></button></label></div><div class="smallnote selected-factor-help">${state.mentalPickerSelectedFactorsOnly?"Both factors must come from your selected tables. Example: with 3, 4, 5 and 6 selected, 4×6 is allowed but 4×12 is not.":"Standard table targeting: one factor is from the selected table(s), while the other may be any value from 1–12."}</div><div class="table-picker-grid">${Array.from({length:12},(_,i)=>i+1).map(n=>`<button class="table-pick ${state.mentalPickerDraft.includes(n)?"active":""}" onclick="toggleMentalTablePick(${n})">${n}×</button>`).join("")}</div><div class="table-picker-actions"><div><button class="btn ghost small" onclick="setMentalPickerAll(true)">Select all</button> <button class="btn ghost small" onclick="setMentalPickerAll(false)">Clear</button></div><div><button class="btn ghost small" onclick="cancelMentalTablePicker()">Cancel</button> <button class="btn small" onclick="applyMentalTablePicker()">Apply</button></div></div></div></div></div>`;}
 function activeMentalTables(){const s=state.mentalSetup;if(s.tableMode==="single")return [s.singleTable];if(s.tableMode==="custom")return s.selectedTables.length?[...s.selectedTables]:Array.from({length:12},(_,i)=>i+1);return Array.from({length:12},(_,i)=>i+1);}
-function generateMentalQuestion(r,ops,tables){const op=pick(r,ops);if(op==="add"){const a=ri(r,1,12),b=ri(r,1,12);return {op,prompt:`${a} + ${b}`,answer:a+b};}if(op==="sub"){const a=ri(r,1,12),b=ri(r,1,12),total=a+b;return {op,prompt:`${total} − ${a}`,answer:b};}if(op==="mul"){const a=pick(r,tables),b=ri(r,1,12);return {op,prompt:`${a} × ${b}`,answer:a*b};}const divisor=pick(r,tables),quotient=ri(r,1,12);return {op,prompt:`${divisor*quotient} ÷ ${divisor}`,answer:quotient};}
-function startMentalMath(){const s=state.mentalSetup,seed=(Date.now()>>>0)^Math.floor(Math.random()*0xffffffff),r=rng(seed),config={ops:[...s.ops],tables:activeMentalTables(),lengthMode:s.lengthMode,questionCount:s.questionCount,durationSeconds:s.durationSeconds};const qs=config.lengthMode==="questions"?Array.from({length:config.questionCount},()=>generateMentalQuestion(r,config.ops,config.tables)):[generateMentalQuestion(r,config.ops,config.tables)];state.mental={phase:"questions",config,r,questions:qs,answers:[],times:[],index:0,currentValue:"",started:Date.now(),qStart:Date.now(),endAt:config.lengthMode==="time"?Date.now()+config.durationSeconds*1000:null,interval:null,showIncorrect:false};render();bindMentalKeypad();if(config.lengthMode==="time")startMentalTimer();focusMentalInput();}
+function mentalFactKey(q){
+ if(!q)return "";
+ if(q.op==="mul"||q.op==="div"){
+   const f=[Number(q.factorA),Number(q.factorB)].sort((a,b)=>a-b);return `muldiv|${f[0]}|${f[1]}`;
+ }
+ if(q.op==="add"||q.op==="sub"){
+   const f=[Number(q.factorA),Number(q.factorB)].sort((a,b)=>a-b);return `addsub|${f[0]}|${f[1]}`;
+ }
+ return q.prompt;
+}
+function generateMentalQuestion(r,ops,tables,selectedFactorsOnly=false){
+ const op=pick(r,ops);
+ if(op==="add"){
+   const a=ri(r,1,12),b=ri(r,1,12);return {op,factorA:a,factorB:b,prompt:`${a} + ${b}`,answer:a+b};
+ }
+ if(op==="sub"){
+   const a=ri(r,1,12),b=ri(r,1,12),total=a+b;return {op,factorA:a,factorB:b,prompt:`${total} − ${a}`,answer:b};
+ }
+ if(op==="mul"){
+   const a=pick(r,tables),b=selectedFactorsOnly?pick(r,tables):ri(r,1,12);return {op,factorA:a,factorB:b,prompt:`${a} × ${b}`,answer:a*b};
+ }
+ const divisor=pick(r,tables),quotient=selectedFactorsOnly?pick(r,tables):ri(r,1,12);
+ return {op,factorA:divisor,factorB:quotient,prompt:`${divisor*quotient} ÷ ${divisor}`,answer:quotient};
+}
+function generateMentalQuestionAvoiding(r,ops,tables,selectedFactorsOnly,previous){
+ let q=null;
+ for(let attempt=0;attempt<40;attempt++){
+   q=generateMentalQuestion(r,ops,tables,selectedFactorsOnly);
+   if(!previous||mentalFactKey(q)!==mentalFactKey(previous))return q;
+ }
+ return q;
+}
+function startMentalMath(){
+ const s=state.mentalSetup,seed=(Date.now()>>>0)^Math.floor(Math.random()*0xffffffff),r=rng(seed);
+ const config={ops:[...s.ops],tables:activeMentalTables(),selectedFactorsOnly:s.tableMode==="custom"&&!!s.selectedFactorsOnly,lengthMode:s.lengthMode,questionCount:s.questionCount,durationSeconds:s.durationSeconds};
+ const qs=[];
+ if(config.lengthMode==="questions"){
+   for(let i=0;i<config.questionCount;i++)qs.push(generateMentalQuestionAvoiding(r,config.ops,config.tables,config.selectedFactorsOnly,qs.at(-1)));
+ }else qs.push(generateMentalQuestionAvoiding(r,config.ops,config.tables,config.selectedFactorsOnly,null));
+ state.mental={phase:"questions",config,r,questions:qs,answers:[],times:[],index:0,currentValue:"",started:Date.now(),qStart:Date.now(),endAt:config.lengthMode==="time"?Date.now()+config.durationSeconds*1000:null,interval:null,showIncorrect:false};render();bindMentalKeypad();if(config.lengthMode==="time")startMentalTimer();focusMentalInput();
+}
 function renderMentalSessionModal(){const m=state.mental;return `<div class="drill-modal" role="dialog" aria-modal="true" aria-label="Mental Math session"><div class="drill-dialog"><div class="drill-modal-head"><div><strong>Mental Math</strong><div class="smallnote">${m.phase==="summary"?"Session complete":MENTAL_OPS[m.questions[m.index]?.op]?.label||"Practice"}</div></div><button class="drill-close" onclick="${m.phase==="summary"?"closeMentalSummary()":"exitMentalMath()"}">${m.phase==="summary"?"Close":"Exit"}</button></div>${m.phase==="summary"?renderMentalSummary():renderMentalQuestion()}</div></div>`;}
 function mentalTimeLeft(){if(!state.mental?.endAt)return 0;return Math.max(0,Math.ceil((state.mental.endAt-Date.now())/1000));}
 function formatClockSeconds(seconds){const s=Math.max(0,Math.ceil(seconds));return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;}
@@ -5117,7 +5497,7 @@ function submitMentalAnswer(){
    if(m.index>=m.questions.length-1){finishMentalMath();return;}
    m.index++;
  }else{
-   m.questions.push(generateMentalQuestion(m.r,m.config.ops,m.config.tables));
+   m.questions.push(generateMentalQuestionAvoiding(m.r,m.config.ops,m.config.tables,m.config.selectedFactorsOnly,m.questions.at(-1)));
    m.index++;
  }
 
@@ -5160,7 +5540,7 @@ function sourcesPage(){
  <section class="section"><h2>Question-family fidelity map</h2><table class="fidelity-table"><thead><tr><th>Training module</th><th>Fidelity</th><th>Why</th></tr></thead><tbody>
  ${PRACTICE_BANK_SUBTYPES.map(k=>[k,SUBTYPES[k]]).map(([k,v])=>`<tr><td>${v.cat} — ${v.name}</td><td><span class="badge ${v.fidelity.toLowerCase()}">${v.fidelity}</span></td><td>${v.basis}</td></tr>`).join("")}
  </tbody></table></section>
- <section class="card section" style="padding:20px"><h3>Question-bank QA</h3><p>This build uses a finite category-practice bank of <b>3,840 questions</b> (80 deterministic slots per difficulty band for each active question subtype) plus 18 fixed 51-question practice tests. The full bank is exhaustively machine-checked before release for answer presence, selection counts, arithmetic consistency, matrix-rule ambiguity, correct-vs-incorrect visual distinguishability, clipping, reference/starting figures only where the prompt genuinely requires one, and deterministic regeneration. Semantic verbal templates are also manually reviewed. New completed full-test attempts save an exact snapshot of their 51 questions so later bank updates cannot change an old answer review.</p></section><section class="card section" style="padding:20px"><h3>Difficulty calibration</h3><p>Easy / Medium / Hard badges are assigned by the <b>actual construction of each generated item</b>. Easy remains one-rule or immediately classifiable. Medium has been recalibrated upward to favour two-rule, reverse-operation, interleaved, conversion or two-attribute reasoning. Hard now more consistently uses layered dependencies, multi-stage numerical work, conditional/logical traps, multiple simultaneous visual attributes, close reflection/rotation distractors or changing/interleaved rule systems. A regression guard still explicitly classifies simple A-B-A-B number alternation as Easy.</p></section><section class="card section" style="padding:20px"><h3>What this tool does not claim</h3><p>It does not claim to reproduce proprietary JOA questions, exact scoring, role cut-scores, adaptive behaviour, official item difficulty labels or an unpublished official section split. ADF Mentors describes a score above 30/51 as a strong practice result in its own simulation material, but this trainer deliberately does <b>not</b> turn that secondary-source statement into a pass mark, occupational cut-score or official ADF benchmark. “Same difficulty as JOA” is therefore a best-match simulation tier based on the official public examples and current Australian JOA-focused descriptions, not an ADF-issued difficulty rating.</p></section>
+ <section class="card section" style="padding:20px"><h3>Question-bank QA</h3><p>This build uses a finite category-practice bank of <b>3,840 questions</b> (80 deterministic slots per difficulty band for each active question subtype) plus 18 audited Practice Test slots whose new attempts preferentially avoid questions already seen in saved test history. The full bank is exhaustively machine-checked before release for answer presence, selection counts, arithmetic consistency, matrix-rule ambiguity, correct-vs-incorrect visual distinguishability, clipping, reference/starting figures only where the prompt genuinely requires one, and deterministic regeneration. Semantic verbal templates are also manually reviewed. New completed full-test attempts save an exact snapshot of their 51 questions so later bank updates cannot change an old answer review.</p></section><section class="card section" style="padding:20px"><h3>Difficulty calibration</h3><p>Easy / Medium / Hard badges are assigned by the <b>actual construction of each generated item</b>. Easy remains one-rule or immediately classifiable. Medium has been recalibrated upward to favour two-rule, reverse-operation, interleaved, conversion or two-attribute reasoning. Hard now more consistently uses layered dependencies, multi-stage numerical work, conditional/logical traps, multiple simultaneous visual attributes, close reflection/rotation distractors or changing/interleaved rule systems. A regression guard still explicitly classifies simple A-B-A-B number alternation as Easy.</p></section><section class="card section" style="padding:20px"><h3>What this tool does not claim</h3><p>It does not claim to reproduce proprietary JOA questions, exact scoring, role cut-scores, adaptive behaviour, official item difficulty labels or an unpublished official section split. ADF Mentors describes a score above 30/51 as a strong practice result in its own simulation material, but this trainer deliberately does <b>not</b> turn that secondary-source statement into a pass mark, occupational cut-score or official ADF benchmark. “Same difficulty as JOA” is therefore a best-match simulation tier based on the official public examples and current Australian JOA-focused descriptions, not an ADF-issued difficulty rating.</p></section>
  </main>`;
 }
 function render(){
